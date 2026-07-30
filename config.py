@@ -84,12 +84,17 @@ INSTRUCTIONS = {
 # Axis-matched placebos: same topic, same register, similar length, differing from
 # the real instruction only in its direction along that one axis.
 #
-# These exist because contrasting against a *no-instruction* prompt does not work.
-# Measured on Llama-3.2-3B, the structural and lexical vectors came out 0.997
-# collinear with near-identical norms (38.444 vs 38.447), because the delta was
-# dominated by "the prompt is longer" rather than by what the instruction said.
-# Differencing two instructions of comparable length cancels that shared component
-# and leaves the part specific to the axis.
+# These exist because contrasting against a *no-instruction* prompt entangles the
+# axes. Part of the delta is then caused by one prompt being shorter, and that part
+# is common to both axes. Re-measured on Llama-3.2-3B over the same 256 texts with
+# a correct recorder: no-instruction contrast gives mean absolute axis cosine
+# 0.542, axis-matched placebos give 0.223. Differencing two instructions of
+# comparable length cancels the shared length component and leaves the part
+# specific to the axis.
+#
+# The 0.997 previously recorded here was measured before the recorder was fixed and
+# was an artifact of that defect, as was the claim that the two norms matched.
+# Real per-axis mean norms under the no-instruction contrast are 8.95 and 7.33.
 PLACEBOS = {
     "structural": (
         "Keep the original sentence structure and sentence length exactly as they are."
@@ -134,8 +139,6 @@ DEFAULT_SITE_KIND = "resid_post"
 # should make text *harder*, and a vector that simplifies in both directions is
 # not measuring what it claims to.
 SWEEP_ALPHAS = (-1.0, -0.5, 0.25, 0.5, 0.75, 1.0, 1.25, 1.5)
-SWEEP_LAYERS = None  # None = every layer
-SWEEP_N_TEXTS = 48  # held-out complex texts scored per (layer, alpha) cell
 
 # The full grid (every layer x every alpha x both axes) is around a day of wall
 # clock even batched, and most of it is spent on layers that do nothing. Stage 1
@@ -166,7 +169,6 @@ CALIBRATE_MAX_ITERS = 8
 
 MAX_NEW_TOKENS = 320
 DO_SAMPLE = False
-TEMPERATURE = 0.0
 SEED = 0
 
 # Batched generation is what makes the sweep tractable: unbatched, a full

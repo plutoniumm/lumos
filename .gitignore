@@ -11,3 +11,11 @@ vectors/
 results/
 *.safetensors
 *.aria2
+
+# latex build artifacts
+*Notes.bib
+*.synctex.gz
+*.fdb_latexmk
+*.fls
+
+docs/
