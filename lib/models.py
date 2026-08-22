@@ -1,4 +1,4 @@
-"""Model loading and uniform decoder-layer access across Llama and Gemma-3n."""
+"""Model loading and uniform decoder-layer access across Llama, Gemma-3n, Gemma-4."""
 
 from __future__ import annotations
 
@@ -8,18 +8,40 @@ from pathlib import Path
 
 import torch
 from torch import nn
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import (
+    MODEL_FOR_CAUSAL_LM_MAPPING,
+    MODEL_FOR_IMAGE_TEXT_TO_TEXT_MAPPING,
+    AutoConfig,
+    AutoModelForCausalLM,
+    AutoModelForImageTextToText,
+    AutoTokenizer,
+)
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import config  # noqa: E402
 from lib import hub  # noqa: E402
 
+
 # Candidate paths to the decoder ModuleList, most specific first.
 _LAYER_PATHS = (
-    "model.language_model.layers",  # Gemma3nForConditionalGeneration
+    # Gemma3nForConditionalGeneration, and all four Gemma-4 families:
+    # Gemma4UnifiedForConditionalGeneration (12B) and
+    # Gemma4ForConditionalGeneration (31B/26B/E4B) both hang the text stack off
+    # model.language_model, whatever else they carry beside it.
+    "model.language_model.layers",
     "language_model.model.layers",
     "model.layers",  # Llama, Gemma3nForCausalLM
     "transformer.h",
+)
+
+# Auto-classes to try, in order. A multimodal checkpoint is registered under its
+# *ForConditionalGeneration class, which AutoModelForCausalLM happens to reach
+# for gemma4/gemma4_unified in transformers 5.14 but is not required to. Asking
+# each mapping whether it holds this config type is the same lookup the
+# auto-class does internally, so nothing here keys off an architecture name.
+_AUTO_CLASSES = (
+    (AutoModelForCausalLM, MODEL_FOR_CAUSAL_LM_MAPPING),
+    (AutoModelForImageTextToText, MODEL_FOR_IMAGE_TEXT_TO_TEXT_MAPPING),
 )
 
 
@@ -40,6 +62,17 @@ def _find_layers(model: nn.Module) -> nn.ModuleList:
     raise RuntimeError(
         f"could not locate decoder layers on {type(model).__name__}; "
         f"tried {_LAYER_PATHS}"
+    )
+
+
+def _auto_class(cfg) -> type:
+    """The auto-class whose mapping actually contains *cfg*'s type."""
+    for auto, mapping in _AUTO_CLASSES:
+        if type(cfg) in mapping:
+            return auto
+    raise RuntimeError(
+        f"{type(cfg).__name__} is in neither the causal-LM nor the "
+        f"image-text-to-text auto mapping; there is no generation class to load"
     )
 
 
@@ -93,13 +126,31 @@ class SteerableLM:
         text: str,
         instruction: str | None = None,
         task: str | None = None,
+        shots: "list[tuple[str, str]] | None" = None,
     ) -> str:
-        """Chat-formatted prompt, ready for generation."""
-        task = config.BASE_TASK if task is None else task
+        """Chat-formatted prompt, ready for generation.
+
+        ``shots`` are (complex, simple) demonstrations, rendered as real prior
+        user/assistant turns rather than pasted into one message. An instruct
+        model treats a completed turn as something it produced and matches it;
+        the same pairs inside a single user message are just text it was asked
+        to read, and it follows them noticeably less. Passing no shots leaves
+        the prompt byte-identical to the zero-shot form, so every result
+        measured before this existed is still comparable.
+        """
+        task = config.base_task(self.repo_id) if task is None else task
         header = " ".join(p for p in (task, instruction) if p)
-        content = f"{header}\n\n{text}" if header else text
+
+        def user(body: str) -> dict:
+            return {"role": "user", "content": f"{header}\n\n{body}" if header else body}
+
+        turns: list[dict] = []
+        for source, target in shots or ():
+            turns.append(user(source))
+            turns.append({"role": "assistant", "content": target})
+        turns.append(user(text))
         return self.tokenizer.apply_chat_template(
-            [{"role": "user", "content": content}],
+            turns,
             tokenize=False,
             add_generation_prompt=True,
         )
@@ -160,12 +211,27 @@ def load(repo_id: str | None = None, device: str | None = None) -> SteerableLM:
     dtype = getattr(torch, config.DTYPE)
     source = hub.resolve(repo_id)
 
+    # AutoTokenizer, not AutoProcessor, even for the multimodal Gemma-4
+    # checkpoints: the chat template lives on the tokenizer either way and we
+    # never pass pixels or audio, so a processor would only drag in image and
+    # video backends we would then have to keep installed.
     tokenizer = AutoTokenizer.from_pretrained(source)
     if tokenizer.pad_token_id is None:
         tokenizer.pad_token = tokenizer.eos_token  # Llama ships no pad token
     tokenizer.padding_side = "left"
+    # Caught here rather than in build_prompt: a download that filtered out
+    # chat_template.jinja loads cleanly and only fails once generation starts,
+    # by which point the traceback points at the wrong file.
+    if getattr(tokenizer, "chat_template", None) is None:
+        raise RuntimeError(
+            f"{repo_id}: no chat template on the tokenizer at {source}. "
+            f"transformers 5 reads it from chat_template.jinja; re-run "
+            f"scripts/00_download.py for this repo to fetch it."
+        )
 
-    model = AutoModelForCausalLM.from_pretrained(source, dtype=dtype)
+    model = _auto_class(AutoConfig.from_pretrained(source)).from_pretrained(
+        source, dtype=dtype
+    )
     model.to(device)
     model.eval()
     model.requires_grad_(False)

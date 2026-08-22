@@ -8,7 +8,14 @@ __pycache__/
 models/
 data/
 vectors/
-results/
+
+# results/ is NOT ignored. It was, on the grounds that it is regenerable -- but
+# the sweeps in it are hours of GPU on one specific machine, and they are the
+# evidence behind every number in report.md and the paper. Regenerating them is
+# not the same as having them. Total is under 2 MB.
+#
+# Keep it that way: if something genuinely large and genuinely cheap to rebuild
+# lands in results/, ignore that file by name rather than the directory.
 *.safetensors
 *.aria2
 

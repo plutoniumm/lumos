@@ -34,6 +34,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import config
 from lib import data
+from lib import jsonio, tables
 from lib.metrics import readability
 from lib.metrics.faithfulness import faithfulness
 from lib.models import load
@@ -222,7 +223,9 @@ def run(args: argparse.Namespace) -> int:
     baselines = [readability.measure(o) for o in base_outs]
 
     with out_path.open("a") as fh:
-        for i, cell in enumerate(cells, 1):
+        bar = tables.progress(cells, unit="cell")
+        for i, cell in enumerate(bar, 1):
+            bar.set_description(f"{cell.axis[:4]} L{cell.layer} a{cell.alpha:g}")
             try:
                 row = _measure_cell(
                     steered,
@@ -242,7 +245,7 @@ def run(args: argparse.Namespace) -> int:
                     "alpha": cell.alpha,
                     "error": f"{type(exc).__name__}: {exc}",
                 }
-                print(f"  [{i}/{len(cells)}] {cell.key()} ERROR {exc}")
+                bar.write(f"  [{i}/{len(cells)}] {cell.key()} ERROR {exc}")
             else:
                 head = (
                     f"  [{i}/{len(cells)}] {cell.axis} L{cell.layer} a={cell.alpha:g}"
@@ -250,19 +253,19 @@ def run(args: argparse.Namespace) -> int:
                 if row.get("selectivity") is None:
                     # Every output collapsed, so there is nothing to score. This
                     # is an ordinary sweep outcome, not an error.
-                    print(
+                    bar.write(
                         f"{head} UNUSABLE all {row['n']} degenerate "
                         f"({row['seconds']:.0f}s)"
                     )
                 else:
-                    print(
+                    bar.write(
                         f"{head} sel={row['selectivity']:+.3f} "
                         f"dWPS={row['d_words_per_sentence']:+.3f} "
                         f"dHARD={row['d_pct_hard_words']:+.3f} "
                         f"degen={row['degenerate_frac']:.2f} "
                         f"kept={row['n_scored']}/{row['n']} ({row['seconds']:.0f}s)"
                     )
-            fh.write(json.dumps(row) + "\n")
+            fh.write(json.dumps(jsonio.clean(row), allow_nan=False) + "\n")
             fh.flush()
     return 0
 
@@ -328,6 +331,14 @@ def _best_path(repo_id: str, estimator: str) -> Path:
     return config.RESULTS_DIR / f"best_layers_{repo_id.split('/')[-1]}_{estimator}.json"
 
 
+def _nli_ok(row: dict, min_nli: float) -> bool:
+    """True when *row* is known to clear *min_nli*, not merely not known to fail."""
+    if min_nli <= 0.0:
+        return True
+    value = row.get("nli_mean")
+    return isinstance(value, (int, float)) and value >= min_nli
+
+
 def report(args: argparse.Namespace) -> int:
     """Print the depth profile and write the best (layer, alpha) per axis."""
     # Glob on the stem, not the full name: shards are written as
@@ -354,21 +365,23 @@ def report(args: argparse.Namespace) -> int:
     axes = sorted({r["axis"] for r in rows})
 
     if stage1:
-        print("\n=== stage 1: depth profile ===")
-        print(
-            "effect = fractional reduction vs the unsteered rewrite; higher is simpler\n"
+        table = tables.table(
+            title="stage 1: depth profile",
+            caption=(
+                "effect = fractional reduction vs the unsteered rewrite; higher is "
+                "simpler\nwps = sentence-length reduction, hard = hard-word "
+                "reduction, sel = selectivity for its own axis"
+            ),
         )
-        print(
-            "cols per axis: wps = sentence-length reduction, "
-            "hard = hard-word reduction, sel = selectivity for its own axis\n"
-        )
-        print(f"{'layer':>5}", end="")
+        table.add_column("layer", justify="right")
         for axis in axes:
             tag = axis[:4]
-            print(f"{tag + '.wps':>11}{tag + '.hard':>11}{tag + '.sel':>11}", end="")
-        print(f"{'degen':>8}")
+            for suffix in ("wps", "hard", "sel"):
+                table.add_column(f"{tag}.{suffix}", justify="right")
+        table.add_column("degen", justify="right")
+
         for layer in sorted({r["layer"] for r in stage1}):
-            print(f"{layer:>5}", end="")
+            cells = [str(layer)]
             degen = 0.0
             for axis in axes:
                 hit = [
@@ -380,18 +393,19 @@ def report(args: argparse.Namespace) -> int:
                 ]
                 if not hit:
                     # No non-degenerate output survived at this layer/alpha.
-                    print(f"{'collapsed':>11}{'-':>11}{'-':>11}", end="")
+                    cells += ["collapsed", "-", "-"]
                     continue
                 # Best surviving alpha at this layer, since coarse runs several.
                 r = max(hit, key=lambda x: x["selectivity"])
-                print(
-                    f"{-r['d_words_per_sentence']:>+11.3f}"
-                    f"{-r['d_pct_hard_words']:>+11.3f}"
-                    f"{r['selectivity']:>+11.3f}",
-                    end="",
-                )
+                cells += [
+                    f"{-r['d_words_per_sentence']:+.3f}",
+                    f"{-r['d_pct_hard_words']:+.3f}",
+                    f"{r['selectivity']:+.3f}",
+                ]
                 degen = max(degen, r["degenerate_frac"])
-            print(f"{degen:>8.2f}")
+            cells.append(f"{degen:.2f}")
+            table.add_row(*cells)
+        tables.show(table)
 
     summary = {"axes": {}}
     for axis in axes:
@@ -404,7 +418,13 @@ def report(args: argparse.Namespace) -> int:
             # A cell that only scored a couple of survivors has a selectivity
             # estimated on too little to trust, however good it looks.
             and r.get("n_scored", 0) >= max(2, args.min_scored_frac * r["n"])
-            and r.get("nli_mean", 1.0) >= args.min_nli
+            # "not measured" is not "passed". Stage 1 does not run NLI, so its
+            # rows carry no nli_mean at all, and defaulting the absent key to 1.0
+            # let all 192 unmeasured cells clear any faithfulness gate -- which
+            # is how a cell that degenerates a quarter of its outputs came to be
+            # chosen over one measured at NLI 0.888. A gate that an unmeasured
+            # cell passes is not a gate.
+            and _nli_ok(r, args.min_nli)
             # Selectivity is own_effect - |other_effect|, which scores a cell that
             # does nothing at all as 0 - 0 = 0 and thereby ranks it above a strong
             # but imperfect one. Without this floor the sweep picked layer 4 for
@@ -458,7 +478,7 @@ def report(args: argparse.Namespace) -> int:
         or _best_path(args.model or config.ACTIVE_MODEL, args.estimator)
     )
     path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(json.dumps(summary, indent=2))
+    jsonio.dump(path, summary)
     print(f"\n[write] {path}")
     return 0
 

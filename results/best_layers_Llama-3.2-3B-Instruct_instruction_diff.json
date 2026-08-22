@@ -1,0 +1,34 @@
+{
+  "axes": {
+    "lexical": {
+      "top_layers": [
+        26,
+        19,
+        11
+      ],
+      "best": {
+        "layer": 26,
+        "alpha": 1.5,
+        "selectivity": 0.020927703359075223,
+        "d_words_per_sentence": 0.1672378148726873,
+        "d_pct_hard_words": -0.22342722622074324,
+        "nli_mean": 0.6647900705310431
+      }
+    },
+    "structural": {
+      "top_layers": [
+        17,
+        12,
+        15
+      ],
+      "best": {
+        "layer": 17,
+        "alpha": 1.0,
+        "selectivity": 0.1454645461940966,
+        "d_words_per_sentence": -0.33892438197546676,
+        "d_pct_hard_words": -0.07049423600966968,
+        "nli_mean": 0.701049301770076
+      }
+    }
+  }
+}

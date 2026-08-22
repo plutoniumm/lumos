@@ -191,15 +191,17 @@ class SteeredLM:
         task: str | None = None,
         content_text: str | None = None,
         max_new_tokens: int | None = None,
+        shots: list[tuple[str, str]] | None = None,
+        logits_processor=None,
     ) -> str:
         """Rewrite ``text`` under ``spec``."""
         spec = spec or SteeringSpec.off()
-        prompt = self.lm.build_prompt(text, instruction, task)
+        prompt = self.lm.build_prompt(text, instruction, task, shots)
         sites = self._sites(spec, prompt, content_text or text)
 
         batch = self.lm.encode(prompt)
         prompt_len = batch["input_ids"].shape[1]
-        out = self._run(batch, sites, max_new_tokens)
+        out = self._run(batch, sites, max_new_tokens, logits_processor)
         return self.lm.decode_new(out, prompt_len)[0].strip()
 
     @torch.inference_mode()
@@ -211,6 +213,8 @@ class SteeredLM:
         task: str | None = None,
         max_new_tokens: int | None = None,
         batch_size: int | None = None,
+        shots: list[tuple[str, str]] | None = None,
+        logits_processor=None,
     ) -> list[str]:
         """Batched ``generate`` with identical steering semantics."""
         spec = spec or SteeringSpec.off()
@@ -219,11 +223,11 @@ class SteeredLM:
 
         for start in range(0, len(texts), size):
             group = texts[start : start + size]
-            prompts = [self.lm.build_prompt(t, instruction, task) for t in group]
+            prompts = [self.lm.build_prompt(t, instruction, task, shots) for t in group]
             inputs = self.lm.encode_batch(prompts)
             prompt_len = inputs["input_ids"].shape[1]
             sites = self._batch_sites(spec, prompts, group, inputs)
-            out = self._run(inputs, sites, max_new_tokens)
+            out = self._run(inputs, sites, max_new_tokens, logits_processor)
             results.extend(s.strip() for s in self.lm.decode_new(out, prompt_len))
         return results
 
@@ -232,6 +236,7 @@ class SteeredLM:
         inputs: dict[str, torch.Tensor],
         sites: list[InjectionSite],
         max_new_tokens: int | None,
+        logits_processor=None,
     ) -> torch.Tensor:
         kwargs = dict(
             max_new_tokens=max_new_tokens or config.MAX_NEW_TOKENS,
@@ -244,6 +249,8 @@ class SteeredLM:
                 else self.lm.tokenizer.pad_token_id
             ),
         )
+        if logits_processor is not None:
+            kwargs["logits_processor"] = [logits_processor]
         if not sites:
             return self.lm.model.generate(**inputs, **kwargs)
         with steered(self.lm, sites):

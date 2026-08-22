@@ -36,6 +36,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import config
+from lib import jsonio, tables
 from lib.metrics import fluency, readability
 from lib.metrics.faithfulness import faithfulness
 from lib.models import SteerableLM, load
@@ -53,11 +54,6 @@ MIN_OUTPUT_WORDS = 6
 # degeneration rate that is "only" a few percent is a few percent of students
 # handed garbage they cannot tell is garbage.
 MAX_DEGENERATE_RATE = 0.0
-
-
-def _num(x: float) -> float | None:
-    """JSON-safe float: inf/nan become null instead of invalid JSON literals."""
-    return x if isinstance(x, int | float) and math.isfinite(x) else None
 
 
 @dataclass(frozen=True)
@@ -78,9 +74,9 @@ class Trial:
     def as_dict(self) -> dict:
         return {
             "alpha": self.alpha,
-            "mean_fkgl": _num(self.mean_fkgl),
-            "mean_nli": _num(self.mean_nli),
-            "mean_ppl_ratio": _num(self.mean_ppl_ratio),
+            "mean_fkgl": jsonio.finite(self.mean_fkgl),
+            "mean_nli": jsonio.finite(self.mean_nli),
+            "mean_ppl_ratio": jsonio.finite(self.mean_ppl_ratio),
             "degenerate_rate": self.degenerate_rate,
             "passed": self.passed,
             "fails": list(self.fails),
@@ -219,9 +215,12 @@ class Calibrator:
 
     def ladder(self, base: SteeringSpec, axis: str, alphas: list[float]) -> list[Trial]:
         trials = []
-        for alpha in alphas:
+        bar = tables.progress(alphas, unit="rung", desc=f"ladder {axis}")
+        for alpha in bar:
             trial = self.evaluate(base.with_alpha(axis, alpha), axis)
-            print(f"  {trial.line()}")
+            # Written rather than printed: the per-rung line is the record a
+            # redirected run keeps, and the bar is only for a watching human.
+            bar.write(f"  {trial.line()}")
             trials.append(trial)
         return trials
 
@@ -577,7 +576,7 @@ def run(args: argparse.Namespace) -> int:
         / f"calibration_{lm.repo_id.split('/')[-1]}_{args.estimator}.json"
     )
     out_path.parent.mkdir(parents=True, exist_ok=True)
-    out_path.write_text(json.dumps(payload, indent=2))
+    jsonio.dump(out_path, payload)
     print(f"\n[save] {out_path}")
 
     _summarise(payload)
@@ -640,7 +639,7 @@ def _payload(
         "calibration_source": source,
         "max_new_tokens": args.max_new_tokens,
         "fkgl_tol": args.fkgl_tol,
-        "baseline_unsteered_fkgl": _num(cal.baseline_fkgl),
+        "baseline_unsteered_fkgl": jsonio.finite(cal.baseline_fkgl),
         "gates": {
             "nli_entailment_min": config.NLI_ENTAILMENT_MIN,
             "ppl_ratio_max": config.PPL_RATIO_MAX,
@@ -672,15 +671,19 @@ def _summarise(payload: dict) -> None:
     )
 
     for name, rungs in payload["ladders"].items():
-        print(f"\n  ladder {name}")
+        table = tables.table(title=f"ladder {name}")
+        for col in ("alpha", "fkgl", "nli", "ppl", "degen", "verdict"):
+            table.add_column(col, justify="left" if col == "verdict" else "right")
         for r in rungs:
-            verdict = "pass" if r["passed"] else "FAIL " + ",".join(r["fails"])
-            print(
-                f"    a={r['alpha']:6.3f}  fkgl={_fmt(r['mean_fkgl']):>6s}  "
-                f"nli={_fmt(r['mean_nli'], 3):>6s}  "
-                f"ppl={_fmt(r['mean_ppl_ratio']):>7s}  "
-                f"degen={r['degenerate_rate']:4.0%}  {verdict}"
+            table.add_row(
+                f"{r['alpha']:.3f}",
+                _fmt(r["mean_fkgl"]),
+                _fmt(r["mean_nli"], 3),
+                _fmt(r["mean_ppl_ratio"]),
+                f"{r['degenerate_rate']:.0%}",
+                "pass" if r["passed"] else "FAIL " + ",".join(r["fails"]),
             )
+        tables.show(table, width=72)
 
     print("\n  levels")
     for level, entry in payload["levels"].items():

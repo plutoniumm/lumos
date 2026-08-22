@@ -129,13 +129,39 @@ lib/          library code
   hooks.py      Recorder reads the stream, Injector writes it
   vectors.py    three estimators, orthogonalisation, on-disk banks
   steering.py   SteeringSpec and SteeredLM
+  adapters.py   Adapter: the LoRA on/off switch and strength dial
+  bench.py      Bench: model + items + baselines + scoring, shared by every arm
+  cli.py        AxisSettings: which (layer, alpha) each axis runs at
+  jsonio.py     result files a strict reader can open
+  tables.py     rich tables and tqdm bars that survive redirection
+  cleanup.py    strip the wrapper a model puts around a rewrite
+  decoding.py   easy-word logit bias
   metrics/      readability, faithfulness, fluency, sari
-  data.py       ASSET, OneStopQA, leakage-checked corpora
+  data.py       ASSET, OneStopQA, arXiv abstracts, leakage-checked corpora
 src/          experiment and product entry points
 scripts/      download, smoke test, correctness gate
 docs/report/  paper and related work
-models/ data/ vectors/ results/   generated, gitignored
+models/ data/ vectors/   generated, gitignored
+results/      the paper's evidence; tracked on purpose
 ```
+
+Everything an arm has to do besides its own idea -- decide which
+`(layer, alpha)` each axis runs at, hold the model and its baselines, score
+an output, write a result row -- lives in `lib/cli.py`, `lib/bench.py` and
+`lib/jsonio.py` rather than in each entry point. That is not tidiness for its
+own sake. When each arm carried its own copy, `src/adaptive_steering.py`
+filled a missing baseline with the item's own *steered* output, which pins
+every delta at zero and reads as data; and `src/lora_ladder.py` measured
+perplexity with the adapter still live, which asks the adapter how likely it
+finds its own output. A new arm imports `Bench` and inherits both fixes.
+
+Long jobs here are normally started with output redirected, so `lib/tables.py`
+holds the console policy in one place: tables force plain text and a fixed
+width when stdout is not a tty, and progress bars disable themselves unless
+stderr is one. `lib/__init__.py` blanks transformers' load-report palette for
+the same reason -- transformers 5 hardcodes `PALETTE['bold']` into that banner
+instead of going through its own isatty check, which puts escape bytes in
+every log.
 
 ## Limitations
 

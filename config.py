@@ -18,6 +18,16 @@ LLAMA_MIRROR = "unsloth/Llama-3.2-3B-Instruct"
 LLAMA = LLAMA_MIRROR
 
 GEMMA = "google/gemma-3n-E4B-it"
+
+# The second architecture, so that a steering result is not a fact about Llama.
+# 12B is the only Gemma 4 that is *encoder-free*: it is
+# Gemma4UnifiedForConditionalGeneration, whose vision and audio inputs go
+# through 52M of embedders rather than towers, so loading it for a text-only job
+# wastes ~0.1 GB. The 31B/26B/E4B siblings are Gemma4ForConditionalGeneration
+# and do carry real towers. All four hang the text stack off the same
+# model.language_model.layers, so lib/models.py needs no per-family branch.
+GEMMA4 = "google/gemma-4-12B-it"
+
 NLI_MODEL = "FacebookAI/roberta-large-mnli"
 
 ACTIVE_MODEL = LLAMA
@@ -32,7 +42,14 @@ ARIA2_MIN_SPLIT = "8M"
 
 # Weights we want, and the ones we must not pull: meta-llama ships a duplicate
 # 6 GB consolidated .pth under original/ that transformers never reads.
-DOWNLOAD_ALLOW_SUFFIXES = (".safetensors", ".json", ".txt", ".model")
+#
+# .jinja is here because transformers 5 moved chat templates out of
+# tokenizer_config.json into chat_template.jinja, and gemma-4 ships only the new
+# location -- filtered out, the model loads fine and then apply_chat_template
+# raises, i.e. there is no prompt at all. Llama ships both and its 3827-byte
+# .jinja is byte-identical to its embedded chat_template, so the extra suffix
+# cannot change what Llama renders.
+DOWNLOAD_ALLOW_SUFFIXES = (".safetensors", ".json", ".txt", ".model", ".jinja")
 DOWNLOAD_DENY_SUBSTRINGS = (
     "original/",
     "consolidated",
@@ -54,6 +71,36 @@ AXES = ("structural", "lexical")
 # model handed a bare sentence has no reason to rewrite it -- it will comment on
 # it or ask a question instead, and the whole measurement collapses.
 BASE_TASK = "Rewrite the following text."
+
+# The same string is not the same *treatment* across models. Llama-3.2-3B answers
+# BASE_TASK with a rewrite; Gemma-4-12B answers it with a menu -- "Depending on
+# the tone you want to achieve, here are a few ways to rewrite the text:" plus
+# two or three markdown-headed options. Every readability number computed on that
+# is measuring the preamble. The override buys back the behaviour BASE_TASK is
+# supposed to elicit, so the models stay comparable in what they were asked to
+# do rather than in which bytes they were sent.
+#
+# Llama is deliberately left on the bare BASE_TASK: it already complies, and
+# changing its prompt would invalidate every result already measured with it.
+BASE_TASK_OVERRIDES = {
+    "google/gemma-4-12B-it": (
+        "Rewrite the following text. Reply with the rewritten text only, "
+        "nothing else."
+    ),
+}
+
+
+def base_task(repo_id: str | None = None) -> str:
+    """BASE_TASK, or this model's override if it needs one to produce a rewrite."""
+    if repo_id is None:
+        return BASE_TASK
+    # Accept a local directory as well as a repo id, since models.load resolves
+    # to a path and callers pass whichever they have.
+    for key, task in BASE_TASK_OVERRIDES.items():
+        if repo_id == key or repo_id.endswith(key.split("/")[-1]):
+            return task
+    return BASE_TASK
+
 
 # Used by the chunked passage path, where only the last sentence is the target.
 CHUNK_TASK = (
@@ -175,9 +222,25 @@ SEED = 0
 # layer x alpha x axis grid is roughly a day of wall clock.
 BATCH_SIZE = 8
 
-# The sweep only needs enough tokens to measure sentence length and word
-# difficulty, not a complete long-form answer.
-SWEEP_MAX_NEW_TOKENS = 96
+# The sweep used to stop at 96 on the reasoning that it only needs enough tokens
+# to measure sentence length and word difficulty, not a complete answer. That
+# reasoning is wrong, and it cost a real result.
+#
+# The failure mode of too much alpha is run-on generation. Cutting generation at
+# 96 tokens truncates the runaway before it becomes measurable, so the screen
+# cannot see the thing it screens for. Measured on lexical L26 alpha=1.5: the
+# sweep recorded 8% degeneration and NLI 0.665, and the evaluation -- same
+# vectors, same model, 320 tokens -- found 47% degeneration, NLI 0.407 and
+# 157-word sentences. Wrong by a factor of six, in the direction that makes a
+# broken setting look usable.
+#
+# Matching MAX_NEW_TOKENS costs roughly 3x the sweep wall clock. That is the
+# price of the screen meaning anything.
+#
+# Sweeps already on disk were collected at 96 and are therefore optimistic about
+# degeneration at high alpha; their low-alpha cells are unaffected, because a
+# setting that terminates well inside 96 tokens terminates the same way at 320.
+SWEEP_MAX_NEW_TOKENS = MAX_NEW_TOKENS
 
 # Synthetic CAA pairs are rewrites of single sentences; anything longer is
 # trailing commentary that would be averaged into the vector.
@@ -194,3 +257,155 @@ PAIR_MAX_NEW_TOKENS = 128
 # same item cleanly. Raise this only with a model large enough to hold the
 # constraint, and check faithfulness when you do.
 CHUNK_CONTEXT_SENTENCES = 0
+
+
+# --- LoRA -------------------------------------------------------------------
+# The weight-space arm of the A/B. Steering adds a vector at inference and
+# trains nothing; LoRA trains a small adapter and adds nothing at inference.
+# Both are compared against the same unsteered baseline, on the same items,
+# with the same prompt, so the only difference is the mechanism.
+
+LORA_DIR = MODELS_DIR / "lora"
+
+# ASSET *validation* only. The eval set is ASSET test; training on it would make
+# the comparison meaningless, so the split is not a parameter here.
+LORA_TRAIN_SPLIT = "valid"
+
+# ASSET ships 10 human references per source. Using all of them is ten near-
+# duplicate gradients per example, which mostly buys optimizer noise. Two gives
+# the model a spread of valid rewrites for the same input without that.
+LORA_REFS_PER_SOURCE = 2
+
+# r=16 is the smallest rank that reliably moves a 3B model on a rewriting task;
+# r=8 underfits the lexical substitutions and r=32 costs twice the memory for a
+# change we cannot resolve at this eval size.
+LORA_RANK = 16
+LORA_ALPHA = 32
+LORA_DROPOUT = 0.05
+
+# Attention *and* MLP. Attention-only adapters move phrasing but leave word
+# choice alone, and word choice is half of what we are trying to control.
+LORA_TARGET_MODULES = (
+    "q_proj",
+    "k_proj",
+    "v_proj",
+    "o_proj",
+    "gate_proj",
+    "up_proj",
+    "down_proj",
+)
+
+LORA_LR = 1e-4
+LORA_EPOCHS = 1
+LORA_BATCH_SIZE = 4
+LORA_GRAD_ACCUM = 4  # effective batch 16
+LORA_WARMUP_FRAC = 0.03
+LORA_MAX_SEQ_LEN = 320  # ASSET is single sentences; 320 covers prompt + target
+LORA_DEV_FRAC = 0.05  # held out to detect overfitting, not to tune anything
+
+
+# --- Few-shot ---------------------------------------------------------------
+# Demonstrations come from ASSET *validation*; the eval split is test, and the
+# two are disjoint in the corpus. Five is where in-context learning on a 3B
+# model stops improving on this task and starts eating context that the source
+# sentence needs.
+FEWSHOT_N = 5
+
+
+# --- Decode-time vocabulary constraint --------------------------------------
+# Logit penalty on word-initial tokens that no easy Dale-Chall word starts with.
+# Not a ban: an infinite penalty forces the model to paraphrase around technical
+# terms that have no easy synonym, and it paraphrases them wrongly. 5.0 is large
+# against typical Llama logit gaps (1-3 nats between plausible continuations)
+# without being absolute.
+EASY_WORD_PENALTY = 5.0
+
+# Not portable across models. Gemma-4 applies final_logit_softcapping=30.0,
+# which squashes logits through c*tanh(x/c) and compresses the very gaps this
+# penalty is measured against, so the same 5.0 is a materially harsher
+# intervention there. What has to stay constant for the arms to be comparable is
+# the penalty's size relative to the decision it perturbs, not its raw value.
+# Filled from scripts/05_logit_gaps.py; empty means "use the reference value",
+# which is only correct for a model with Llama-like logit spread.
+EASY_WORD_PENALTY_OVERRIDES: dict[str, float] = {"google/gemma-4-12B-it": 11.39}
+
+
+def easy_word_penalty(repo_id: str | None = None) -> float:
+    if repo_id is None:
+        return EASY_WORD_PENALTY
+    for key, value in EASY_WORD_PENALTY_OVERRIDES.items():
+        if repo_id == key or repo_id.endswith(key.split("/")[-1]):
+            return value
+    return EASY_WORD_PENALTY
+
+
+# --- Adaptive steering ------------------------------------------------------
+# A flat alpha spends the same push on a sentence that is already grade 6 as on
+# one at grade 18. The first does not need it and degrades under it; the second
+# is barely moved. Alpha is therefore scaled by how hard the *source* is, which
+# is measurable on CPU before generation and needs no probe.
+#
+# Below the floor the source is already readable and gets no push at all. Above
+# the ceiling it gets the full swept alpha. Between, it ramps linearly.
+ADAPTIVE_FKGL_FLOOR = 6.0
+ADAPTIVE_FKGL_CEIL = 16.0
+# Alphas are snapped to this grid so that 32 items collapse into a handful of
+# batches instead of 32 single-item generations.
+ADAPTIVE_ALPHA_STEP = 0.125
+
+
+# --- Science abstracts: the hard eval set -----------------------------------
+# ASSET is single Wikipedia sentences a rewriter can carry almost intact. An
+# abstract is several dependent clauses of domain vocabulary where dropping one
+# is easy and invisible to a readability metric, which is the failure this
+# project exists to catch. Ten fields, deliberately far apart, so a result is
+# not an artifact of one discipline's house style.
+SCIENCE_CATEGORIES = (
+    "astro-ph.CO",      # cosmology
+    "cond-mat.supr-con",  # superconductivity
+    "physics.chem-ph",  # chemical physics
+    "q-bio.NC",         # neuroscience
+    "q-bio.PE",         # populations and evolution
+    "cs.CL",            # computational linguistics
+    "math.NT",          # number theory
+    "econ.EM",          # econometrics
+    "physics.geo-ph",   # geophysics
+    "eess.SP",          # signal processing
+)
+
+# Long enough to contain the multi-clause structure we want to stress, short
+# enough that prompt plus rewrite stays inside MAX_NEW_TOKENS.
+SCIENCE_ABSTRACT_WORDS = (60, 140)
+
+# Candidates pulled per category before the length filter picks the first fit.
+SCIENCE_FETCH_PER_CATEGORY = 25
+
+# Abstracts need a bigger generation budget than the 320 that covers an ASSET
+# sentence. Structural simplification *expands* token count -- splitting one
+# sentence into three repeats the subject each time -- and the longest abstract
+# in the set is 247 source tokens, so a 1.8x expansion needs 444. Truncating
+# there would emit an unterminated sentence, which the degeneracy rules would
+# correctly flag and which would then be reported as the arm failing rather
+# than the harness running out of room.
+SCIENCE_MAX_NEW_TOKENS = 512
+
+
+# Which demonstration corpus serves which eval set. Demonstrations must match the
+# *shape* of the target: sentence-length demos in front of a paragraph-length
+# source teach the model that the answer is one sentence, and it will discard the
+# rest of the input to produce one.
+SHOT_SOURCE = {"asset": "asset", "passages": "onestop", "science": "onestop"}
+
+# OneStopEnglish pairs are kept only when the easier side is a real rewrite.
+# Some aligned pairs differ by a single edit that changes a fact -- one differs
+# only in a date -- and demonstrating that teaches drift.
+SHOT_COMPRESSION_RANGE = (0.55, 0.95)
+SHOT_MIN_FKGL_DROP = 1.0
+
+# Abstracts kept per field. Ten items total is enough to falsify a strong claim
+# -- an arm that collapses on abstracts is obvious at n=10 -- but not to confirm
+# a subtle one, since a paired interval on ten items is wide. Raising this is the
+# honest response to a borderline result, rather than reading the ten harder.
+# The set stays interleaved by field, so --n 20 is two per field and not the
+# first two fields.
+SCIENCE_PER_CATEGORY = 1

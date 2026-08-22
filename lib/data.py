@@ -210,6 +210,146 @@ def load_onestop() -> list[GradedItem]:
     return [GradedItem(**rec) for rec in _cached("onestop_triples", build)]
 
 
+@dataclass
+class ScienceItem:
+    """One arXiv abstract, with the provenance needed to check it by hand."""
+
+    arxiv_id: str
+    category: str
+    title: str
+    abstract: str
+
+
+_MATH_SPAN = re.compile(r"\$[^$]+\$")
+
+
+def _math_heavy(text: str) -> bool:
+    """Reject abstracts carrying more than incidental LaTeX.
+
+    A rewriter mangling ``$\\alpha_g$`` is not the failure this eval is looking
+    for, and the NLI model scores markup as noise in both directions, so a
+    formula-dense abstract costs measurement precision without buying any. The
+    threshold is deliberately loose: one or two symbols is normal prose in
+    physics and is kept.
+    """
+    return len(_MATH_SPAN.findall(text)) > 2 or "\\begin{" in text
+
+
+# A bibliography reads as sentences to a splitter and as noise to an NLI model.
+# "Sov. Astron. Lett. 12(2), 1986, 73-76" becomes the sentences "Astron." and
+# "Lett.", which entail nothing in either direction and drag the per-sentence
+# mean down however faithful the rewrite was. Measured on the cosmology abstract
+# this set first picked: a rewrite scoring 0.990 on its prose scored 0.084 with
+# the trailer attached. That is a defect of the source text, not of the arm, so
+# the source is what gets filtered.
+_CITATION = re.compile(
+    r"\(\s*[A-Z][^()]{0,40}\b(?:19|20)\d\d\b[^()]{0,30}\)"
+    r"|\b(?:Sov|Nuovo|Astron|Phys|Rev|Lett|Proc|Ann|J)\.\s"
+)
+
+
+def _citation_heavy(text: str) -> bool:
+    from lib.chunking import split_sentences
+
+    sentences = split_sentences(text) or [text]
+    fragments = sum(1 for s in sentences if len(s.split()) < 4)
+    return fragments >= 2 or len(_CITATION.findall(text)) >= 3
+
+
+def _arxiv_query(category: str, max_results: int) -> list[dict]:
+    """Earliest abstracts in *category*, oldest first.
+
+    ``sortOrder=ascending`` on submitted date is what makes this reproducible.
+    The newest papers in a category change every day; the *oldest* ones never
+    do, so the same query returns the same abstracts in the same order however
+    long from now it is re-run. Sorting by relevance or recency would give a
+    corpus that silently differed between the run that produced a number and
+    the run that tried to check it.
+    """
+    import urllib.parse
+    import urllib.request
+    import xml.etree.ElementTree as ET
+
+    params = urllib.parse.urlencode(
+        {
+            "search_query": f"cat:{category}",
+            "start": 0,
+            "max_results": max_results,
+            "sortBy": "submittedDate",
+            "sortOrder": "ascending",
+        }
+    )
+    url = "http://export.arxiv.org/api/query?" + params
+    with urllib.request.urlopen(url, timeout=60) as response:
+        xml = response.read().decode("utf-8")
+
+    ns = {"a": "http://www.w3.org/2005/Atom"}
+    out = []
+    for entry in ET.fromstring(xml).findall("a:entry", ns):
+        out.append(
+            {
+                "arxiv_id": entry.find("a:id", ns).text.rsplit("/", 1)[-1],
+                "category": category,
+                "title": " ".join(entry.find("a:title", ns).text.split()),
+                "abstract": " ".join(entry.find("a:summary", ns).text.split()),
+            }
+        )
+    return out
+
+
+def load_science_abstracts() -> list[ScienceItem]:
+    """One short abstract per field in ``config.SCIENCE_CATEGORIES``.
+
+    The hard eval set. ASSET is single Wikipedia sentences of about twenty
+    words, which a rewriter can carry almost intact; an abstract is several
+    dependent clauses of domain vocabulary where dropping one is both easy and
+    invisible to a readability metric. Faithfulness is the measurement that
+    matters here, and this is the corpus that actually stresses it.
+
+    No references, so **SARI is unavailable on this set**. FKGL, Dale-Chall,
+    bidirectional NLI, conditional perplexity and the degeneracy rules all
+    still apply. A result on this set is a statement about whether meaning
+    survived, not about agreement with human rewrites -- there are none.
+
+    Nothing here overlaps ASSET, SQuAD or OneStopEnglish, so the disjointness
+    the rest of this module enforces in code is a non-question for this set.
+    """
+
+    per = config.SCIENCE_PER_CATEGORY
+
+    def build() -> list[dict]:
+        lo, hi = config.SCIENCE_ABSTRACT_WORDS
+        out: list[dict] = []
+        for category in config.SCIENCE_CATEGORIES:
+            entries = _arxiv_query(category, config.SCIENCE_FETCH_PER_CATEGORY)
+            # The first *per* abstracts that fit, not a sample: "first" is stable
+            # under the ascending sort, a sample is not.
+            kept = 0
+            for entry in entries:
+                text = entry["abstract"]
+                if not lo <= len(text.split()) <= hi:
+                    continue
+                if _math_heavy(text) or _citation_heavy(text):
+                    continue
+                out.append(entry)
+                kept += 1
+                if kept == per:
+                    break
+            if kept < per:
+                raise RuntimeError(
+                    f"only {kept} abstract(s) of {lo}-{hi} words among the first "
+                    f"{config.SCIENCE_FETCH_PER_CATEGORY} in {category!r}, wanted "
+                    f"{per}; raise SCIENCE_FETCH_PER_CATEGORY or widen "
+                    f"SCIENCE_ABSTRACT_WORDS"
+                )
+        # Interleaved by rank, so a truncated prefix still spans every field
+        # rather than exhausting cosmology before reaching signal processing.
+        n_cat = len(config.SCIENCE_CATEGORIES)
+        return [out[r * n_cat + c] for r in range(per) for c in range(n_cat)]
+
+    return [ScienceItem(**rec) for rec in _cached(f"arxiv_abstracts_v2_x{per}", build)]
+
+
 def complex_pool() -> list[str]:
     """Every hard, non-leaking sentence available for vector estimation."""
 

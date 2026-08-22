@@ -1,6 +1,6 @@
 """Fetch every model the project needs. Safe to re-run; skips complete files.
 
-python scripts/00_download.py            # all three
+python scripts/00_download.py            # all four
 python scripts/00_download.py llama nli  # subset
 """
 
@@ -12,7 +12,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import config
 from lib import hub
 
-TARGETS = {"llama": config.LLAMA, "gemma": config.GEMMA, "nli": config.NLI_MODEL}
+TARGETS = {
+    "llama": config.LLAMA,
+    "gemma": config.GEMMA,
+    "gemma4": config.GEMMA4,
+    "nli": config.NLI_MODEL,
+}
 
 
 def main(argv: list[str]) -> int:

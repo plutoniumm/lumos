@@ -1,0 +1,22 @@
+{
+  "rank": 10,
+  "n_texts": 24,
+  "models": [
+    {
+      "repo_id": "unsloth/Llama-3.2-3B-Instruct",
+      "median_gap": 4.9375,
+      "mean_gap": 5.403645833333333,
+      "min_gap": 2.5,
+      "max_gap": 9.0,
+      "n": 24
+    },
+    {
+      "repo_id": "google/gemma-4-12B-it",
+      "median_gap": 11.25,
+      "mean_gap": 11.016927083333334,
+      "min_gap": 5.375,
+      "max_gap": 19.40625,
+      "n": 24
+    }
+  ]
+}

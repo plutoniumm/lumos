@@ -28,6 +28,9 @@ from lib.chunking import split_sentences  # noqa: E402
 # characters, degenerate output like "Photos-emp-am-emp-am-emp" tokenises to a
 # single 55-character "word" and every diversity statistic reads 1.00.
 _WORD = re.compile(r"[A-Za-z]+(?:'[A-Za-z]+)*")
+# As _WORD, but digits are kept so that terms distinguished only by a number
+# stay distinct. Used solely by the loop detector; see _degeneracy_reasons.
+_LOOP_WORD = re.compile(r"[A-Za-z0-9]+(?:'[A-Za-z0-9]+)*")
 
 # Markers that introduce an extra clause. Counting these per sentence is a cheap
 # stand-in for parse depth and needs no parser.
@@ -185,9 +188,18 @@ class Readability:
         return bool(self.degeneracy)
 
     def as_dict(self) -> dict:
+        """Every field plus the derived properties ``asdict`` drops.
+
+        The properties are on the row because a result file is read months
+        later by something that does not import this class: leaving
+        ``structural_complexity`` to be re-derived downstream is how two
+        readers end up disagreeing about which field the structural axis is.
+        """
         d = asdict(self)
         d["degeneracy"] = list(self.degeneracy)
         d["degenerate"] = self.degenerate
+        d["structural_complexity"] = self.structural_complexity
+        d["lexical_complexity"] = self.lexical_complexity
         return d
 
 
@@ -216,9 +228,15 @@ def _degeneracy_reasons(
     if punct_ratio > MAX_PUNCT_RATIO:
         reasons.append("punct_heavy")
 
-    per_sentence = [[w.lower() for w in _WORD.findall(s)] for s in sentences] or [
-        lowered
-    ]
+    # Loop detection tokenises with digits kept, unlike every other measure
+    # here. _WORD drops them, which is right for counting words and wrong for
+    # deciding whether text repeats: "Si33, Si39 and Si45" reduces to the same
+    # token three times and reads as an immediate n-gram loop. That flagged a
+    # clean Gemma rewrite of a silicon-cluster abstract as degenerate, and the
+    # degeneracy flag is a hard gate -- best_of_n discards whatever trips it.
+    per_sentence = [
+        [w.lower() for w in _LOOP_WORD.findall(s)] for s in sentences
+    ] or [lowered]
     loop_n, loop_run = _loop_signature(per_sentence)
     if loop_run:
         reasons.append(f"loop_{loop_n}gram_x{loop_run}")

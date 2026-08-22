@@ -1,0 +1,244 @@
+{
+  "model": "google/gemma-4-12B-it",
+  "estimator": "instruction_diff",
+  "data_source": "lib.data",
+  "bank_orthogonalized": {
+    "structural": "none",
+    "lexical": "none"
+  },
+  "n_requested": 10,
+  "lora": "models/lora/gemma4_asset_r16",
+  "task": null,
+  "shots": {
+    "science": [
+      [
+        "\u201cIt was very surprising,\u201d Angela Erdmann, 62, said, recalling how she found out about the bottle. \u201cA man stood at my door and told me he had post from my grandfather. He then told me that a message in a bottle had been found and that the name that was on the card was that of my grandfather.\u201d Her visitor was a genealogical researcher who had managed to track her down in Berlin after the letter was given to the International Maritime Museum in the northern port city of Hamburg.",
+        "\u201cIt was very surprising,\u201d Angela Erdmann, 62, said, when she described how she found out about the bottle. \u201cA man came to my door and told me he had post from my grandfather. Then, he told me that someone had found a message in a bottle and that on the card was my grandfather\u2019s name.\u201d Her visitor was a family-tree researcher who found her in Berlin after someone gave the letter to a museum in the northern city of Hamburg."
+      ],
+      [
+        "The brown beer bottle, which had been in the water for 101 years, was found in the catch of Konrad Fischer, a fisherman, who had been out in the Baltic Sea off the northern city of Kiel. Holger von Neuhoff, curator for ocean and science at the museum, said this bottled message was the oldest he had come across. \u201cThere are documents that have been found without the bottle that are older and are in the museum,\u201d he said. \u201cBut, with the bottle and the document, this is certainly the oldest at the moment. It is in extremely good condition.\u201d",
+        "The brown beer bottle was in the water for 101 years. A fisherman found it in the Baltic Sea off the northern city of Kiel. Holger von Neuhoff, a curator at the museum, said this bottled message was the oldest he had ever seen. \u201cThere are documents without the bottle that are older and they are in the museum,\u201d he said. \u201cBut, with the bottle and the document, this is certainly the oldest at the moment. It is in very good condition.\u201d"
+      ],
+      [
+        "Police and intelligence agencies around the world have, for almost 100 years, relied on polygraphs as lie detectors to help convict criminals or unearth spies and traitors. The polygraph is beloved of the movies, with countless dramatic moments showing the guilty sweating profusely as they are hooked up. But the invention could soon be defunct. Researchers in Britain and the Netherlands have made a breakthrough, developing a method with a success rate in tests of over 70% that could be in use in police stations around the world within a decade. Rather than relying on facial tics, talking too much or waving of arms \u2013 all seen as tell-tale signs of lying \u2013 the new method involves monitoring full-body motions to provide an indicator of signs of guilty feelings.",
+        "Police and intelligence agencies around the world have, for almost 100 years, used the polygraph, a lie-detector test, to help catch criminals and spies. But, now, researchers in Britain and the Netherlands have developed a new method, which is correct (in tests) over 70% of the time. Police stations around the world might begin using this new method within ten years. It doesn\u2019t monitor movements in the face, talking too much or waving arms \u2013 all signs that someone is lying. The new method monitors movements in the whole body, which can show that the person is feeling guilty."
+      ],
+      [
+        "The experiment carried out by Anderson and his colleagues involved 180 students and employees at Lancaster University, of which half were told to tell the truth and half to lie. They were each paid \u00a37.50 for their participation in the 70-minute experiment, involving two tests. Some were interviewed about a computer game Never End, which they played for seven minutes, while others lied about playing it, having only been shown notes about it. The second test involved a lost wallet containing \u00a35. Some were asked to bring the wallet to a lost-and-found box while others hid it and lied about it.",
+        "The tests Anderson and his colleagues did involved 180 students and employees at Lancaster University. Half of the people were told to tell the truth and half to lie. The researchers interviewed some of the people about a computer game called Never End that they played for seven minutes. Others lied about playing it. The second test involved a lost wallet with \u00a35 inside. Some people had to bring the wallet to a lost-and-found box. Others hid it and lied about it."
+      ],
+      [
+        "Do you want your child to be good at sports, make the school team and, maybe one day, even compete on the world stage? Well, try to ensure that your would-be Olympian or World Cup winner is born in November or, failing that, in October. A study has found that school pupils born in those months are fitter than everyone else in their class. November- and October-born children emerged as fitter, stronger and more powerful than their peers born in the other ten months of the year, especially those whose birthdays fell in April or June. Dr. Gavin Sandercock, who is from the Center for Sports and Exercise Science at Essex University and led the study, found that autumn-born children enjoyed \u201ca clear physical advantage\u201d over their classmates.",
+        "Do you want your child to be good at sports, play for the school team and, maybe one day, even be in international competitions? Well, try to make sure that your child is born in November or October. A study has found that schoolchildren born in November or October are fitter than everyone else in their class. Children born in November or October were fitter, stronger and more powerful than children born in the other ten months of the year. They are especially fitter, stronger and more powerful than children with birthdays in April or June. Dr. Gavin Sandercock of Essex University found in his study that children born in the autumn had \u201ca clear physical advantage\u201d over their classmates."
+      ]
+    ]
+  },
+  "easy_word_penalty": 11.39,
+  "variants": [
+    "unsteered",
+    "prompted",
+    "steered_structural",
+    "lora",
+    "fewshot",
+    "fewshot_plus_steered",
+    "easy_words"
+  ],
+  "eval_sets": [
+    "science"
+  ],
+  "settings": {
+    "structural": [
+      31,
+      0.5
+    ],
+    "lexical": [
+      34,
+      0.5
+    ]
+  },
+  "skip_nli": false,
+  "skip_sari": false,
+  "max_new_tokens": 320,
+  "max_new_tokens_used": {
+    "science": 512
+  },
+  "batch_size": 4,
+  "interrupted": false,
+  "rows_written_this_run": 70,
+  "failures_this_run": 0,
+  "rows_in_file": 70,
+  "rows_superseded": 0,
+  "wall_clock_this_run": {
+    "science/unsteered": 14.978300250135362,
+    "science/prompted": 111.18653183383867,
+    "science/steered_structural": 92.86081433389336,
+    "science/lora": 102.77497041597962,
+    "science/fewshot": 143.0037543340586,
+    "science/fewshot_plus_steered": 162.09431445784867,
+    "science/easy_words": 105.33963716588914
+  },
+  "config": {
+    "positions": "gen_only",
+    "norm_preserve": true,
+    "site_kind": "resid_post",
+    "content_orthogonalize": true,
+    "nli_entailment_min": 0.5,
+    "ppl_ratio_max": 1.5
+  },
+  "rows": [
+    {
+      "eval_set": "science",
+      "variant": "unsteered",
+      "mode": "whole",
+      "n": 10,
+      "n_failed": 0,
+      "spec_label": "unsteered",
+      "mean_fkgl": 17.970421948020455,
+      "mean_words_per_sentence": 23.308333333333334,
+      "mean_pct_hard_words": 0.5009490950199124,
+      "mean_d_words_per_sentence": 0.0,
+      "mean_d_pct_hard_words": 0.0,
+      "mean_d_fkgl": 0.0,
+      "mean_nli_score": 0.8983105159302551,
+      "pct_nli_passed": 100.0,
+      "mean_ppl": 1.091594868593051,
+      "mean_ppl_ratio": 1.0,
+      "mean_sari": null,
+      "pct_degenerate": 10.0,
+      "mean_gen_sec": 7.942456283303909,
+      "gen_seconds_total": 79.42456283303909
+    },
+    {
+      "eval_set": "science",
+      "variant": "prompted",
+      "mode": "whole",
+      "n": 10,
+      "n_failed": 0,
+      "spec_label": "unsteered",
+      "mean_fkgl": 9.964363116475727,
+      "mean_words_per_sentence": 18.576785714285712,
+      "mean_pct_hard_words": 0.24722348063372293,
+      "mean_d_words_per_sentence": -0.1999631167061063,
+      "mean_d_pct_hard_words": -0.48784157764687874,
+      "mean_d_fkgl": -0.4351208551374186,
+      "mean_nli_score": 0.5332934486797881,
+      "pct_nli_passed": 50.0,
+      "mean_ppl": 3.291722082489836,
+      "mean_ppl_ratio": 3.014766675924604,
+      "mean_sari": null,
+      "pct_degenerate": 0.0,
+      "mean_gen_sec": 9.54504732498899,
+      "gen_seconds_total": 95.45047324988991
+    },
+    {
+      "eval_set": "science",
+      "variant": "steered_structural",
+      "mode": "whole",
+      "n": 10,
+      "n_failed": 0,
+      "spec_label": "stru@L31a0.5",
+      "mean_fkgl": 12.61527693670113,
+      "mean_words_per_sentence": 12.354761904761904,
+      "mean_pct_hard_words": 0.47366870759280094,
+      "mean_d_words_per_sentence": -0.46747071352683556,
+      "mean_d_pct_hard_words": -0.04914074221578809,
+      "mean_d_fkgl": -0.29692752688636925,
+      "mean_nli_score": 0.8529044346759717,
+      "pct_nli_passed": 100.0,
+      "mean_ppl": 2.949561973266403,
+      "mean_ppl_ratio": 2.7048223827006965,
+      "mean_sari": null,
+      "pct_degenerate": 10.0,
+      "mean_gen_sec": 7.781111670890823,
+      "gen_seconds_total": 77.81111670890823
+    },
+    {
+      "eval_set": "science",
+      "variant": "lora",
+      "mode": "whole",
+      "n": 10,
+      "n_failed": 0,
+      "spec_label": "unsteered",
+      "mean_fkgl": 15.355175119660426,
+      "mean_words_per_sentence": 21.685714285714287,
+      "mean_pct_hard_words": 0.41863803105394126,
+      "mean_d_words_per_sentence": -0.06210850680211912,
+      "mean_d_pct_hard_words": -0.16014132582280655,
+      "mean_d_fkgl": -0.14199489484353772,
+      "mean_nli_score": 0.7855202556283968,
+      "pct_nli_passed": 90.0,
+      "mean_ppl": 1.947916830121961,
+      "mean_ppl_ratio": 1.7850557209623392,
+      "mean_sari": null,
+      "pct_degenerate": 0.0,
+      "mean_gen_sec": 8.747275329194963,
+      "gen_seconds_total": 87.47275329194963
+    },
+    {
+      "eval_set": "science",
+      "variant": "fewshot",
+      "mode": "whole",
+      "n": 10,
+      "n_failed": 0,
+      "spec_label": "unsteered",
+      "mean_fkgl": 15.914077436528448,
+      "mean_words_per_sentence": 21.268333333333334,
+      "mean_pct_hard_words": 0.45915093817493996,
+      "mean_d_words_per_sentence": -0.08113941614944747,
+      "mean_d_pct_hard_words": -0.07704018470349566,
+      "mean_d_fkgl": -0.10850943092382355,
+      "mean_nli_score": 0.8863799948493639,
+      "pct_nli_passed": 100.0,
+      "mean_ppl": 1.6273534744969296,
+      "mean_ppl_ratio": 1.4919977178400239,
+      "mean_sari": null,
+      "pct_degenerate": 10.0,
+      "mean_gen_sec": 12.797108866693453,
+      "gen_seconds_total": 127.97108866693452
+    },
+    {
+      "eval_set": "science",
+      "variant": "fewshot_plus_steered",
+      "mode": "whole",
+      "n": 10,
+      "n_failed": 0,
+      "spec_label": "stru@L31a0.5",
+      "mean_fkgl": 10.138491736329659,
+      "mean_words_per_sentence": 10.860227272727272,
+      "mean_pct_hard_words": 0.40265764987277947,
+      "mean_d_words_per_sentence": -0.5282805246835938,
+      "mean_d_pct_hard_words": -0.18879719562232183,
+      "mean_d_fkgl": -0.43753027153076235,
+      "mean_nli_score": 0.7294423180151111,
+      "pct_nli_passed": 90.0,
+      "mean_ppl": 4.504216076164477,
+      "mean_ppl_ratio": 4.121867399106961,
+      "mean_sari": null,
+      "pct_degenerate": 0.0,
+      "mean_gen_sec": 14.662784016807564,
+      "gen_seconds_total": 146.62784016807564
+    },
+    {
+      "eval_set": "science",
+      "variant": "easy_words",
+      "mode": "whole",
+      "n": 10,
+      "n_failed": 0,
+      "spec_label": "unsteered",
+      "mean_fkgl": 14.813073306142684,
+      "mean_words_per_sentence": 24.511666666666667,
+      "mean_pct_hard_words": 0.3049025367386722,
+      "mean_d_words_per_sentence": 0.05927046019486705,
+      "mean_d_pct_hard_words": -0.3848925105390363,
+      "mean_d_fkgl": -0.16902548175046433,
+      "mean_nli_score": 0.7823432584727803,
+      "pct_nli_passed": 100.0,
+      "mean_ppl": 6.4332947298712,
+      "mean_ppl_ratio": 5.884852209638165,
+      "mean_sari": null,
+      "pct_degenerate": 0.0,
+      "mean_gen_sec": 8.984044866613113,
+      "gen_seconds_total": 89.84044866613112
+    }
+  ]
+}

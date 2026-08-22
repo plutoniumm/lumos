@@ -22,6 +22,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import config
 from lib import data, vectors
+from lib import jsonio
 from lib.models import load
 from lib.steering import SteeredLM, SteeringSpec
 
@@ -57,7 +58,7 @@ def _synthetic_pairs(
 
     cache[key] = {"sources": texts, "rewrites": rewrites}
     SYNTHETIC_CACHE.parent.mkdir(parents=True, exist_ok=True)
-    SYNTHETIC_CACHE.write_text(json.dumps(cache, indent=2))
+    jsonio.dump(SYNTHETIC_CACHE, cache)
     return rewrites, texts
 
 

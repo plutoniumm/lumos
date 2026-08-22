@@ -21,6 +21,19 @@ from lib.chunking import split_sentences  # noqa: E402
 
 MAX_PAIRS_PER_BATCH = 16
 
+# roberta-large-mnli caps at 512 tokens and the premise here is a whole text, not
+# a sentence. On ASSET that is never close; on a science abstract the longest
+# item reaches 502 with a 1.8x expansion, which is ten tokens of headroom.
+#
+# Silent truncation would bias one direction of the score and not the other. When
+# the *output* is the premise and its tail is cut, source content that the lost
+# tail actually covered reads as unsupported, so the omission direction reports a
+# deletion that never happened and faithfulness comes out too low. An arm that
+# legitimately expands the text would be penalised for it, invisibly. Counting is
+# cheap; guessing afterwards is not.
+NLI_MAX_TOKENS = 512
+_truncated = 0
+
 
 @lru_cache(maxsize=1)
 def _nli():
@@ -58,9 +71,25 @@ def entailment_probs(pairs: list[tuple[str, str]]) -> list[float]:
             truncation=True,
             max_length=512,
         ).to(config.DEVICE)
+        hit = int((batch["attention_mask"].sum(1) >= NLI_MAX_TOKENS).sum())
+        if hit:
+            global _truncated
+            first = _truncated == 0
+            _truncated += hit
+            if first:
+                print(
+                    f"  [warn] NLI input hit the {NLI_MAX_TOKENS}-token cap; the "
+                    f"premise was truncated. Faithfulness is understated for "
+                    f"these pairs -- see truncated_pairs()."
+                )
         probs = model(**batch).logits.softmax(-1)[:, idx]
         out.extend(probs.float().cpu().tolist())
     return out
+
+
+def truncated_pairs() -> int:
+    """How many NLI pairs hit the token cap this process. 0 means the scores are clean."""
+    return _truncated
 
 
 @dataclass

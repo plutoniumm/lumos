@@ -20,6 +20,7 @@ from safetensors.torch import load_file, save_file
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import config  # noqa: E402
+from lib import tables  # noqa: E402
 from lib.hooks import Pooling, SiteKind, record  # noqa: E402
 from lib.models import SteerableLM  # noqa: E402
 
@@ -150,7 +151,9 @@ def instruction_diff(
     layers = list(range(lm.n_layers)) if layers is None else list(layers)
     acc = _Accum()
 
-    for i, text in enumerate(texts):
+    for text in tables.progress(
+        texts, unit="text", desc=f"vec {name}", enabled=progress
+    ):
         with_instr = _pooled(
             record(lm, lm.build_prompt(text, instruction), layers, kind, pooling)
         )
@@ -164,8 +167,6 @@ def instruction_diff(
         # steering will actually be added to at inference.
         norms = {l: float(without[l].norm()) for l in layers}
         acc.add(delta, norms)
-        if progress and (i + 1) % 25 == 0:
-            print(f"  [{name}] {i + 1}/{len(texts)}")
 
     vectors, ref_norms = acc.mean()
     return VectorBank(
@@ -200,15 +201,18 @@ def caa(
     layers = list(range(lm.n_layers)) if layers is None else list(layers)
     acc = _Accum()
 
-    for i, (simple, cplx) in enumerate(zip(simple_texts, complex_texts)):
+    for simple, cplx in tables.progress(
+        list(zip(simple_texts, complex_texts)),
+        unit="pair",
+        desc=f"vec {name}",
+        enabled=progress,
+    ):
         pos = _pooled(record(lm, lm.build_prompt(simple), layers, kind, pooling))
         neg = _pooled(record(lm, lm.build_prompt(cplx), layers, kind, pooling))
         acc.add(
             {l: pos[l] - neg[l] for l in layers},
             {l: float(neg[l].norm()) for l in layers},
         )
-        if progress and (i + 1) % 25 == 0:
-            print(f"  [{name}] {i + 1}/{len(simple_texts)}")
 
     vectors, ref_norms = acc.mean()
     return VectorBank(

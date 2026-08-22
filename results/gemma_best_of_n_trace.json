@@ -1,0 +1,2018 @@
+[
+  {
+    "item_index": 0,
+    "picked": "stru@0.5x",
+    "n_survivors": 2,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 16.170000000000005,
+        "nli": 0.9939151406288147,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 8.985697674418606,
+        "nli": 0.9811220169067383,
+        "ppl_ratio": 7.893681557985595,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 15.043703703703706,
+        "nli": 0.982109785079956,
+        "ppl_ratio": 1.1432317331284225,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 8.101111111111113,
+        "nli": 0.9824720621109009,
+        "ppl_ratio": 2.3691114758246226,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 3.598784194528875,
+        "nli": 0.8232802535806384,
+        "ppl_ratio": 6.306632115641361,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 3.888589743589744,
+        "nli": 0.0011279444443061948,
+        "ppl_ratio": 20.262561934208485,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 15.3275,
+        "nli": 0.16478551924228668,
+        "ppl_ratio": 59.16350066419121,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 1,
+    "picked": "stru@0.5x",
+    "n_survivors": 2,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 14.60666666666667,
+        "nli": 0.9926139116287231,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 6.272307692307695,
+        "nli": 0.9907930195331573,
+        "ppl_ratio": 5.7505417230529225,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 13.157692307692308,
+        "nli": 0.9944345355033875,
+        "ppl_ratio": 1.0131548312253258,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 7.693000000000001,
+        "nli": 0.994289755821228,
+        "ppl_ratio": 2.0687176245171166,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 5.890000000000004,
+        "nli": 0.9745061993598938,
+        "ppl_ratio": 5.600501040509861,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 5.433333333333334,
+        "nli": 0.8400812745094299,
+        "ppl_ratio": 17.044651014385405,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 11.547407407407409,
+        "nli": 0.980901300907135,
+        "ppl_ratio": 5.993399929885906,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 2,
+    "picked": "unsteered",
+    "n_survivors": 4,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 5.884285714285717,
+        "nli": 0.9328089356422424,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 6.8750000000000036,
+        "nli": 0.8973003625869751,
+        "ppl_ratio": 1.9203037160631053,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 5.884285714285717,
+        "nli": 0.9328089356422424,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 5.884285714285717,
+        "nli": 0.9328089356422424,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 5.884285714285717,
+        "nli": 0.9328089356422424,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 4.790909090909089,
+        "nli": 0.024653341621160507,
+        "ppl_ratio": 8.206972188840737,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 6.780000000000001,
+        "nli": 0.8222352862358093,
+        "ppl_ratio": 4.055180110519187,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 3,
+    "picked": "stru@0.5x",
+    "n_survivors": 2,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 14.374444444444446,
+        "nli": 0.9883676171302795,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 9.503333333333334,
+        "nli": 0.8597490787506104,
+        "ppl_ratio": 13.906519221286882,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 13.063333333333333,
+        "nli": 0.9864022135734558,
+        "ppl_ratio": 1.1707201956113216,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 12.3,
+        "nli": 0.9714115858078003,
+        "ppl_ratio": 3.726714833333911,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 5.6200000000000045,
+        "nli": 0.22286143898963928,
+        "ppl_ratio": 6.917373586238262,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 7.400000000000002,
+        "nli": 0.002033914439380169,
+        "ppl_ratio": 51.7757044561674,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 7.818888888888889,
+        "nli": 0.7373997569084167,
+        "ppl_ratio": 11.381129435467239,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 4,
+    "picked": "unsteered",
+    "n_survivors": 1,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 10.673333333333336,
+        "nli": 0.9805059432983398,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 4.420000000000002,
+        "nli": 0.9732787311077118,
+        "ppl_ratio": 4.034214456830133,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 4.813333333333336,
+        "nli": 0.9855154752731323,
+        "ppl_ratio": 1.580135339285857,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 1.957142857142859,
+        "nli": 0.9837729334831238,
+        "ppl_ratio": 4.175258120055826,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 0.1371428571428588,
+        "nli": 0.8221368193626404,
+        "ppl_ratio": 3.449065621239495,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 1.0368181818181839,
+        "nli": 0.005632967222481966,
+        "ppl_ratio": 9.607319830261936,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 12.106451612903225,
+        "nli": 0.9142512083053589,
+        "ppl_ratio": 3.325334010785077,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 5,
+    "picked": "unsteered",
+    "n_survivors": 5,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 4.830000000000002,
+        "nli": 0.9942215085029602,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 4.830000000000002,
+        "nli": 0.9942215085029602,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 4.830000000000002,
+        "nli": 0.9942215085029602,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 4.830000000000002,
+        "nli": 0.9942215085029602,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 4.830000000000002,
+        "nli": 0.9942215085029602,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 2.6459090909090897,
+        "nli": 0.11090316623449326,
+        "ppl_ratio": 12.802374940662094,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 4.830000000000002,
+        "nli": 0.12312941253185272,
+        "ppl_ratio": 5.45929380913912,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 6,
+    "picked": "unsteered",
+    "n_survivors": 4,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 11.706666666666667,
+        "nli": 0.9912624359130859,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 9.08705882352941,
+        "nli": 0.9803193211555481,
+        "ppl_ratio": 12.984799890674175,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 11.706666666666667,
+        "nli": 0.9912624359130859,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 11.706666666666667,
+        "nli": 0.9912624359130859,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 11.706666666666667,
+        "nli": 0.9912624359130859,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 11.22727272727273,
+        "nli": 0.008286925964057446,
+        "ppl_ratio": 19.59831206280667,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 9.255714285714287,
+        "nli": 0.9928949475288391,
+        "ppl_ratio": 6.299945395752387,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 7,
+    "picked": "unsteered",
+    "n_survivors": 2,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 9.92666666666667,
+        "nli": 0.990065336227417,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 9.080909090909092,
+        "nli": 0.9922044277191162,
+        "ppl_ratio": 2.8024090018113563,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 9.92666666666667,
+        "nli": 0.990065336227417,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 8.474444444444444,
+        "nli": 0.9931994080543518,
+        "ppl_ratio": 1.6158514126336978,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 6.010000000000002,
+        "nli": 0.9766148626804352,
+        "ppl_ratio": 2.5386080591236646,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 6.215000000000003,
+        "nli": 0.0010935013415291905,
+        "ppl_ratio": 5.918114209491045,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 5.323326885880078,
+        "nli": 0.1379952159794894,
+        "ppl_ratio": 1.5139670838655432,
+        "degenerate": true,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 8,
+    "picked": "unsteered",
+    "n_survivors": 1,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 17.652222222222225,
+        "nli": 0.9915112853050232,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 6.828571428571429,
+        "nli": 0.9919611215591431,
+        "ppl_ratio": 14.514324733596409,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 11.320000000000004,
+        "nli": 0.9902591705322266,
+        "ppl_ratio": 1.7700298109578796,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 8.67166666666667,
+        "nli": 0.9772217869758606,
+        "ppl_ratio": 4.985193004367983,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 7.821923076923078,
+        "nli": 0.9391861706972122,
+        "ppl_ratio": 9.348486484814735,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 0.3816483516483533,
+        "nli": 0.0019427755614742637,
+        "ppl_ratio": 6.779318079215295,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 13.251764705882355,
+        "nli": 0.9292259812355042,
+        "ppl_ratio": 4.269525367360068,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 9,
+    "picked": "unsteered",
+    "n_survivors": 2,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 22.667878787878788,
+        "nli": 0.9928971529006958,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 11.4046511627907,
+        "nli": 0.9738147656122843,
+        "ppl_ratio": 3.3823305994946975,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 22.667878787878788,
+        "nli": 0.9928971529006958,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 12.172307692307694,
+        "nli": 0.9687780141830444,
+        "ppl_ratio": 2.6379288409796677,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 7.442500000000003,
+        "nli": 0.9699109196662903,
+        "ppl_ratio": 3.083822599366978,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 5.8602580645161275,
+        "nli": 0.9303092956542969,
+        "ppl_ratio": 7.933494210522557,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 18.95806451612903,
+        "nli": 0.9317824244499207,
+        "ppl_ratio": 1.5798208627597723,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 10,
+    "picked": "unsteered",
+    "n_survivors": 3,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 12.62714285714286,
+        "nli": 0.988885760307312,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 8.548529411764708,
+        "nli": 0.9920398890972137,
+        "ppl_ratio": 3.103565044802675,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 12.62714285714286,
+        "nli": 0.9921739101409912,
+        "ppl_ratio": 1.043413934525148,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 12.62714285714286,
+        "nli": 0.992419421672821,
+        "ppl_ratio": 1.212493239553237,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 8.211428571428574,
+        "nli": 0.48619940876960754,
+        "ppl_ratio": 8.38004940833557,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 8.575000000000003,
+        "nli": 0.14120298624038696,
+        "ppl_ratio": 27.88444496352232,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 12.037500000000005,
+        "nli": 0.05941944569349289,
+        "ppl_ratio": 2.979549140050907,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 11,
+    "picked": "unsteered",
+    "n_survivors": 2,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 9.740000000000002,
+        "nli": 0.9934754967689514,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 4.662500000000001,
+        "nli": 0.9907859563827515,
+        "ppl_ratio": 93.57469682571197,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 10.356923076923078,
+        "nli": 0.9922175407409668,
+        "ppl_ratio": 1.2071875142320563,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 9.087500000000002,
+        "nli": 0.9939253926277161,
+        "ppl_ratio": 2.344686907779396,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 7.773333333333333,
+        "nli": 0.0014647868229076266,
+        "ppl_ratio": 37.201906730700166,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 7.773333333333333,
+        "nli": 0.0015087048523128033,
+        "ppl_ratio": 61.68001619088046,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 8.353333333333339,
+        "nli": 0.993190586566925,
+        "ppl_ratio": 1.8048711715746963,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 12,
+    "picked": "stru@0.5x",
+    "n_survivors": 2,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 11.752222222222223,
+        "nli": 0.9935500025749207,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 8.548529411764708,
+        "nli": 0.992433488368988,
+        "ppl_ratio": 3.5131427670353323,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 10.723333333333333,
+        "nli": 0.5652931928634644,
+        "ppl_ratio": 1.4544166466950688,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 8.575000000000003,
+        "nli": 0.9922719299793243,
+        "ppl_ratio": 2.4935377056266903,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 8.575000000000003,
+        "nli": 0.9922719299793243,
+        "ppl_ratio": 2.4935377056266903,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 12.65727272727273,
+        "nli": 0.09932691603899002,
+        "ppl_ratio": 2.376587685563392,
+        "degenerate": true,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 9.08705882352941,
+        "nli": 0.009070721454918385,
+        "ppl_ratio": 5.664469654098521,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 13,
+    "picked": "lexi@1.0x",
+    "n_survivors": 3,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 12.83545454545455,
+        "nli": 0.9932918548583984,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 6.340862068965521,
+        "nli": 0.9846855401992798,
+        "ppl_ratio": 17.976856708942996,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 12.83545454545455,
+        "nli": 0.9932918548583984,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 8.733571428571427,
+        "nli": 0.9828452467918396,
+        "ppl_ratio": 2.0943185115066703,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 7.115454545454547,
+        "nli": 0.9732478260993958,
+        "ppl_ratio": 5.0494160771263195,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 7.160294117647062,
+        "nli": 0.0011995196109637618,
+        "ppl_ratio": 4.7213891192730335,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 12.362608695652174,
+        "nli": 0.9930509328842163,
+        "ppl_ratio": 1.4249895352182451,
+        "degenerate": false,
+        "passes": true
+      }
+    ]
+  },
+  {
+    "item_index": 14,
+    "picked": "unsteered",
+    "n_survivors": 2,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 10.713333333333338,
+        "nli": 0.9931334853172302,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 8.73,
+        "nli": 0.7355121970176697,
+        "ppl_ratio": 12.977920316038544,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 10.713333333333338,
+        "nli": 0.9931334853172302,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 10.941428571428574,
+        "nli": 0.9927616715431213,
+        "ppl_ratio": 1.8858338730031001,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 10.941428571428574,
+        "nli": 0.9927616715431213,
+        "ppl_ratio": 1.8858338730031001,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 9.637307692307694,
+        "nli": 0.9930509328842163,
+        "ppl_ratio": 9.86631121002439,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 12.314736842105265,
+        "nli": 0.0037371281068772078,
+        "ppl_ratio": 23.86591724283373,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 15,
+    "picked": "unsteered",
+    "n_survivors": 4,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 4.91076923076923,
+        "nli": 0.9927244782447815,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 3.0953846153846136,
+        "nli": 0.9881558418273926,
+        "ppl_ratio": 3.8454405120770314,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 4.91076923076923,
+        "nli": 0.9927244782447815,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 4.91076923076923,
+        "nli": 0.9927244782447815,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 4.91076923076923,
+        "nli": 0.9927244782447815,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 7.818888888888889,
+        "nli": 0.18000154197216034,
+        "ppl_ratio": 8.093051877982644,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 3.633333333333333,
+        "nli": 0.06449742615222931,
+        "ppl_ratio": 9.982535723035806,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 16,
+    "picked": "stru@0.5x",
+    "n_survivors": 6,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 4.830000000000002,
+        "nli": 0.9927982091903687,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 4.003076923076925,
+        "nli": 0.991493821144104,
+        "ppl_ratio": 6.244740593680644,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 3.653333333333336,
+        "nli": 0.992805540561676,
+        "ppl_ratio": 1.1236453330829035,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 3.653333333333336,
+        "nli": 0.992805540561676,
+        "ppl_ratio": 1.1236453330829035,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 3.653333333333336,
+        "nli": 0.992805540561676,
+        "ppl_ratio": 1.1236453330829035,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 3.653333333333336,
+        "nli": 0.992805540561676,
+        "ppl_ratio": 1.1236453330829035,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 3.653333333333336,
+        "nli": 0.992805540561676,
+        "ppl_ratio": 1.1236453330829035,
+        "degenerate": false,
+        "passes": true
+      }
+    ]
+  },
+  {
+    "item_index": 17,
+    "picked": "unsteered",
+    "n_survivors": 3,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 12.425714285714289,
+        "nli": 0.9940392971038818,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 9.781176470588235,
+        "nli": 0.5686073303222656,
+        "ppl_ratio": 10.774782326246774,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 12.425714285714289,
+        "nli": 0.9940392971038818,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 17.029999999999998,
+        "nli": 0.7714813351631165,
+        "ppl_ratio": 1.3399873841509007,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 14.111428571428572,
+        "nli": 0.9941125512123108,
+        "ppl_ratio": 8.223824440178335,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 14.111428571428572,
+        "nli": 0.9941125512123108,
+        "ppl_ratio": 8.223824440178335,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 9.054285714285715,
+        "nli": 0.9274332523345947,
+        "ppl_ratio": 4.297926540768625,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 18,
+    "picked": "unsteered",
+    "n_survivors": 2,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 14.080000000000002,
+        "nli": 0.9915223121643066,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 5.206666666666667,
+        "nli": 0.8490539193153381,
+        "ppl_ratio": 46.023046066359946,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 14.080000000000002,
+        "nli": 0.991866409778595,
+        "ppl_ratio": 1.1887646090387807,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 12.831111111111113,
+        "nli": 0.9923847913742065,
+        "ppl_ratio": 1.612020079913242,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 12.831111111111113,
+        "nli": 0.9923847913742065,
+        "ppl_ratio": 1.612020079913242,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 12.831111111111113,
+        "nli": 0.9923847913742065,
+        "ppl_ratio": 1.612020079913242,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 11.91,
+        "nli": 0.9613726735115051,
+        "ppl_ratio": 11.641479340734508,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 19,
+    "picked": "prompted",
+    "n_survivors": 5,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 8.541538461538462,
+        "nli": 0.9936238527297974,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 7.004705882352944,
+        "nli": 0.988477885723114,
+        "ppl_ratio": 1.3638509998689181,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 7.633846153846157,
+        "nli": 0.9937427639961243,
+        "ppl_ratio": 1.0972865325896157,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 7.698823529411765,
+        "nli": 0.9930521249771118,
+        "ppl_ratio": 1.4675017673773103,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 4.492500000000003,
+        "nli": 0.9910735785961151,
+        "ppl_ratio": 3.001450188573197,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 2.4833333333333343,
+        "nli": 0.001173853874206543,
+        "ppl_ratio": 18.024985952943318,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 7.004705882352944,
+        "nli": 0.988477885723114,
+        "ppl_ratio": 1.3638509998689181,
+        "degenerate": false,
+        "passes": true
+      }
+    ]
+  },
+  {
+    "item_index": 20,
+    "picked": "stru@1.5x",
+    "n_survivors": 5,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 5.863636363636363,
+        "nli": 0.9914332628250122,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 5.863636363636363,
+        "nli": 0.9925035238265991,
+        "ppl_ratio": 1.1346936893306245,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 5.863636363636363,
+        "nli": 0.9916310906410217,
+        "ppl_ratio": 1.2691596734551878,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 5.806666666666668,
+        "nli": 0.9927825927734375,
+        "ppl_ratio": 1.6582091999416888,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 5.818461538461541,
+        "nli": 0.9919140338897705,
+        "ppl_ratio": 1.3719679623869927,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 4.823333333333334,
+        "nli": 0.9875717163085938,
+        "ppl_ratio": 2.7624051848426516,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 5.818461538461541,
+        "nli": 0.9901909828186035,
+        "ppl_ratio": 1.3619944764485619,
+        "degenerate": false,
+        "passes": true
+      }
+    ]
+  },
+  {
+    "item_index": 21,
+    "picked": "stru@0.5x",
+    "n_survivors": 2,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 7.570000000000004,
+        "nli": 0.9926674962043762,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 2.55261904761905,
+        "nli": 0.9930361211299896,
+        "ppl_ratio": 10.013810110346178,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 6.727142857142859,
+        "nli": 0.9935355186462402,
+        "ppl_ratio": 1.1340100283718224,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 7.004705882352944,
+        "nli": 0.9924384951591492,
+        "ppl_ratio": 1.7458752107425985,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 3.6897058823529427,
+        "nli": 0.9932917058467865,
+        "ppl_ratio": 3.484940374510519,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 3.6897058823529427,
+        "nli": 0.9932917058467865,
+        "ppl_ratio": 3.484940374510519,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 7.346315789473689,
+        "nli": 0.9899259805679321,
+        "ppl_ratio": 4.7685631721216675,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 22,
+    "picked": "stru@0.5x",
+    "n_survivors": 2,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 12.83545454545455,
+        "nli": 0.9938260912895203,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 8.637,
+        "nli": 0.9682963192462921,
+        "ppl_ratio": 6.653544194456399,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 12.26666666666667,
+        "nli": 0.9935010075569153,
+        "ppl_ratio": 1.1645694873632086,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 8.171666666666667,
+        "nli": 0.9925209581851959,
+        "ppl_ratio": 4.304013002079163,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 7.779999999999998,
+        "nli": 0.990566074848175,
+        "ppl_ratio": 7.6336713155027365,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 7.821923076923078,
+        "nli": 0.20661358535289764,
+        "ppl_ratio": 50.46548558513868,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 15.55857142857143,
+        "nli": 0.3424511253833771,
+        "ppl_ratio": 6.32286660846934,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 23,
+    "picked": "stru@1.0x",
+    "n_survivors": 3,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 11.500000000000004,
+        "nli": 0.9941182136535645,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 9.830526315789477,
+        "nli": 0.9922534823417664,
+        "ppl_ratio": 7.865140226670578,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 11.500000000000004,
+        "nli": 0.9941182136535645,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 8.353333333333339,
+        "nli": 0.9944406151771545,
+        "ppl_ratio": 1.3636454079436429,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 5.428333333333338,
+        "nli": 0.990504801273346,
+        "ppl_ratio": 3.0307280913104466,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 0.5166666666666693,
+        "nli": 0.0011769956909120083,
+        "ppl_ratio": 22.795671507995763,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 8.350000000000005,
+        "nli": 0.9935666918754578,
+        "ppl_ratio": 2.2318224792193426,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 24,
+    "picked": "stru@0.5x",
+    "n_survivors": 2,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 15.426923076923078,
+        "nli": 0.9849216341972351,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 9.533333333333335,
+        "nli": 0.8911033272743225,
+        "ppl_ratio": 6.50867373597476,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 13.984000000000002,
+        "nli": 0.9766741991043091,
+        "ppl_ratio": 1.1401433082606065,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 10.00293103448276,
+        "nli": 0.9516555964946747,
+        "ppl_ratio": 1.8572552001419897,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 5.821666666666669,
+        "nli": 0.9133147597312927,
+        "ppl_ratio": 7.743412471390243,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 4.710000000000004,
+        "nli": 0.0022935415618121624,
+        "ppl_ratio": 42.99340748281362,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 14.414782608695656,
+        "nli": 0.9136191606521606,
+        "ppl_ratio": 4.768160543901759,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 25,
+    "picked": "unsteered",
+    "n_survivors": 0,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 9.457142857142859,
+        "nli": 0.0818914845585823,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "prompted",
+        "fkgl": 5.532500000000002,
+        "nli": 0.9833767712116241,
+        "ppl_ratio": 4.210825638271437,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 9.457142857142859,
+        "nli": 0.0818914845585823,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 9.457142857142859,
+        "nli": 0.0818914845585823,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 9.457142857142859,
+        "nli": 0.0818914845585823,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 3.1542857142857166,
+        "nli": 0.001544310012832284,
+        "ppl_ratio": 29.004871029892644,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 9.631937984496126,
+        "nli": 0.13963735103607178,
+        "ppl_ratio": 3.7229385192473705,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 26,
+    "picked": "stru@1.0x",
+    "n_survivors": 3,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 12.250000000000004,
+        "nli": 0.9941330552101135,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 6.727142857142859,
+        "nli": 0.9891481399536133,
+        "ppl_ratio": 7.314974482534818,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 12.250000000000004,
+        "nli": 0.9941330552101135,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 11.336521739130436,
+        "nli": 0.9940962791442871,
+        "ppl_ratio": 1.1685175793445077,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 7.472727272727273,
+        "nli": 0.007703789509832859,
+        "ppl_ratio": 5.087419887443405,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 6.2755555555555596,
+        "nli": 0.0012616572203114629,
+        "ppl_ratio": 15.606067050555849,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 8.73,
+        "nli": 0.9896144270896912,
+        "ppl_ratio": 5.77257139478898,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 27,
+    "picked": "stru@0.5x",
+    "n_survivors": 2,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 16.334615384615386,
+        "nli": 0.9907907247543335,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 9.223684210526319,
+        "nli": 0.9827928145726522,
+        "ppl_ratio": 4.982629358465539,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 11.362857142857145,
+        "nli": 0.9892727136611938,
+        "ppl_ratio": 1.3807074768317182,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 7.989224137931036,
+        "nli": 0.9910931587219238,
+        "ppl_ratio": 4.437239386560237,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 7.378289473684212,
+        "nli": 0.00081587303429842,
+        "ppl_ratio": 15.951390765776246,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 8.383333333333333,
+        "nli": 0.0011008016299456358,
+        "ppl_ratio": 37.51569671554633,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 7.080714285714286,
+        "nli": 0.008871393278241158,
+        "ppl_ratio": 13.534322815782781,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 28,
+    "picked": "prompted",
+    "n_survivors": 5,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 6.137499999999999,
+        "nli": 0.9930760860443115,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 5.616470588235295,
+        "nli": 0.9939470291137695,
+        "ppl_ratio": 1.47244079980711,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 6.137499999999999,
+        "nli": 0.9930760860443115,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 6.137499999999999,
+        "nli": 0.99149489402771,
+        "ppl_ratio": 1.1438167661739527,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 3.017500000000002,
+        "nli": 0.9883267283439636,
+        "ppl_ratio": 2.5158524183942745,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": -1.3647058823529399,
+        "nli": 0.28317996859550476,
+        "ppl_ratio": 1.9941530590342216,
+        "degenerate": true,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 5.616470588235295,
+        "nli": 0.9915590286254883,
+        "ppl_ratio": 1.042699177701955,
+        "degenerate": false,
+        "passes": true
+      }
+    ]
+  },
+  {
+    "item_index": 29,
+    "picked": "unsteered",
+    "n_survivors": 2,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 9.140000000000004,
+        "nli": 0.994163453578949,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 9.130000000000003,
+        "nli": 0.8559544682502747,
+        "ppl_ratio": 19.588225718105562,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 9.140000000000004,
+        "nli": 0.994163453578949,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 9.140000000000004,
+        "nli": 0.9941661357879639,
+        "ppl_ratio": 1.544624188802952,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 5.230000000000004,
+        "nli": 0.5815336108207703,
+        "ppl_ratio": 5.036404044467571,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 4.450000000000003,
+        "nli": 0.0010876983869820833,
+        "ppl_ratio": 8.233188880575511,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 8.353333333333339,
+        "nli": 0.986579954624176,
+        "ppl_ratio": 4.919745254096507,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 30,
+    "picked": "stru@1.0x",
+    "n_survivors": 3,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 12.037500000000005,
+        "nli": 0.9928615689277649,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 11.07263157894737,
+        "nli": 0.9781939387321472,
+        "ppl_ratio": 11.622533936144807,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 12.037500000000005,
+        "nli": 0.9928615689277649,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 9.825,
+        "nli": 0.9926747679710388,
+        "ppl_ratio": 1.2995032927196102,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 5.818461538461541,
+        "nli": 0.41130587458610535,
+        "ppl_ratio": 2.044821581717329,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 8.541538461538462,
+        "nli": 0.006249281112104654,
+        "ppl_ratio": 17.625709880540075,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 5.993333333333336,
+        "nli": 0.01538475789129734,
+        "ppl_ratio": 8.192998222787796,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  },
+  {
+    "item_index": 31,
+    "picked": "stru@0.5x",
+    "n_survivors": 3,
+    "candidates": [
+      {
+        "label": "unsteered",
+        "fkgl": 11.096666666666668,
+        "nli": 0.9913354516029358,
+        "ppl_ratio": 1.0,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "prompted",
+        "fkgl": 6.719444444444445,
+        "nli": 0.9893668293952942,
+        "ppl_ratio": 6.55689860139328,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@0.5x",
+        "fkgl": 10.441111111111113,
+        "nli": 0.9917799830436707,
+        "ppl_ratio": 1.1200605068439988,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.0x",
+        "fkgl": 10.441111111111113,
+        "nli": 0.9917799830436707,
+        "ppl_ratio": 1.1200605068439988,
+        "degenerate": false,
+        "passes": true
+      },
+      {
+        "label": "stru@1.5x",
+        "fkgl": 7.0478571428571435,
+        "nli": 0.9872051775455475,
+        "ppl_ratio": 1.9778562716187715,
+        "degenerate": false,
+        "passes": false
+      },
+      {
+        "label": "stru@2.0x",
+        "fkgl": 8.522073170731712,
+        "nli": 0.5130248665809631,
+        "ppl_ratio": 1.6742365188872868,
+        "degenerate": true,
+        "passes": false
+      },
+      {
+        "label": "lexi@1.0x",
+        "fkgl": 10.451578947368422,
+        "nli": 0.7835002541542053,
+        "ppl_ratio": 15.796417038073825,
+        "degenerate": false,
+        "passes": false
+      }
+    ]
+  }
+]

@@ -1,0 +1,103 @@
+{
+ "layer": 15,
+ "ladder": [
+  {
+   "alpha": 0.0,
+   "text": "Photosynthesis is the biochemical process by which chlorophyll-containing organisms convert electromagnetic radiation into chemical energy.",
+   "fkgl": 25.660000000000007,
+   "words_per_sentence": 16.0,
+   "pct_hard_words": 0.6875,
+   "degenerate": false,
+   "nli": 0.9796671867370605
+  },
+  {
+   "alpha": 0.5,
+   "text": "Photosynthesis is the biochemical process by which plants and other chlorophyll-containing organisms convert electromagnetic radiation into chemical energy.",
+   "fkgl": 23.55222222222223,
+   "words_per_sentence": 19.0,
+   "pct_hard_words": 0.5789473684210527,
+   "degenerate": false,
+   "nli": 0.9670755863189697
+  },
+  {
+   "alpha": 1.0,
+   "text": "Photosynthesis is a biochemical process that converts light energy into chemical energy. It occurs in plants and some other organisms that contain chlorophyll, which helps to capture sunlight and convert it into energy.",
+   "fkgl": 13.729848484848485,
+   "words_per_sentence": 16.5,
+   "pct_hard_words": 0.42424242424242425,
+   "degenerate": false,
+   "nli": 0.6308390498161316
+  },
+  {
+   "alpha": 1.5,
+   "text": "Photosynthesis is a biochemical process that converts sunlight into energy. It helps plants and green plants make food. \n\n- Plants have green things that help them make food.\n- They have two things: \n- They have green things that help them make food.\n- They have two things: \n- They have green things that help them make food.\n- They have two things: \n- They have green things help make food.\n- They have two things: \n- They have green things help make food.\n- They have two things: \n- They have green things help make food.\n- They have two things: \n- They have green things help make food.\n- They have two things: \n- They have green things help make food.\n- They have two things: \n- They have green",
+   "fkgl": 1.723794466403163,
+   "words_per_sentence": 57.5,
+   "pct_hard_words": 0.043478260869565216,
+   "degenerate": true,
+   "nli": 0.6465019881725311
+  }
+ ],
+ "pairs": [
+  {
+   "source": "Notwithstanding considerable methodological heterogeneity, the meta-analysis demonstrated a statistically significant attenuation of symptom severity.",
+   "alpha": 0.75,
+   "text": "Despite significant differences in research methods, the meta-analysis found a significant reduction in symptom severity.",
+   "fkgl": 18.580000000000002,
+   "words_per_sentence": 16.0,
+   "pct_hard_words": 0.6875,
+   "degenerate": false,
+   "nli": 0.943913996219635,
+   "src_fkgl": 34.54142857142857,
+   "src_wps": 15.0
+  },
+  {
+   "source": "Inflationary monetary policy, when pursued absent corresponding productivity gains, precipitates a deterioration in aggregate purchasing power.",
+   "alpha": 0.75,
+   "text": "Monetary policy that causes inflation can lead to a loss of purchasing power when it doesn't lead to increased productivity.",
+   "fkgl": 14.040000000000003,
+   "words_per_sentence": 20.0,
+   "pct_hard_words": 0.35,
+   "degenerate": false,
+   "nli": 0.9881012439727783,
+   "src_fkgl": 25.312500000000004,
+   "src_wps": 16.0
+  },
+  {
+   "source": "Epigenetic modification encompasses heritable alterations in gene expression unaccompanied by changes to the underlying nucleotide sequence.",
+   "alpha": 0.75,
+   "text": "Epigenetic modification refers to changes in gene expression that are passed down through generations without altering the DNA sequence itself.",
+   "fkgl": 16.99,
+   "words_per_sentence": 20.0,
+   "pct_hard_words": 0.45,
+   "degenerate": false,
+   "nli": 0.9364297389984131,
+   "src_fkgl": 25.312500000000004,
+   "src_wps": 16.0
+  },
+  {
+   "source": "The mitochondrion is a double-membrane-bound organelle whose principal function is the generation of adenosine triphosphate via oxidative phosphorylation.",
+   "alpha": 0.75,
+   "text": "The mitochondrion is a specialized organelle with two layers of membranes. Its main job is to produce energy in the form of adenosine triphosphate (ATP) through a process called oxidative phosphorylation.",
+   "fkgl": 11.771129032258063,
+   "words_per_sentence": 15.5,
+   "pct_hard_words": 0.41935483870967744,
+   "degenerate": false,
+   "nli": 0.9679026901721954,
+   "src_fkgl": 19.618888888888893,
+   "src_wps": 20.0
+  },
+  {
+   "source": "The judiciary's interpretive latitude in constitutional adjudication remains contingent upon prevailing doctrinal commitments regarding originalism.",
+   "alpha": 0.75,
+   "text": "The judiciary's power to interpret the constitution is still limited by the prevailing views on originalism in constitutional law.",
+   "fkgl": 16.04105263157895,
+   "words_per_sentence": 19.0,
+   "pct_hard_words": 0.3684210526315789,
+   "degenerate": false,
+   "nli": 0.9667374491691589,
+   "src_fkgl": 26.446666666666676,
+   "src_wps": 15.0
+  }
+ ]
+}
