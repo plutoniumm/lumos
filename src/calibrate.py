@@ -201,11 +201,15 @@ class Calibrator:
         )
         degen_rate = n_degen / n
 
+        # Faithfulness and degeneration only. Perplexity ratio is still measured
+        # and carried on the trial, but it stopped being a constraint when it
+        # turned out not to separate collapsed output from intact output --
+        # ``Scored.passes`` in lib/bench.py carries the numbers. Leaving it in
+        # here would cap alpha on the model whose baseline perplexity happens to
+        # be low rather than on the model that actually breaks first.
         fails: list[str] = []
         if mean_nli < config.NLI_ENTAILMENT_MIN:
             fails.append("nli")
-        if not mean_ppl <= config.PPL_RATIO_MAX:
-            fails.append("ppl")
         if degen_rate > MAX_DEGENERATE_RATE:
             fails.append("degenerate")
 

@@ -205,6 +205,16 @@ VECTOR_N_TEXTS = 256
 
 
 NLI_ENTAILMENT_MIN = 0.50  # required in BOTH directions
+
+# Reporting threshold, NOT a gate. Every row still carries ppl_ratio and a
+# ppl_ratio_ok flag against this number, so any run can be re-filtered after the
+# fact -- but nothing rejects an output for exceeding it. Measured across both
+# models it does not separate collapsed output from intact output (above vs
+# below the threshold, share degenerate: Gemma 4% / 3%, Llama 11% / 3%), while
+# rejecting 55% of the Gemma outputs that are neither degenerate nor unfaithful.
+# The ratio is relative to each model's own unsteered perplexity, and 1.50 was
+# picked on Llama; Gemma's scale is different enough that its LoRA ladder
+# reaches 976. See Scored.passes in lib/bench.py.
 PPL_RATIO_MAX = 1.50  # vs unsteered output on the same source
 TARGET_FKGL = {"grade4": 4.0, "grade6": 6.0, "grade8": 8.0}
 # Upper bound tracks the measured collapse point (~2.0), not an optimistic guess:

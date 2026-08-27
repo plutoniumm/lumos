@@ -1,0 +1,103 @@
+{
+  "model": "unsloth/Llama-3.2-3B-Instruct",
+  "estimator": "instruction_diff",
+  "data_source": "lib.data",
+  "bank_orthogonalized": {
+    "structural": "none",
+    "lexical": "none"
+  },
+  "n_requested": 32,
+  "lora": null,
+  "task": null,
+  "shots": {
+    "asset": []
+  },
+  "easy_word_penalty": null,
+  "variants": [
+    "unsteered",
+    "steered_dual"
+  ],
+  "eval_sets": [
+    "asset"
+  ],
+  "settings": {
+    "structural": [
+      15,
+      0.375
+    ],
+    "lexical": [
+      19,
+      0.5
+    ]
+  },
+  "skip_nli": false,
+  "skip_sari": false,
+  "max_new_tokens": 320,
+  "max_new_tokens_used": {
+    "asset": 320
+  },
+  "batch_size": 8,
+  "interrupted": false,
+  "rows_written_this_run": 64,
+  "failures_this_run": 0,
+  "rows_in_file": 64,
+  "rows_superseded": 0,
+  "wall_clock_this_run": {
+    "asset/unsteered": 14.294545666023623,
+    "asset/steered_dual": 51.24121249996824
+  },
+  "config": {
+    "positions": "gen_only",
+    "norm_preserve": true,
+    "site_kind": "resid_post",
+    "content_orthogonalize": true,
+    "nli_entailment_min": 0.5,
+    "ppl_ratio_max": 1.5
+  },
+  "rows": [
+    {
+      "eval_set": "asset",
+      "variant": "unsteered",
+      "mode": "whole",
+      "n": 32,
+      "n_failed": 0,
+      "spec_label": "unsteered",
+      "mean_fkgl": 12.492001067845205,
+      "mean_words_per_sentence": 20.359375,
+      "mean_pct_hard_words": 0.34485861737079515,
+      "mean_d_words_per_sentence": 0.0,
+      "mean_d_pct_hard_words": 0.0,
+      "mean_d_fkgl": 0.0,
+      "mean_nli_score": 0.8751689236669336,
+      "pct_nli_passed": 90.625,
+      "mean_ppl": 1.2400758025363139,
+      "mean_ppl_ratio": 1.0,
+      "mean_sari": 45.44056427209156,
+      "pct_degenerate": 0.0,
+      "mean_gen_sec": 0.0,
+      "gen_seconds_total": 0.0
+    },
+    {
+      "eval_set": "asset",
+      "variant": "steered_dual",
+      "mode": "whole",
+      "n": 32,
+      "n_failed": 0,
+      "spec_label": "stru@L15a0.375+lexi@L19a0.5",
+      "mean_fkgl": 11.32781018044835,
+      "mean_words_per_sentence": 18.453125,
+      "mean_pct_hard_words": 0.32598802840990343,
+      "mean_d_words_per_sentence": -0.06366344573003023,
+      "mean_d_pct_hard_words": -0.06920101153818212,
+      "mean_d_fkgl": -0.06440293311889557,
+      "mean_nli_score": 0.8628006625949638,
+      "pct_nli_passed": 90.625,
+      "mean_ppl": 1.4960239446199284,
+      "mean_ppl_ratio": 1.2051023830638161,
+      "mean_sari": 44.509130105111375,
+      "pct_degenerate": 0.0,
+      "mean_gen_sec": 1.1852237682196574,
+      "gen_seconds_total": 37.927160583029035
+    }
+  ]
+}

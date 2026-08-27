@@ -22,11 +22,15 @@ No references. SARI needs 10 human rewrites per sentence and would make this a
 measurement of an oracle rather than of a deployable system. The rule is
 ``Scored.passes`` in ``lib/bench.py``:
 
-    keep candidates that are not degenerate,
-        entail the source in both directions at >= NLI_ENTAILMENT_MIN,
-        and have conditional perplexity <= PPL_RATIO_MAX x the baseline's;
+    keep candidates that are not degenerate
+        and entail the source in both directions at >= NLI_ENTAILMENT_MIN;
     among those, take the lowest FKGL;
     if none survive, fall back to the unsteered output.
+
+Conditional perplexity is still measured and written to every row, but it is no
+longer part of the rule -- ``Scored.passes`` in ``lib/bench.py`` has the
+evidence for why a ratio against the model's own baseline cannot be gated at an
+absolute constant.
 
 The fallback is not a formality. It is what makes the arm honest: an item where
 every intervention fails is reported as "no simplification", not dropped from
@@ -73,10 +77,15 @@ class Candidate:
     alpha_scale: float  # multiplies the swept best alpha for that axis
 
     def spec(self, settings: AxisSettings) -> SteeringSpec:
+        """The candidate's rung, at whatever width the axis is configured to.
+
+        ``alpha_scale`` multiplies every layer in the axis's schedule rather
+        than a single alpha, so a depth-scheduled axis ladders as one dial and
+        keeps its shape at each rung.
+        """
         if self.axis is None:
             return SteeringSpec.off()
-        layer, alpha = settings[self.axis]
-        return SteeringSpec.single(self.axis, layer, alpha * self.alpha_scale)
+        return settings.spec(self.axis).scaled(self.alpha_scale)
 
 
 # Chosen to span the tradeoff rather than to be exhaustive. The unsteered and
@@ -130,8 +139,8 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     p.add_argument("--n", type=int, default=32)
     p.add_argument("--asset-split", default="test")
     p.add_argument("--layers-from", type=Path)
-    p.add_argument("--structural", help="LAYER,ALPHA")
-    p.add_argument("--lexical", help="LAYER,ALPHA")
+    p.add_argument("--structural", help="LAYER,ALPHA | LAYER,ALPHA,SHAPE | L:A+L:A+... (shapes: lib/schedules.py)")
+    p.add_argument("--lexical", help="LAYER,ALPHA | LAYER,ALPHA,SHAPE | L:A+L:A+... (shapes: lib/schedules.py)")
     p.add_argument("--out", type=Path, default=config.RESULTS_DIR / "eval_main.jsonl")
     p.add_argument("--variant", default="best_of_n", help="row label")
     p.add_argument("--max-new-tokens", type=int, default=config.MAX_NEW_TOKENS)

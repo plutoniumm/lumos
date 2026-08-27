@@ -69,6 +69,10 @@ def build(args: argparse.Namespace) -> int:
     texts = data.load_complex_corpus(args.n)
     print(f"[data] {len(texts)} complex texts for estimation")
 
+    # Estimating from ASSET-domain text instead was tried and changed nothing --
+    # every metric within noise, axis entanglement 0.220 against 0.223. See
+    # fail.md section 3. The direction is not a property of the estimation pool.
+
     banks: dict[str, vectors.VectorBank] = {}
 
     if args.estimator == "instruction_diff":

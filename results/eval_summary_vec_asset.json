@@ -1,0 +1,127 @@
+{
+  "model": "unsloth/Llama-3.2-3B-Instruct",
+  "estimator": "instruction_diff_asset",
+  "data_source": "lib.data",
+  "bank_orthogonalized": {
+    "structural": "none",
+    "lexical": "none"
+  },
+  "n_requested": 32,
+  "lora": null,
+  "task": null,
+  "shots": {
+    "asset": []
+  },
+  "easy_word_penalty": null,
+  "variants": [
+    "unsteered",
+    "steered_structural",
+    "steered_lexical"
+  ],
+  "eval_sets": [
+    "asset"
+  ],
+  "settings": {
+    "structural": [
+      15,
+      0.75
+    ],
+    "lexical": [
+      19,
+      1.0
+    ]
+  },
+  "skip_nli": false,
+  "skip_sari": false,
+  "max_new_tokens": 320,
+  "max_new_tokens_used": {
+    "asset": 320
+  },
+  "batch_size": 8,
+  "interrupted": false,
+  "rows_written_this_run": 96,
+  "failures_this_run": 0,
+  "rows_in_file": 96,
+  "rows_superseded": 0,
+  "wall_clock_this_run": {
+    "asset/unsteered": 10.43801791704027,
+    "asset/steered_structural": 35.605606416007504,
+    "asset/steered_lexical": 45.564345165970735
+  },
+  "config": {
+    "positions": "gen_only",
+    "norm_preserve": true,
+    "site_kind": "resid_post",
+    "content_orthogonalize": true,
+    "nli_entailment_min": 0.5,
+    "ppl_ratio_max": 1.5
+  },
+  "rows": [
+    {
+      "eval_set": "asset",
+      "variant": "unsteered",
+      "mode": "whole",
+      "n": 32,
+      "n_failed": 0,
+      "spec_label": "unsteered",
+      "mean_fkgl": 12.492001067845205,
+      "mean_words_per_sentence": 20.359375,
+      "mean_pct_hard_words": 0.34485861737079515,
+      "mean_d_words_per_sentence": 0.0,
+      "mean_d_pct_hard_words": 0.0,
+      "mean_d_fkgl": 0.0,
+      "mean_nli_score": 0.8751689236669336,
+      "pct_nli_passed": 90.625,
+      "mean_ppl": 1.2400758025363139,
+      "mean_ppl_ratio": 1.0,
+      "mean_sari": 45.44056427209156,
+      "pct_degenerate": 0.0,
+      "mean_gen_sec": 0.0,
+      "gen_seconds_total": 0.0
+    },
+    {
+      "eval_set": "asset",
+      "variant": "steered_structural",
+      "mode": "whole",
+      "n": 32,
+      "n_failed": 0,
+      "spec_label": "stru@L15a0.75",
+      "mean_fkgl": 9.9286859431639,
+      "mean_words_per_sentence": 16.1640625,
+      "mean_pct_hard_words": 0.3253452433301258,
+      "mean_d_words_per_sentence": -0.18559467615242492,
+      "mean_d_pct_hard_words": -0.0548511507466584,
+      "mean_d_fkgl": -0.17354134564196072,
+      "mean_nli_score": 0.8284931028392748,
+      "pct_nli_passed": 84.375,
+      "mean_ppl": 1.6032877116848614,
+      "mean_ppl_ratio": 1.2851516585091316,
+      "mean_sari": 45.80393081776511,
+      "pct_degenerate": 0.0,
+      "mean_gen_sec": 0.8558096172200749,
+      "gen_seconds_total": 27.385907751042396
+    },
+    {
+      "eval_set": "asset",
+      "variant": "steered_lexical",
+      "mode": "whole",
+      "n": 32,
+      "n_failed": 0,
+      "spec_label": "lexi@L19a1",
+      "mean_fkgl": 12.226487783172885,
+      "mean_words_per_sentence": 21.3125,
+      "mean_pct_hard_words": 0.3267246256822057,
+      "mean_d_words_per_sentence": 0.06598012329720417,
+      "mean_d_pct_hard_words": -0.03838814810432598,
+      "mean_d_fkgl": 0.010400613493052522,
+      "mean_nli_score": 0.825800908569363,
+      "pct_nli_passed": 84.375,
+      "mean_ppl": 1.4726998127749946,
+      "mean_ppl_ratio": 1.1858042785141698,
+      "mean_sari": 44.16484921745813,
+      "pct_degenerate": 0.0,
+      "mean_gen_sec": 1.0183175846541417,
+      "gen_seconds_total": 32.586162708932534
+    }
+  ]
+}

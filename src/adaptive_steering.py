@@ -45,11 +45,11 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import config  # noqa: E402
-from lib import tables  # noqa: E402
+from lib import schedules, tables  # noqa: E402
 from lib.bench import Bench, Item  # noqa: E402
 from lib.cli import AxisSettings  # noqa: E402
 from lib.metrics import readability  # noqa: E402
-from lib.steering import SteeringSpec  # noqa: E402
+from lib.steering import AxisSetting, SteeringSpec  # noqa: E402
 
 # Both of these have to behave when stdout is a log file, which is how a full
 # run is normally started: the bar goes to stderr and switches itself off there
@@ -77,10 +77,19 @@ class Schedule:
     rather than after a six-gigabyte load.
     """
 
-    def __init__(self, items: list[Item], axis: str, layer: int, ceiling: float):
-        self.axis, self.layer, self.ceiling = axis, layer, ceiling
+    def __init__(self, items: list[Item], axis: str, base: list[tuple[int, float]]):
+        self.axis = axis
+        self.base = list(base)
+        # The ramp is a per-item strength, so it dials the whole shape rather
+        # than one layer. The snap still happens in alpha units at the peak,
+        # which keeps a single-layer axis identical to what it was before
+        # schedules existed: base=[(layer, ceiling)] gives ceiling*frac back.
+        self.layer, self.ceiling = max(self.base, key=lambda p: p[1])
         self.fkgl = [readability.measure(it.source).fkgl for it in items]
-        self.alpha = [snap(ceiling * strength(f), config.ADAPTIVE_ALPHA_STEP) for f in self.fkgl]
+        self.alpha = [
+            snap(self.ceiling * strength(f), config.ADAPTIVE_ALPHA_STEP)
+            for f in self.fkgl
+        ]
         self.groups: dict[float, list[int]] = defaultdict(list)
         for k, a in enumerate(self.alpha):
             self.groups[a].append(k)
@@ -88,11 +97,20 @@ class Schedule:
     def spec(self, alpha: float) -> SteeringSpec:
         if alpha == 0.0:
             return SteeringSpec.off()
-        return SteeringSpec.single(self.axis, self.layer, alpha)
+        settings = tuple(
+            AxisSetting(self.axis, layer, a * alpha / self.ceiling)
+            for layer, a in self.base
+        )
+        return SteeringSpec(settings=settings)
 
     def describe(self, n_items: int) -> None:
+        where = (
+            f"layer={self.layer}"
+            if len(self.base) == 1
+            else f"layers={schedules.label(self.base)}"
+        )
         print(
-            f"[plan] axis={self.axis} layer={self.layer} alpha ceiling={self.ceiling} "
+            f"[plan] axis={self.axis} {where} alpha ceiling={self.ceiling} "
             f"ramp {config.ADAPTIVE_FKGL_FLOOR}->{config.ADAPTIVE_FKGL_CEIL} FKGL"
         )
         table = tables.table(header_style="bold")
@@ -113,8 +131,8 @@ def parse_args(argv):
     p.add_argument("--model", default=config.ACTIVE_MODEL)
     p.add_argument("--estimator", default="instruction_diff")
     p.add_argument("--axis", default="structural", choices=list(config.AXES))
-    p.add_argument("--structural", help="LAYER,ALPHA -- alpha is the *ceiling*")
-    p.add_argument("--lexical", help="LAYER,ALPHA -- alpha is the *ceiling*")
+    p.add_argument("--structural", help="LAYER,ALPHA[,SHAPE] -- alpha is the *ceiling*")
+    p.add_argument("--lexical", help="LAYER,ALPHA[,SHAPE] -- alpha is the *ceiling*")
     p.add_argument("--layers-from", type=Path)
     p.add_argument("--n", type=int, default=32)
     p.add_argument("--asset-split", default="test")
@@ -133,10 +151,8 @@ def main(argv: list[str]) -> int:
 
     settings = AxisSettings.from_args(args)
     settings.require([args.axis], needed_by=f"adaptive steering on {args.axis!r}")
-    layer, ceiling = settings[args.axis]
-
     bench = Bench.open(args)
-    plan = Schedule(bench.items, args.axis, layer, ceiling)
+    plan = Schedule(bench.items, args.axis, settings[args.axis])
     plan.describe(len(bench.items))
 
     outputs: list[str] = [""] * len(bench.items)

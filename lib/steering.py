@@ -83,6 +83,18 @@ class SteeringSpec:
             ),
         )
 
+    def scaled(self, factor: float) -> "SteeringSpec":
+        """Same layers, every alpha multiplied.
+
+        The strength dial for a spec of any width. ``with_alpha`` sets one axis
+        to one number, which stops meaning anything once an axis spreads over a
+        band -- it would flatten the shape it was asked to dial.
+        """
+        return replace(
+            self,
+            settings=tuple(replace(s, alpha=s.alpha * factor) for s in self.settings),
+        )
+
     def label(self) -> str:
         if self.is_off:
             return "unsteered"
@@ -263,8 +275,18 @@ class SteeredLM:
         instruction: str | None = None,
         max_new_tokens: int | None = None,
         context_sentences: int | None = None,
+        shots: list[tuple[str, str]] | None = None,
+        logits_processor=None,
     ) -> str:
-        """Sentence-by-sentence simplification of a passage, then rejoined."""
+        """Sentence-by-sentence simplification of a passage, then rejoined.
+
+        ``shots`` and ``logits_processor`` are forwarded because the arms that
+        use them are otherwise silently disabled here: before they were plumbed
+        through, ``fewshot`` in chunked mode produced output byte-identical to
+        ``unsteered`` on 32 of 32 passages and reported it as a measurement.
+        ``task`` is deliberately NOT forwarded -- chunked mode sets its own
+        (``config.CHUNK_TASK``) once there is rolling context to carry.
+        """
         n_ctx = (
             config.CHUNK_CONTEXT_SENTENCES
             if context_sentences is None
@@ -285,6 +307,8 @@ class SteeredLM:
                     task=task,
                     content_text=sentence,
                     max_new_tokens=max_new_tokens,
+                    shots=shots,
+                    logits_processor=logits_processor,
                 )
             )
         return join_sentences(simplified)

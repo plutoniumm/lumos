@@ -413,9 +413,18 @@ def gen_whole(
     return out, err, sec
 
 
-def gen_chunked(sl, texts, spec, instruction, max_new_tokens):
+def gen_chunked(sl, texts, spec, instruction, max_new_tokens,
+                shots=None, logits_processor=None, task=None):
     """Sentence-by-sentence path. Inherently unbatched: each sentence's prompt
-    depends on the previous sentence's *output*."""
+    depends on the previous sentence's *output*.
+
+    Takes the same keywords as ``gen_whole`` so the dispatcher can hand both the
+    same arguments. ``task`` is accepted and ignored: chunked mode supplies its
+    own once there is rolling context. Accepting it explicitly is the point --
+    the previous signature took neither ``shots`` nor ``logits_processor``, so
+    the dispatcher dropped them and every chunked few-shot and easy-words run
+    silently measured plain ``unsteered``.
+    """
     out: list[str | None] = [None] * len(texts)
     err: list[str | None] = [None] * len(texts)
     sec: list[float] = [0.0] * len(texts)
@@ -423,7 +432,8 @@ def gen_chunked(sl, texts, spec, instruction, max_new_tokens):
         t0 = time.perf_counter()
         try:
             out[i] = sl.generate_chunked(
-                passage, spec, instruction=instruction, max_new_tokens=max_new_tokens
+                passage, spec, instruction=instruction, max_new_tokens=max_new_tokens,
+                shots=shots, logits_processor=logits_processor,
             )
         except Exception as exc:
             err[i] = f"{type(exc).__name__}: {exc}"
@@ -702,7 +712,7 @@ def print_summary(agg: list[dict]) -> None:
     con.print(
         "NLI: bidirectional entailment score.  gate%: share passing "
         f"NLI>={config.NLI_ENTAILMENT_MIN}.  pplR: conditional ppl vs unsteered "
-        f"(reject >{config.PPL_RATIO_MAX})."
+        f"(reported, not gated; >{config.PPL_RATIO_MAX} is flagged on the row)."
     )
 
 
@@ -726,8 +736,8 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         ),
     )
     p.add_argument("--layers-from", type=Path, help="sweep JSON of best (layer, alpha)")
-    p.add_argument("--structural", help="manual override, LAYER,ALPHA")
-    p.add_argument("--lexical", help="manual override, LAYER,ALPHA")
+    p.add_argument("--structural", help="manual override; LAYER,ALPHA | LAYER,ALPHA,SHAPE | L:A+L:A+... (shapes: lib/schedules.py)")
+    p.add_argument("--lexical", help="manual override; LAYER,ALPHA | LAYER,ALPHA,SHAPE | L:A+L:A+... (shapes: lib/schedules.py)")
     p.add_argument("--out", type=Path)
     p.add_argument("--skip-sari", action="store_true")
     p.add_argument("--skip-nli", action="store_true")
@@ -890,12 +900,21 @@ class EvalRun:
                     f"--variants unsteered,prompted"
                 )
             for axis in self.needed_axes:
-                layer = self.settings[axis][0]
-                if layer not in self.banks[axis].vectors:
-                    held = self.banks[axis].layers
+                # Every layer the axis steers, not just its peak: a depth
+                # schedule reaches past the swept layer, and a band that runs
+                # off the end of the bank should say so here rather than at
+                # the first generate.
+                held = self.banks[axis].layers
+                missing = [
+                    layer
+                    for layer in self.settings.layers(axis)
+                    if layer not in self.banks[axis].vectors
+                ]
+                if missing:
                     die(
-                        f"bank {axis!r} ({args.estimator}) has no vector for layer "
-                        f"{layer}; it holds layers {held[0]}..{held[-1]}"
+                        f"bank {axis!r} ({args.estimator}) has no vector for "
+                        f"layer(s) {missing}; it holds layers "
+                        f"{held[0]}..{held[-1]}"
                     )
         # What the loaded banks *are*, taken from their own metadata. config's
         # ORTHOGONALIZE_AXES is build_vectors.py's default and says nothing
@@ -981,7 +1000,9 @@ class EvalRun:
                 task=self.args.task,
                 **kw,
             )
-        return gen_chunked(self.sl, texts, spec, instruction, max_new)
+        return gen_chunked(
+            self.sl, texts, spec, instruction, max_new, task=self.args.task, **kw
+        )
 
     def ensure_baselines(self, eval_set, mode, items, max_new) -> None:
         """Fill any missing unsteered output for this (eval set, mode) pair.
@@ -1039,12 +1060,15 @@ class EvalRun:
             ]
             return outs, errs, secs
 
-        extra = {}
-        if mode == "whole":
-            extra = {
-                "shots": self.shots_by_set[eval_set][: variant.shots],
-                "logits_processor": self.easy_bias if variant.easy_words else None,
-            }
+        # Both modes take these. The gate that used to restrict them to
+        # "whole" was the real cause of chunked few-shot and chunked
+        # easy-words silently measuring plain unsteered: plumbing the
+        # kwargs through gen_chunked was necessary but not sufficient,
+        # because the caller never put them in the dict.
+        extra = {
+            "shots": self.shots_by_set[eval_set][: variant.shots],
+            "logits_processor": self.easy_bias if variant.easy_words else None,
+        }
         with self.adapter.engaged(variant.adapter):
             return self._gen(
                 mode,

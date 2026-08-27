@@ -1,0 +1,448 @@
+{
+  "model": "unsloth/Llama-3.2-3B-Instruct",
+  "estimator": "instruction_diff",
+  "n": 12,
+  "structural": {
+    "layer": 15,
+    "alpha": 0.75
+  },
+  "lexical": {
+    "layer": 19,
+    "alpha": 1.0
+  },
+  "scales": [
+    0.0,
+    0.25,
+    0.5,
+    0.75,
+    1.0
+  ],
+  "max_new_tokens": 320,
+  "cells": [
+    {
+      "scale_structural": 0.0,
+      "scale_lexical": 0.0,
+      "alpha_structural": 0.0,
+      "alpha_lexical": 0.0,
+      "n": 12,
+      "n_scored": 12,
+      "degenerate_frac": 0.0,
+      "fkgl": 13.500185721416928,
+      "words_per_sentence": 22.833333333333332,
+      "pct_hard_words": 0.3561025779561249,
+      "nli_mean": 0.9015777533253034,
+      "seconds": 14.1,
+      "samples": [
+        "One side of the armed conflicts is primarily comprised of the Sudanese military and the Janjaweed, a Sudanese militia group predominantly recruited from the Afro-Arab Abbala tribes of the northern Rizeigat region in Sudan."
+      ]
+    },
+    {
+      "scale_structural": 0.0,
+      "scale_lexical": 0.25,
+      "alpha_structural": 0.0,
+      "alpha_lexical": 0.25,
+      "n": 12,
+      "n_scored": 12,
+      "degenerate_frac": 0.0,
+      "fkgl": 12.957107324020361,
+      "words_per_sentence": 23.75,
+      "pct_hard_words": 0.3362653362375276,
+      "nli_mean": 0.9269950116674105,
+      "seconds": 19.2,
+      "samples": [
+        "One side of the armed conflicts involves the Sudanese military, along with the Janjaweed, a Sudanese militia group primarily composed of recruits from the Afro-Arab Abbala tribes in the northern Rizeigat region of Sudan."
+      ]
+    },
+    {
+      "scale_structural": 0.0,
+      "scale_lexical": 0.5,
+      "alpha_structural": 0.0,
+      "alpha_lexical": 0.5,
+      "n": 12,
+      "n_scored": 12,
+      "degenerate_frac": 0.0,
+      "fkgl": 12.706125705243254,
+      "words_per_sentence": 24.0,
+      "pct_hard_words": 0.3217429129290846,
+      "nli_mean": 0.9304329926768938,
+      "seconds": 17.9,
+      "samples": [
+        "One side of the armed conflicts involves the Sudanese military and the Janjaweed, a Sudanese militia group primarily composed of recruits from the Afro-Arab Abbala tribes in the northern Rizeigat region of Sudan."
+      ]
+    },
+    {
+      "scale_structural": 0.0,
+      "scale_lexical": 0.75,
+      "alpha_structural": 0.0,
+      "alpha_lexical": 0.75,
+      "n": 12,
+      "n_scored": 12,
+      "degenerate_frac": 0.0,
+      "fkgl": 12.252950077327638,
+      "words_per_sentence": 23.166666666666668,
+      "pct_hard_words": 0.3204198463573464,
+      "nli_mean": 0.9211320181687673,
+      "seconds": 12.2,
+      "samples": [
+        "One side of the armed conflicts involves the Sudanese military and the Janjaweed, a Sudanese militia group primarily recruited from the Afro-Arab Abbala tribes in the northern Rizeigat region of Sudan."
+      ]
+    },
+    {
+      "scale_structural": 0.0,
+      "scale_lexical": 1.0,
+      "alpha_structural": 0.0,
+      "alpha_lexical": 1.0,
+      "n": 12,
+      "n_scored": 12,
+      "degenerate_frac": 0.0,
+      "fkgl": 12.298899231475046,
+      "words_per_sentence": 24.916666666666668,
+      "pct_hard_words": 0.3008483775149707,
+      "nli_mean": 0.914571983118852,
+      "seconds": 11.2,
+      "samples": [
+        "One side of the armed conflicts involves the Sudanese military and the Janjaweed, a militia group primarily made up of recruits from the Afro-Arab Abbala tribes in the northern Rizeigat region of Sudan."
+      ]
+    },
+    {
+      "scale_structural": 0.25,
+      "scale_lexical": 0.0,
+      "alpha_structural": 0.1875,
+      "alpha_lexical": 0.0,
+      "n": 12,
+      "n_scored": 12,
+      "degenerate_frac": 0.0,
+      "fkgl": 12.291695431882935,
+      "words_per_sentence": 20.5,
+      "pct_hard_words": 0.3441100936309665,
+      "nli_mean": 0.9837528889377912,
+      "seconds": 15.1,
+      "samples": [
+        "One side of the armed conflicts involves the Sudanese military and the Janjaweed, a Sudanese militia group primarily composed of recruits from the Afro-Arab Abbala tribes in the northern Rizeigat region of Sudan."
+      ]
+    },
+    {
+      "scale_structural": 0.25,
+      "scale_lexical": 0.25,
+      "alpha_structural": 0.1875,
+      "alpha_lexical": 0.25,
+      "n": 12,
+      "n_scored": 12,
+      "degenerate_frac": 0.0,
+      "fkgl": 11.930000017036939,
+      "words_per_sentence": 21.625,
+      "pct_hard_words": 0.34345981071089104,
+      "nli_mean": 0.9236534362037977,
+      "seconds": 18.4,
+      "samples": [
+        "One side of the armed conflicts involves the Sudanese military and the Janjaweed, a Sudanese militia group primarily composed of recruits from the Afro-Arab Abbala tribes in the northern Rizeigat region of Sudan."
+      ]
+    },
+    {
+      "scale_structural": 0.25,
+      "scale_lexical": 0.5,
+      "alpha_structural": 0.1875,
+      "alpha_lexical": 0.5,
+      "n": 12,
+      "n_scored": 12,
+      "degenerate_frac": 0.0,
+      "fkgl": 12.424793025016589,
+      "words_per_sentence": 23.333333333333332,
+      "pct_hard_words": 0.322974857135773,
+      "nli_mean": 0.9276630903283755,
+      "seconds": 16.2,
+      "samples": [
+        "One side of the armed conflicts involves the Sudanese military and the Janjaweed, a Sudanese militia group primarily recruited from the Afro-Arab Abbala tribes in the northern Rizeigat region of Sudan."
+      ]
+    },
+    {
+      "scale_structural": 0.25,
+      "scale_lexical": 0.75,
+      "alpha_structural": 0.1875,
+      "alpha_lexical": 0.75,
+      "n": 12,
+      "n_scored": 12,
+      "degenerate_frac": 0.0,
+      "fkgl": 12.196317525061,
+      "words_per_sentence": 23.0,
+      "pct_hard_words": 0.33102723280792334,
+      "nli_mean": 0.9240630318721136,
+      "seconds": 11.6,
+      "samples": [
+        "One side of the armed conflicts involves the Sudanese military and the Janjaweed, a Sudanese militia group that primarily recruits members from the Afro-Arab Abbala tribes in the northern Rizeigat region of Sudan."
+      ]
+    },
+    {
+      "scale_structural": 0.25,
+      "scale_lexical": 1.0,
+      "alpha_structural": 0.1875,
+      "alpha_lexical": 1.0,
+      "n": 12,
+      "n_scored": 12,
+      "degenerate_frac": 0.0,
+      "fkgl": 12.079272642390292,
+      "words_per_sentence": 23.333333333333332,
+      "pct_hard_words": 0.31302957738302567,
+      "nli_mean": 0.9214319785435995,
+      "seconds": 11.5,
+      "samples": [
+        "One side of the armed conflicts involves the Sudanese military and the Janjaweed, a militia group primarily made up of recruits from the Afro-Arab Abbala tribes in the northern part of Sudan's Rizal region."
+      ]
+    },
+    {
+      "scale_structural": 0.5,
+      "scale_lexical": 0.0,
+      "alpha_structural": 0.375,
+      "alpha_lexical": 0.0,
+      "n": 12,
+      "n_scored": 12,
+      "degenerate_frac": 0.0,
+      "fkgl": 12.408745797823942,
+      "words_per_sentence": 20.916666666666668,
+      "pct_hard_words": 0.33979832814563293,
+      "nli_mean": 0.9853343243400255,
+      "seconds": 15.5,
+      "samples": [
+        "One side of the armed conflict involves the Sudanese military and the Janjaweed, a Sudanese militia group primarily recruited from the Afro-Arab Abbala tribes in the northern Rizeigat region of Sudan."
+      ]
+    },
+    {
+      "scale_structural": 0.5,
+      "scale_lexical": 0.25,
+      "alpha_structural": 0.375,
+      "alpha_lexical": 0.25,
+      "n": 12,
+      "n_scored": 12,
+      "degenerate_frac": 0.0,
+      "fkgl": 11.856365464948944,
+      "words_per_sentence": 20.833333333333332,
+      "pct_hard_words": 0.3287727265308787,
+      "nli_mean": 0.9072200059890747,
+      "seconds": 17.6,
+      "samples": [
+        "One side of the armed conflict involves the Sudanese military and the Janjaweed, a Sudanese militia group primarily recruited from the Afro-Arab Abbala tribes in the northern Rizeigat region of Sudan."
+      ]
+    },
+    {
+      "scale_structural": 0.5,
+      "scale_lexical": 0.5,
+      "alpha_structural": 0.375,
+      "alpha_lexical": 0.5,
+      "n": 12,
+      "n_scored": 12,
+      "degenerate_frac": 0.0,
+      "fkgl": 11.67423980619727,
+      "words_per_sentence": 20.291666666666668,
+      "pct_hard_words": 0.32853645582812246,
+      "nli_mean": 0.9108209560314814,
+      "seconds": 18.1,
+      "samples": [
+        "One side of the armed conflict involves the Sudanese military and the Janjaweed, a Sudanese militia group primarily recruited from the Afro-Arab Abbala tribes in the northern Rizeigat region of Sudan."
+      ]
+    },
+    {
+      "scale_structural": 0.5,
+      "scale_lexical": 0.75,
+      "alpha_structural": 0.375,
+      "alpha_lexical": 0.75,
+      "n": 12,
+      "n_scored": 12,
+      "degenerate_frac": 0.0,
+      "fkgl": 11.355734362768677,
+      "words_per_sentence": 22.166666666666668,
+      "pct_hard_words": 0.30244453044375647,
+      "nli_mean": 0.91636914635698,
+      "seconds": 18.4,
+      "samples": [
+        "One side of the armed conflicts involves the Sudanese military and the Janjaweed, a Sudanese militia group that primarily recruits members from the Afro-Arab Abbala tribes in the northern Rizeigat region of Sudan."
+      ]
+    },
+    {
+      "scale_structural": 0.5,
+      "scale_lexical": 1.0,
+      "alpha_structural": 0.375,
+      "alpha_lexical": 1.0,
+      "n": 12,
+      "n_scored": 12,
+      "degenerate_frac": 0.0,
+      "fkgl": 11.092174448531841,
+      "words_per_sentence": 21.944444444444443,
+      "pct_hard_words": 0.2867381472563486,
+      "nli_mean": 0.7885602332098642,
+      "seconds": 28.6,
+      "samples": [
+        "One side of the armed conflicts involves the Sudanese military and the Janjaweed, a militia group from Sudan that mainly recruits members from the Afro-Arab Abbala tribes in the northern part of the Rizal region in Sudan.\n\nNote: I changed \"Sudanese region\" to \"Sudan\" because the Rizal region is a part of Sudan. I also changed \"north\" to \"north part of\" to make the sentence more specific and clear."
+      ]
+    },
+    {
+      "scale_structural": 0.75,
+      "scale_lexical": 0.0,
+      "alpha_structural": 0.5625,
+      "alpha_lexical": 0.0,
+      "n": 12,
+      "n_scored": 12,
+      "degenerate_frac": 0.0,
+      "fkgl": 11.618395059978406,
+      "words_per_sentence": 19.333333333333332,
+      "pct_hard_words": 0.3525043635460546,
+      "nli_mean": 0.9837975551684698,
+      "seconds": 17.6,
+      "samples": [
+        "One side of the armed conflict involves the Sudanese military and the Janjaweed, a Sudanese militia group primarily recruited from the Afro-Arab Abbala tribes in the northern Rizeigat region of Sudan."
+      ]
+    },
+    {
+      "scale_structural": 0.75,
+      "scale_lexical": 0.25,
+      "alpha_structural": 0.5625,
+      "alpha_lexical": 0.25,
+      "n": 12,
+      "n_scored": 12,
+      "degenerate_frac": 0.0,
+      "fkgl": 10.957610344156045,
+      "words_per_sentence": 18.541666666666668,
+      "pct_hard_words": 0.33176116249032916,
+      "nli_mean": 0.903472870394277,
+      "seconds": 12.8,
+      "samples": [
+        "One side of the armed conflict involves the Sudanese military and the Janjaweed, a Sudanese militia group primarily recruited from the Afro-Arab Abbala tribes in the northern Rizeigat region of Sudan."
+      ]
+    },
+    {
+      "scale_structural": 0.75,
+      "scale_lexical": 0.5,
+      "alpha_structural": 0.5625,
+      "alpha_lexical": 0.5,
+      "n": 12,
+      "n_scored": 12,
+      "degenerate_frac": 0.0,
+      "fkgl": 11.223782015627995,
+      "words_per_sentence": 20.5,
+      "pct_hard_words": 0.305193414292679,
+      "nli_mean": 0.9101758797963461,
+      "seconds": 10.1,
+      "samples": [
+        "One side of the armed conflict involves the Sudanese military and the Janjaweed, a Sudanese militia group that primarily recruits members from the Afro-Arab Abbala tribes in the northern Rizeigat region of Sudan."
+      ]
+    },
+    {
+      "scale_structural": 0.75,
+      "scale_lexical": 0.75,
+      "alpha_structural": 0.5625,
+      "alpha_lexical": 0.75,
+      "n": 12,
+      "n_scored": 10,
+      "degenerate_frac": 0.16666666666666666,
+      "fkgl": 9.50272135039549,
+      "words_per_sentence": 17.75,
+      "pct_hard_words": 0.2615554852511374,
+      "nli_mean": 0.8430311484262347,
+      "seconds": 30.1,
+      "samples": [
+        "One side of the armed conflict involves the Sudanese military and the Janjaweed, a Sudanese militia group that mainly recruits members from the Afro-Arab Abbala tribes in the northern Rizeigat region of Sudan.\n\nOr, in a simpler version:\n\nThe Sudanese military and the Janjaweed militia group are on one side of the conflict. The Janjaweed is made up of people from the Afro-Arab Abbala tribes in northern Sudan.\n\nOr, in a more formal tone:\n\nThe Sudanese military and the Janjaweed militia are part of one side of the conflict. The Janjaweed is mostly made up of people from the Afro-Arab Abbala tribes in northern Sudan.\n\nLet me know if you want me to change anything else."
+      ]
+    },
+    {
+      "scale_structural": 0.75,
+      "scale_lexical": 1.0,
+      "alpha_structural": 0.5625,
+      "alpha_lexical": 1.0,
+      "n": 12,
+      "n_scored": 10,
+      "degenerate_frac": 0.16666666666666666,
+      "fkgl": 10.063288003909237,
+      "words_per_sentence": 20.333333333333336,
+      "pct_hard_words": 0.25085162748602213,
+      "nli_mean": 0.7498284869710915,
+      "seconds": 38.1,
+      "samples": [
+        "One side of the armed conflict is dominated by the Sudanese military and the Janjaweed, a militia group from Sudan that mostly comes from the Afro-Arab Abbala tribes in the northern part of Sudan's region of Risen area.\n\nOr, if you want to simplify it:\n\nOne side of the conflict is led by the Sudanese army and the Janjaweed, a group from Sudan that comes from the Abbals in Sudan's north.\n\nOr, if you want to make it sound more formal:\n\nOne side of the conflict is controlled by the Sudanese military and the Janjaweed, a militia group from Sudan that comes from the Abbals in the north of Sudan.\n\nLet me know if you want me to change anything else."
+      ]
+    },
+    {
+      "scale_structural": 1.0,
+      "scale_lexical": 0.0,
+      "alpha_structural": 0.75,
+      "alpha_lexical": 0.0,
+      "n": 12,
+      "n_scored": 12,
+      "degenerate_frac": 0.0,
+      "fkgl": 10.518140918135318,
+      "words_per_sentence": 17.25,
+      "pct_hard_words": 0.3358382717218924,
+      "nli_mean": 0.950149896244208,
+      "seconds": 9.4,
+      "samples": [
+        "One side of the armed conflict involves the Sudanese military and the Janjaweed, a Sudanese militia group primarily recruited from the Afro-Arab Abbala tribes in the northern Rizeigat region of Sudan."
+      ]
+    },
+    {
+      "scale_structural": 1.0,
+      "scale_lexical": 0.25,
+      "alpha_structural": 0.75,
+      "alpha_lexical": 0.25,
+      "n": 12,
+      "n_scored": 12,
+      "degenerate_frac": 0.0,
+      "fkgl": 10.66552675754447,
+      "words_per_sentence": 18.375,
+      "pct_hard_words": 0.3354779854226407,
+      "nli_mean": 0.8700043667728702,
+      "seconds": 9.3,
+      "samples": [
+        "One side of the armed conflict involves the Sudanese military and the Janjaweed, a Sudanese militia group that primarily recruits members from the Afro-Arab Abbala tribes in the northern Rizeigat region of Sudan."
+      ]
+    },
+    {
+      "scale_structural": 1.0,
+      "scale_lexical": 0.5,
+      "alpha_structural": 0.75,
+      "alpha_lexical": 0.5,
+      "n": 12,
+      "n_scored": 11,
+      "degenerate_frac": 0.08333333333333333,
+      "fkgl": 8.981557889278479,
+      "words_per_sentence": 16.09090909090909,
+      "pct_hard_words": 0.2953567327898879,
+      "nli_mean": 0.9278252322904088,
+      "seconds": 26.4,
+      "samples": [
+        "One side of the conflict involves the Sudanese military and the Janjaweed, a Sudanese militia group that mainly recruits members from the Afro-Arab Abbala tribes in the northern Rizeigat region of Sudan."
+      ]
+    },
+    {
+      "scale_structural": 1.0,
+      "scale_lexical": 0.75,
+      "alpha_structural": 0.75,
+      "alpha_lexical": 0.75,
+      "n": 12,
+      "n_scored": 9,
+      "degenerate_frac": 0.25,
+      "fkgl": 9.237667153631712,
+      "words_per_sentence": 17.27777777777778,
+      "pct_hard_words": 0.2586160646836768,
+      "nli_mean": 0.754432727886726,
+      "seconds": 58.3,
+      "samples": [
+        "One side of the conflict is led by the Sudanese military and the Janjaweed, a Sudanese militia group that mostly recruits members from the Afro-Arab Abbala tribes in the northern part of Sudan's region of Rizegat.\n\nOr, in simpler language:\n\nOne side of the fighting is led by the Sudanese army and the Janjaweed, a group of soldiers from Sudan who come from the Abbala tribe in northern Sudan.\n\nOr, in a more simplified version:\n\nThe Sudanese army and the Janjaweed group are on one side of the fighting. They come from Sudan and the Abbala tribe lives in northern Sudan.\n\nThe Janjaweed is a group of soldiers from Sudan. They come from the Abbals in Sudan. \n\nThe Janjaweed is a group of soldiers from Sudan. They come from the Sudan people. They live in Sudan. \n\nThe Janjaweed is a group of soldiers from Sudan. They come from the Sudan people. They live in Sudan. \n\nThe Janjaweed is a group of soldiers from Sudan. They come from the Sudan people. They live in Sudan. \n\nThe Janjaweed is a group of soldiers from Sudan. They come from the Sudan people. They live in Sudan. \n\nThe Janjaweed is a group of soldiers from Sudan. They come from the Sudan people. They live in Sudan. \n\nThe Janjaweed is a group of soldiers from Sudan. They come from the Sudan people. They live in Sudan. \n\nThe Janjaweed is a group of soldiers from Sudan. They come from the Sudan people"
+      ]
+    },
+    {
+      "scale_structural": 1.0,
+      "scale_lexical": 1.0,
+      "alpha_structural": 0.75,
+      "alpha_lexical": 1.0,
+      "n": 12,
+      "n_scored": 8,
+      "degenerate_frac": 0.3333333333333333,
+      "fkgl": 8.793338159576702,
+      "words_per_sentence": 16.55,
+      "pct_hard_words": 0.24919626920900265,
+      "nli_mean": 0.7789120715940954,
+      "seconds": 57.8,
+      "samples": [
+        "One side of the conflict is led by the Sudanese military and the Janjaweed, a militia group from Sudan that mostly comes from the Afro-Arab tribe called the Abbans in the northern part of Sudan's region of Risen area.\n\nOr, in simpler terms:\n\nOne side of the conflict is led by the Sudanese army and the Janjaweed, a group from Sudan that comes from the Abans tribe in Sudan's north.\n\nOr, in a more simplified version:\n\nThe Sudanese army and the Janjaweed group are part of one side of the conflict in Sudan.\n\nThe Janjaweed is a group from Sudan that helps the army in the fight.\n\nThe Janjaweed is a group from Sudan that helps the army in the fight in Sudan.\n\nThe Janjaweed is a group from Sudan that helps the army in the fight in Sudan.\n\nThe Janjaweed is a group from Sudan that helps the army in the fight in Sudan.\n\nThe Janjaweed is a group from Sudan that helps the army in the fight in Sudan.\n\nThe Janjaweed is a group from Sudan that helps the army in the fight in Sudan.\n\nThe Janjaweed is a group from Sudan that helps the army in the fight in Sudan.\n\nThe Janjaweed is a group from Sudan that helps the army in the fight in Sudan.\n\nThe Janjaweed is a group from Sudan that helps the army in the fight in Sudan.\n\nThe Janjaweed is a group from Sudan that helps the army in the fight in Sudan.\n\nThe Janjaweed is a group from Sudan that helps the army in"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,2434 @@
+{
+  "model": "unsloth/Llama-3.2-3B-Instruct",
+  "lora": "models/lora/asset_r16",
+  "n": 32,
+  "betas": [
+    0.0,
+    0.25,
+    0.5,
+    0.75,
+    1.0,
+    1.5,
+    2.0,
+    3.0
+  ],
+  "max_new_tokens": 320,
+  "rungs": [
+    {
+      "beta": 0.0,
+      "fkgl": 12.706820397333518,
+      "words_per_sentence": 20.421875,
+      "pct_hard_words": 0.3445955968569523,
+      "nli": 0.8795323389640544,
+      "pct_gate_passed": 90.625,
+      "ppl_ratio": 1.0,
+      "sari": 45.839203583405904,
+      "pct_degenerate": 0.0,
+      "gen_seconds": 1.2497184798121452e-07,
+      "items": [
+        {
+          "item_index": 0,
+          "output": "One side of the armed conflicts is primarily comprised of the Sudanese military and the Janjaweed, a Sudanese militia group predominantly recruited from the Afro-Arab Abbala tribes of the northern Rizeigat region in Sudan.",
+          "fkgl": 18.146470588235292,
+          "nli": 0.9942429661750793,
+          "ppl_ratio": 1.0,
+          "sari": 51.33272306456175,
+          "degenerate": false
+        },
+        {
+          "item_index": 1,
+          "output": "Jeddah serves as the primary entry point to Mecca, Islam's most revered city, a destination that is obligatory for able-bodied Muslims to visit at least once during their lifetime.",
+          "fkgl": 16.0648275862069,
+          "nli": 0.9925743341445923,
+          "ppl_ratio": 1.0,
+          "sari": 34.585747944071976,
+          "degenerate": false
+        },
+        {
+          "item_index": 2,
+          "output": "Researchers believe that the Great Dark Spot is likely a void or depression within the methane cloud layer of Neptune.",
+          "fkgl": 9.910000000000004,
+          "nli": 0.9539012908935547,
+          "ppl_ratio": 1.0,
+          "sari": 39.39269603494644,
+          "degenerate": false
+        },
+        {
+          "item_index": 3,
+          "output": "In his next project, Saturday, the author delves into the intricacies of a particularly memorable day in the life of a renowned neurosurgeon.",
+          "fkgl": 14.927826086956525,
+          "nli": 0.9282907247543335,
+          "ppl_ratio": 1.0,
+          "sari": 41.13689035763777,
+          "degenerate": false
+        },
+        {
+          "item_index": 4,
+          "output": "The tarantula, a cunning trickster, swiftly spun a black thread and attached it to the ball, before rapidly scurrying eastward, tugging on the cord with all his might.",
+          "fkgl": 13.030000000000005,
+          "nli": 0.9694148898124695,
+          "ppl_ratio": 1.0,
+          "sari": 39.513788738457286,
+          "degenerate": false
+        },
+        {
+          "item_index": 5,
+          "output": "He passed away six weeks prior to that date, on 13 January 888.",
+          "fkgl": 5.818461538461541,
+          "nli": 0.053471654653549194,
+          "ppl_ratio": 1.0,
+          "sari": 40.06072359013536,
+          "degenerate": false
+        },
+        {
+          "item_index": 6,
+          "output": "They share cultural similarities with the coastal communities of Papua New Guinea.",
+          "fkgl": 13.673333333333336,
+          "nli": 0.9918272495269775,
+          "ppl_ratio": 1.0,
+          "sari": 50.48004795767695,
+          "degenerate": false
+        },
+        {
+          "item_index": 7,
+          "output": "Since 2000, the winner of the Kate Greenaway Medal has also received the Colin Mears Award, which is valued at \u00a35000.",
+          "fkgl": 9.457142857142859,
+          "nli": 0.9917377829551697,
+          "ppl_ratio": 1.0,
+          "sari": 54.374561519445415,
+          "degenerate": false
+        },
+        {
+          "item_index": 8,
+          "output": "The drummers are typically followed by dancers, who often perform with a sogo, a small drum that produces a minimal sound, and showcase more intricate and dynamic choreography, sometimes incorporating acrobatic moves.",
+          "fkgl": 19.383750000000003,
+          "nli": 0.985815167427063,
+          "ppl_ratio": 1.0,
+          "sari": 34.06653692984098,
+          "degenerate": false
+        },
+        {
+          "item_index": 9,
+          "output": "The Cassini-Huygens spacecraft is comprised of two primary components: the NASA Cassini orbiter, honoring the Italian-French astronomer Giovanni Domenico Cassini, and the ESA Huygens probe, named after the Dutch astronomer, mathematician, and physicist Christiaan Huygens.",
+          "fkgl": 24.020000000000007,
+          "nli": 0.9682551026344299,
+          "ppl_ratio": 1.0,
+          "sari": 42.055252637493275,
+          "degenerate": false
+        },
+        {
+          "item_index": 10,
+          "output": "Alessandro \"Sandro\" Mazzola was born on 8 November 1942, and is a former Italian football player.",
+          "fkgl": 12.037500000000005,
+          "nli": 0.9937105178833008,
+          "ppl_ratio": 1.0,
+          "sari": 45.278856245621874,
+          "degenerate": false
+        },
+        {
+          "item_index": 11,
+          "output": "Initially, it was believed that the debris from the collision filled in the smaller craters.",
+          "fkgl": 9.140000000000004,
+          "nli": 0.9922959208488464,
+          "ppl_ratio": 1.0,
+          "sari": 48.34199772891359,
+          "degenerate": false
+        },
+        {
+          "item_index": 12,
+          "output": "Graham studied at Wheaton College from 1939 to 1943, earning a Bachelor of Arts degree in anthropology upon his graduation.",
+          "fkgl": 13.450000000000003,
+          "nli": 0.993506669998169,
+          "ppl_ratio": 1.0,
+          "sari": 40.98069598700378,
+          "degenerate": false
+        },
+        {
+          "item_index": 13,
+          "output": "Notably, the BZ\u00d6 diverges from the Freedom Party in its stance, as it supports a referendum on the Lisbon Treaty but opposes EU withdrawal.",
+          "fkgl": 13.436666666666667,
+          "nli": 0.9939764738082886,
+          "ppl_ratio": 1.0,
+          "sari": 42.80360252346659,
+          "degenerate": false
+        },
+        {
+          "item_index": 14,
+          "output": "By the end of the nineteenth century, European settlement had led to the disappearance of many species.",
+          "fkgl": 11.863529411764706,
+          "nli": 0.9937904477119446,
+          "ppl_ratio": 1.0,
+          "sari": 50.19177962412794,
+          "degenerate": false
+        },
+        {
+          "item_index": 15,
+          "output": "In 1987, Wexler was inducted into the Rock and Roll Hall of Fame.",
+          "fkgl": 4.91076923076923,
+          "nli": 0.9921793937683105,
+          "ppl_ratio": 1.0,
+          "sari": 51.35197921177136,
+          "degenerate": false
+        },
+        {
+          "item_index": 16,
+          "output": "In its pure form, dextromethorphan is a white powder.",
+          "fkgl": 3.653333333333336,
+          "nli": 0.9925980567932129,
+          "ppl_ratio": 1.0,
+          "sari": 56.79289089229035,
+          "degenerate": false
+        },
+        {
+          "item_index": 17,
+          "output": "Admission to Tsinghua University is notoriously highly competitive.",
+          "fkgl": 21.455000000000002,
+          "nli": 0.6893450617790222,
+          "ppl_ratio": 1.0,
+          "sari": 38.6297161647629,
+          "degenerate": false
+        },
+        {
+          "item_index": 18,
+          "output": "The Nuclear Research Centre (NRC) is currently structured as an independent, private foundation.",
+          "fkgl": 13.080000000000002,
+          "nli": 0.9146847724914551,
+          "ppl_ratio": 1.0,
+          "sari": 51.78038288426584,
+          "degenerate": false
+        },
+        {
+          "item_index": 19,
+          "output": "Stralsund is located on the coast of the Baltic Sea, with the city itself being enclosed by it.",
+          "fkgl": 8.474444444444444,
+          "nli": 0.990003228187561,
+          "ppl_ratio": 1.0,
+          "sari": 50.081835939244456,
+          "degenerate": false
+        },
+        {
+          "item_index": 20,
+          "output": "He was awarded the title of \"Sportsman of the Year\" by Sports Illustrated in 1982.",
+          "fkgl": 7.566666666666666,
+          "nli": 0.9889524579048157,
+          "ppl_ratio": 1.0,
+          "sari": 56.37192505027995,
+          "degenerate": false
+        },
+        {
+          "item_index": 21,
+          "output": "Fives is a British sport that is thought to have originated from the same roots as many racquet sports.",
+          "fkgl": 7.967368421052633,
+          "nli": 0.9937818646430969,
+          "ppl_ratio": 1.0,
+          "sari": 55.77953277466276,
+          "degenerate": false
+        },
+        {
+          "item_index": 22,
+          "output": "For instance, King Bhumibol's birthday, which falls on a Monday, is typically celebrated throughout Thailand with widespread decorations in the national color, yellow.",
+          "fkgl": 15.440869565217394,
+          "nli": 0.9755328297615051,
+          "ppl_ratio": 1.0,
+          "sari": 28.595010465443266,
+          "degenerate": false
+        },
+        {
+          "item_index": 23,
+          "output": "The two institutions, [insert names], ceased to exist in 2007 when they were consolidated into The National Museum of Scotland.",
+          "fkgl": 12.860000000000003,
+          "nli": 0.9717670679092407,
+          "ppl_ratio": 1.0,
+          "sari": 49.95039138423277,
+          "degenerate": false
+        },
+        {
+          "item_index": 24,
+          "output": "Despite his eclectic approach, Tagore drew inspiration from a wide range of styles, including traditional craftwork from northern New Ireland, the intricate carvings of the Haida people from the west coast of Canada (British Columbia), and the bold woodcuts of German artist Max Pechstein.",
+          "fkgl": 21.68363636363637,
+          "nli": 0.28128233551979065,
+          "ppl_ratio": 1.0,
+          "sari": 38.41312459307645,
+          "degenerate": false
+        },
+        {
+          "item_index": 25,
+          "output": "On October 14, 1960, presidential candidate John F. Kennedy first proposed the idea of the Peace Corps on the steps of Michigan Union.",
+          "fkgl": 8.390652173913043,
+          "nli": 0.9400573968887329,
+          "ppl_ratio": 1.0,
+          "sari": 53.98110478255963,
+          "degenerate": false
+        },
+        {
+          "item_index": 26,
+          "output": "In 1988, she was a featured performer in the White House series \"Great Performances,\" which aired on the Public Broadcasting Service, and had the honor of entertaining President Reagan.",
+          "fkgl": 14.844137931034485,
+          "nli": 0.8431864380836487,
+          "ppl_ratio": 1.0,
+          "sari": 32.63136979688313,
+          "degenerate": false
+        },
+        {
+          "item_index": 27,
+          "output": "Perry Saturn, accompanied by his partner Terri, emerged victorious over Eddie Guerrero, accompanied by Chyna, to claim the WWF European Championship. Saturn secured the win by pinning Guerrero after a Diving elbow drop, lasting 8 minutes and 10 seconds.",
+          "fkgl": 14.707307692307694,
+          "nli": 0.9825725853443146,
+          "ppl_ratio": 1.0,
+          "sari": 41.22894538093657,
+          "degenerate": false
+        },
+        {
+          "item_index": 28,
+          "output": "She resided in the United States until 1927, when she and her husband relocated back to France.",
+          "fkgl": 9.08705882352941,
+          "nli": 0.9897964596748352,
+          "ppl_ratio": 1.0,
+          "sari": 55.21770472286241,
+          "degenerate": false
+        },
+        {
+          "item_index": 29,
+          "output": "The icy moon Despina was discovered in late July 1989, after images captured by the Voyager 2 probe were analyzed.",
+          "fkgl": 11.68,
+          "nli": 0.008164134807884693,
+          "ppl_ratio": 1.0,
+          "sari": 42.74392082109776,
+          "degenerate": false
+        },
+        {
+          "item_index": 30,
+          "output": "The inaugural Italian Grand Prix motor racing championship was held on 4 September 1921 at Brescia.",
+          "fkgl": 12.037500000000005,
+          "nli": 0.9940500259399414,
+          "ppl_ratio": 1.0,
+          "sari": 47.968494034175045,
+          "degenerate": false
+        },
+        {
+          "item_index": 31,
+          "output": "In addition to his literary endeavors, he authored two collections of short stories: The Ribbajack & Other Curious Yarns and Seven Strange and Ghostly Tales.",
+          "fkgl": 14.420000000000002,
+          "nli": 0.8002695441246033,
+          "ppl_ratio": 1.0,
+          "sari": 60.74028488704344,
+          "degenerate": false
+        }
+      ]
+    },
+    {
+      "beta": 0.25,
+      "fkgl": 11.286789572183293,
+      "words_per_sentence": 18.765625,
+      "pct_hard_words": 0.318648493746407,
+      "nli": 0.9179072599945357,
+      "pct_gate_passed": 93.75,
+      "ppl_ratio": 1.0375254521209094,
+      "sari": 46.52778676814048,
+      "pct_degenerate": 0.0,
+      "gen_seconds": 59.29432679200545,
+      "items": [
+        {
+          "item_index": 0,
+          "output": "One side of the armed conflicts is primarily comprised of the Sudanese military and the Janjaweed, a Sudanese militia group that is largely recruited from the Afro-Arab Abbala tribes of the northern Rizeigat region in Sudan.",
+          "fkgl": 17.461111111111112,
+          "nli": 0.9929766058921814,
+          "ppl_ratio": 1.0539209464048753,
+          "sari": 51.32276161179298,
+          "degenerate": false
+        },
+        {
+          "item_index": 1,
+          "output": "Jeddah serves as the primary entry point to Mecca, Islam's most sacred city, where able-bodied Muslims are expected to make a pilgrimage at least once in their lifetime.",
+          "fkgl": 13.872857142857146,
+          "nli": 0.9944861531257629,
+          "ppl_ratio": 0.9948716685626521,
+          "sari": 40.35736682538535,
+          "degenerate": false
+        },
+        {
+          "item_index": 2,
+          "output": "The Great Dark Spot is believed to be a void in the methane cloud layer of Neptune.",
+          "fkgl": 5.616470588235295,
+          "nli": 0.9687824845314026,
+          "ppl_ratio": 1.0473029871414943,
+          "sari": 47.56577690931892,
+          "degenerate": false
+        },
+        {
+          "item_index": 3,
+          "output": "His next work, Saturday, chronicles a particularly eventful day in the life of a successful neurosurgeon.",
+          "fkgl": 13.5125,
+          "nli": 0.9806108474731445,
+          "ppl_ratio": 0.9492109088048604,
+          "sari": 51.07123871449331,
+          "degenerate": false
+        },
+        {
+          "item_index": 4,
+          "output": "The tarantula, a cunning trickster, spun a black thread and attached it to the ball, then swiftly crawled eastward, tugging on the cord with all his might.",
+          "fkgl": 10.673333333333336,
+          "nli": 0.9633931517601013,
+          "ppl_ratio": 1.0768244889986471,
+          "sari": 39.88274816463829,
+          "degenerate": false
+        },
+        {
+          "item_index": 5,
+          "output": "He passed away six weeks later, on January 13, 888.",
+          "fkgl": 6.010000000000002,
+          "nli": 0.9930384755134583,
+          "ppl_ratio": 0.9478916640021842,
+          "sari": 37.36697018836218,
+          "degenerate": false
+        },
+        {
+          "item_index": 6,
+          "output": "They share cultural similarities with the coastal communities of Papua New Guinea.",
+          "fkgl": 13.673333333333336,
+          "nli": 0.9918272495269775,
+          "ppl_ratio": 1.0,
+          "sari": 50.48004795767695,
+          "degenerate": false
+        },
+        {
+          "item_index": 7,
+          "output": "Since 2000, the winner of the Kate Greenaway Medal has also received the Colin Mears Award, which is worth \u00a35000.",
+          "fkgl": 8.73,
+          "nli": 0.9920549392700195,
+          "ppl_ratio": 1.0094682909804205,
+          "sari": 53.6153052687475,
+          "degenerate": false
+        },
+        {
+          "item_index": 8,
+          "output": "The dancers follow the drummers, who are accompanied by the sogo, a small drum that produces a faint sound. The dancers' choreography is often more elaborate and acrobatic in nature.",
+          "fkgl": 10.320000000000004,
+          "nli": 0.9818175435066223,
+          "ppl_ratio": 1.0183621175018402,
+          "sari": 32.19237327069097,
+          "degenerate": false
+        },
+        {
+          "item_index": 9,
+          "output": "The spacecraft is comprised of two primary components: the NASA Cassini orbiter, which is named after Italian-French astronomer Giovanni Domenico Cassini, and the ESA Huygens probe, which is named after Dutch astronomer, mathematician, and physicist Christiaan Huygens.",
+          "fkgl": 23.077837837837837,
+          "nli": 0.9930279850959778,
+          "ppl_ratio": 1.017201529451923,
+          "sari": 42.983006199867106,
+          "degenerate": false
+        },
+        {
+          "item_index": 10,
+          "output": "Alessandro \"Sandro\" Mazzola was born on 8 November 1942. He is a former Italian football player.",
+          "fkgl": 8.917500000000004,
+          "nli": 0.9923978745937347,
+          "ppl_ratio": 0.998171215626651,
+          "sari": 46.686652697535976,
+          "degenerate": false
+        },
+        {
+          "item_index": 11,
+          "output": "It was once believed that the debris from the collision filled in the smaller craters.",
+          "fkgl": 6.780000000000001,
+          "nli": 0.9929279685020447,
+          "ppl_ratio": 1.0753372244290405,
+          "sari": 48.41706828803327,
+          "degenerate": false
+        },
+        {
+          "item_index": 12,
+          "output": "Graham studied at Wheaton College from 1939 to 1943, earning a Bachelor of Arts degree in anthropology upon graduation.",
+          "fkgl": 13.556842105263158,
+          "nli": 0.9934170246124268,
+          "ppl_ratio": 1.0266079806803141,
+          "sari": 41.0553162563169,
+          "degenerate": false
+        },
+        {
+          "item_index": 13,
+          "output": "The BZ\u00d6 differs from the Freedom Party in one key aspect: while the Freedom Party supports a referendum on the Lisbon Treaty, the BZ\u00d6 is in favor of a referendum on the treaty but opposes EU withdrawal.",
+          "fkgl": 17.3372972972973,
+          "nli": 0.9143779277801514,
+          "ppl_ratio": 1.1471931374132807,
+          "sari": 40.58839211893391,
+          "degenerate": false
+        },
+        {
+          "item_index": 14,
+          "output": "By the end of the nineteenth century, many species had become extinct due to European settlement.",
+          "fkgl": 11.3,
+          "nli": 0.9926336407661438,
+          "ppl_ratio": 1.0244144338283754,
+          "sari": 53.01667827434478,
+          "degenerate": false
+        },
+        {
+          "item_index": 15,
+          "output": "In 1987, Wexler was inducted into the Rock and Roll Hall of Fame.",
+          "fkgl": 4.91076923076923,
+          "nli": 0.9921793937683105,
+          "ppl_ratio": 1.0,
+          "sari": 51.35197921177136,
+          "degenerate": false
+        },
+        {
+          "item_index": 16,
+          "output": "In its pure form, dextromethorphan is a white powder.",
+          "fkgl": 3.653333333333336,
+          "nli": 0.9925980567932129,
+          "ppl_ratio": 1.0,
+          "sari": 56.79289089229035,
+          "degenerate": false
+        },
+        {
+          "item_index": 17,
+          "output": "Admission to Tsinghua University is extremely competitive.",
+          "fkgl": 19.16857142857143,
+          "nli": 0.5155086517333984,
+          "ppl_ratio": 1.273084461110159,
+          "sari": 41.64529914529914,
+          "degenerate": false
+        },
+        {
+          "item_index": 18,
+          "output": "The NRC is currently structured as an independent, private foundation.",
+          "fkgl": 10.73,
+          "nli": 0.9920318126678467,
+          "ppl_ratio": 1.0269515545613543,
+          "sari": 55.776711001759146,
+          "degenerate": false
+        },
+        {
+          "item_index": 19,
+          "output": "Stralsund is located on the coast of the Baltic Sea, where it is surrounded by the city.",
+          "fkgl": 7.698823529411765,
+          "nli": 0.9616424441337585,
+          "ppl_ratio": 1.0218195677811792,
+          "sari": 49.67379242943994,
+          "degenerate": false
+        },
+        {
+          "item_index": 20,
+          "output": "He was also named Sportsman of the Year by Sports Illustrated in 1982.",
+          "fkgl": 5.818461538461541,
+          "nli": 0.9919140338897705,
+          "ppl_ratio": 1.1750449954115818,
+          "sari": 40.76318602807808,
+          "degenerate": false
+        },
+        {
+          "item_index": 21,
+          "output": "Fives is a British sport that is thought to have originated from the same roots as many racquet sports.",
+          "fkgl": 7.967368421052633,
+          "nli": 0.9937818646430969,
+          "ppl_ratio": 1.0,
+          "sari": 55.77953277466276,
+          "degenerate": false
+        },
+        {
+          "item_index": 22,
+          "output": "For instance, King Bhumibol's birthday is celebrated throughout Thailand with a predominantly yellow color scheme, as he was born on a Monday.",
+          "fkgl": 13.371818181818181,
+          "nli": 0.9880501627922058,
+          "ppl_ratio": 1.1251013967408305,
+          "sari": 33.01771250703064,
+          "degenerate": false
+        },
+        {
+          "item_index": 23,
+          "output": "The two names became obsolete in 2007 when they were merged into The National Museum of Scotland.",
+          "fkgl": 9.08705882352941,
+          "nli": 0.9944524168968201,
+          "ppl_ratio": 1.0588770452384737,
+          "sari": 52.44750840423027,
+          "degenerate": false
+        },
+        {
+          "item_index": 24,
+          "output": "Despite his eclectic approach, Tagore drew inspiration from a wide range of styles, including traditional craftwork from northern New Ireland, the intricate carvings of the Haida people from the west coast of Canada (British Columbia), and the woodcuts of German artist Max Pechstein.",
+          "fkgl": 21.486976744186048,
+          "nli": 0.40845245122909546,
+          "ppl_ratio": 1.0087364200357067,
+          "sari": 38.724358712655906,
+          "degenerate": false
+        },
+        {
+          "item_index": 25,
+          "output": "On October 14, 1960, presidential candidate John F. Kennedy introduced the idea of the Peace Corps on the steps of Michigan Union.",
+          "fkgl": 9.081818181818182,
+          "nli": 0.9650188684463501,
+          "ppl_ratio": 1.0322982568663672,
+          "sari": 52.44556178611714,
+          "degenerate": false
+        },
+        {
+          "item_index": 26,
+          "output": "In 1988, she was a featured performer in the White House series \"Great Performances,\" which aired on the Public Broadcasting Service, and was seen by President Reagan.",
+          "fkgl": 12.858518518518522,
+          "nli": 0.8700382709503174,
+          "ppl_ratio": 1.0980981287385492,
+          "sari": 32.97202752109114,
+          "degenerate": false
+        },
+        {
+          "item_index": 27,
+          "output": "Perry Saturn, accompanied by Terri, emerged victorious over Eddie Guerrero, accompanied by Chyna, to claim the WWF European Championship. Saturn secured the win by pinning Guerrero after a Diving elbow drop.",
+          "fkgl": 14.43564516129032,
+          "nli": 0.004524666350334883,
+          "ppl_ratio": 1.0449431153207533,
+          "sari": 41.9285387575106,
+          "degenerate": false
+        },
+        {
+          "item_index": 28,
+          "output": "She stayed in the United States until 1927, when she and her husband decided to return to France.",
+          "fkgl": 7.818888888888889,
+          "nli": 0.988731324672699,
+          "ppl_ratio": 1.0276405479890875,
+          "sari": 56.3395214776715,
+          "degenerate": false
+        },
+        {
+          "item_index": 29,
+          "output": "Despina was discovered in late July 1989 from images captured by the Voyager 2 probe.",
+          "fkgl": 9.140000000000004,
+          "nli": 0.9942790269851685,
+          "ppl_ratio": 0.8831893758587639,
+          "sari": 44.12276176577753,
+          "degenerate": false
+        },
+        {
+          "item_index": 30,
+          "output": "The inaugural Italian Grand Prix motor racing championship was held on 4 September 1921 at Brescia.",
+          "fkgl": 12.037500000000005,
+          "nli": 0.9940500259399414,
+          "ppl_ratio": 1.0,
+          "sari": 47.968494034175045,
+          "degenerate": false
+        },
+        {
+          "item_index": 31,
+          "output": "He also published two collections of short stories, The Ribbajack & Other Curious Yarns and Seven Strange and Ghostly Tales.",
+          "fkgl": 11.07263157894737,
+          "nli": 0.988008975982666,
+          "ppl_ratio": 1.038251008389735,
+          "sari": 60.53759738479633,
+          "degenerate": false
+        }
+      ]
+    },
+    {
+      "beta": 0.5,
+      "fkgl": 10.168075675180981,
+      "words_per_sentence": 17.34375,
+      "pct_hard_words": 0.2925115157911181,
+      "nli": 0.912928413701593,
+      "pct_gate_passed": 93.75,
+      "ppl_ratio": 1.1874529304847747,
+      "sari": 50.1239229675781,
+      "pct_degenerate": 0.0,
+      "gen_seconds": 45.68174791603815,
+      "items": [
+        {
+          "item_index": 0,
+          "output": "One side of the armed conflicts is primarily made up of the Sudanese military and the Janjaweed, a Sudanese militia group that is mostly recruited from the Afro-Arab Abbala tribes of the northern Rizeigat region in Sudan.",
+          "fkgl": 17.3372972972973,
+          "nli": 0.9913468956947327,
+          "ppl_ratio": 1.122060011207089,
+          "sari": 54.60898886515718,
+          "degenerate": false
+        },
+        {
+          "item_index": 1,
+          "output": "Jeddah is the main entry point to Mecca, Islam's most sacred city, where able-bodied Muslims are expected to visit at least once in their lifetime.",
+          "fkgl": 12.096,
+          "nli": 0.9944561123847961,
+          "ppl_ratio": 1.1776647815375696,
+          "sari": 44.97678497427566,
+          "degenerate": false
+        },
+        {
+          "item_index": 2,
+          "output": "The Great Dark Spot is believed to be a void in the methane cloud layer of Neptune.",
+          "fkgl": 5.616470588235295,
+          "nli": 0.9687824845314026,
+          "ppl_ratio": 1.0473029871414943,
+          "sari": 47.56577690931892,
+          "degenerate": false
+        },
+        {
+          "item_index": 3,
+          "output": "His next work, Saturday, is a story about a day in the life of a successful neurosurgeon.",
+          "fkgl": 9.08705882352941,
+          "nli": 0.45743557810783386,
+          "ppl_ratio": 1.5471224443792828,
+          "sari": 48.87869123392836,
+          "degenerate": false
+        },
+        {
+          "item_index": 4,
+          "output": "The tarantula, a trickster character, spun a black cord and attached it to the ball. Then, it quickly crawled away to the east, pulling on the cord with all its might.",
+          "fkgl": 6.061451612903227,
+          "nli": 0.9886703491210938,
+          "ppl_ratio": 1.565989167388347,
+          "sari": 46.92849585100942,
+          "degenerate": false
+        },
+        {
+          "item_index": 5,
+          "output": "He died six weeks later, on January 13, 888.",
+          "fkgl": 4.964444444444446,
+          "nli": 0.9912232160568237,
+          "ppl_ratio": 1.2080013991372023,
+          "sari": 40.79405251676149,
+          "degenerate": false
+        },
+        {
+          "item_index": 6,
+          "output": "They share cultural similarities with the coastal peoples of Papua New Guinea.",
+          "fkgl": 11.706666666666667,
+          "nli": 0.9912624359130859,
+          "ppl_ratio": 1.1554928965125124,
+          "sari": 48.5253292914313,
+          "degenerate": false
+        },
+        {
+          "item_index": 7,
+          "output": "Since 2000, the winner of the Kate Greenaway Medal has also received the Colin Mears Award, worth \u00a35000.",
+          "fkgl": 8.474444444444444,
+          "nli": 0.9925746917724609,
+          "ppl_ratio": 1.0073831548007335,
+          "sari": 52.55551820998369,
+          "degenerate": false
+        },
+        {
+          "item_index": 8,
+          "output": "Following the drummers are dancers, who often play the sogo, a tiny drum that produces almost no sound, and often have more elaborate and acrobatic choreography.",
+          "fkgl": 15.426923076923078,
+          "nli": 0.9780160784721375,
+          "ppl_ratio": 1.3148441199845389,
+          "sari": 43.22416834268579,
+          "degenerate": false
+        },
+        {
+          "item_index": 9,
+          "output": "The spacecraft is made up of two main components: the NASA Cassini orbiter, named after the Italian-French astronomer Giovanni Domenico Cassini, and the ESA Huygens probe, named after the Dutch astronomer, mathematician and physicist Christiaan Huygens.",
+          "fkgl": 22.05,
+          "nli": 0.9925652742385864,
+          "ppl_ratio": 1.1775665487245455,
+          "sari": 58.687689511843836,
+          "degenerate": false
+        },
+        {
+          "item_index": 10,
+          "output": "Alessandro \"Sandro\" Mazzola was born on November 8, 1942. He is a former Italian football player.",
+          "fkgl": 8.917500000000004,
+          "nli": 0.9910645484924316,
+          "ppl_ratio": 1.0410538864934626,
+          "sari": 45.956248199857754,
+          "degenerate": false
+        },
+        {
+          "item_index": 11,
+          "output": "It was once believed that the debris from the collision filled in the smaller craters.",
+          "fkgl": 6.780000000000001,
+          "nli": 0.9929279685020447,
+          "ppl_ratio": 1.0753372244290405,
+          "sari": 48.41706828803327,
+          "degenerate": false
+        },
+        {
+          "item_index": 12,
+          "output": "Graham attended Wheaton College from 1939 to 1943, where he earned a Bachelor of Arts degree in anthropology.",
+          "fkgl": 11.096666666666668,
+          "nli": 0.9645143747329712,
+          "ppl_ratio": 1.1848954298209378,
+          "sari": 39.693741038618164,
+          "degenerate": false
+        },
+        {
+          "item_index": 13,
+          "output": "The BZ\u00d6 differs from the Freedom Party in that it supports a referendum on the Lisbon Treaty but opposes EU withdrawal.",
+          "fkgl": 11.704761904761906,
+          "nli": 0.9937775135040283,
+          "ppl_ratio": 1.276674508709423,
+          "sari": 44.180914944374145,
+          "degenerate": false
+        },
+        {
+          "item_index": 14,
+          "output": "By the end of the nineteenth century, many species had disappeared due to European settlement.",
+          "fkgl": 11.500000000000004,
+          "nli": 0.9906008243560791,
+          "ppl_ratio": 1.1021538233554449,
+          "sari": 54.27604854007057,
+          "degenerate": false
+        },
+        {
+          "item_index": 15,
+          "output": "In 1987, Wexler was inducted into the Rock and Roll Hall of Fame.",
+          "fkgl": 4.91076923076923,
+          "nli": 0.9921793937683105,
+          "ppl_ratio": 1.0,
+          "sari": 51.35197921177136,
+          "degenerate": false
+        },
+        {
+          "item_index": 16,
+          "output": "In its pure form, dextromethorphan is a white powder.",
+          "fkgl": 3.653333333333336,
+          "nli": 0.9925980567932129,
+          "ppl_ratio": 1.0,
+          "sari": 56.79289089229035,
+          "degenerate": false
+        },
+        {
+          "item_index": 17,
+          "output": "Admission to Tsinghua University is extremely competitive.",
+          "fkgl": 19.16857142857143,
+          "nli": 0.5155086517333984,
+          "ppl_ratio": 1.273084461110159,
+          "sari": 41.64529914529914,
+          "degenerate": false
+        },
+        {
+          "item_index": 18,
+          "output": "Today, the NRC is an independent, private foundation.",
+          "fkgl": 9.655000000000001,
+          "nli": 0.9138281345367432,
+          "ppl_ratio": 1.3526423533932934,
+          "sari": 60.70517048523454,
+          "degenerate": false
+        },
+        {
+          "item_index": 19,
+          "output": "It is located at the coast of the Baltic Sea, where it encloses the city of Stralsund.",
+          "fkgl": 7.698823529411765,
+          "nli": 0.9925546050071716,
+          "ppl_ratio": 1.0864803873000817,
+          "sari": 60.980109377246585,
+          "degenerate": false
+        },
+        {
+          "item_index": 20,
+          "output": "He was also named Sportsman of the Year by Sports Illustrated in 1982.",
+          "fkgl": 5.818461538461541,
+          "nli": 0.9919140338897705,
+          "ppl_ratio": 1.1750449954115818,
+          "sari": 40.76318602807808,
+          "degenerate": false
+        },
+        {
+          "item_index": 21,
+          "output": "Fives is a British sport that is thought to have originated from the same roots as many racquet sports.",
+          "fkgl": 7.967368421052633,
+          "nli": 0.9937818646430969,
+          "ppl_ratio": 1.0,
+          "sari": 55.77953277466276,
+          "degenerate": false
+        },
+        {
+          "item_index": 22,
+          "output": "For instance, King Bhumibol was born on a Monday, so on his birthday, Thailand will be decorated with yellow color.",
+          "fkgl": 10.500000000000004,
+          "nli": 0.9845762252807617,
+          "ppl_ratio": 1.5702646085424894,
+          "sari": 49.09736280366716,
+          "degenerate": false
+        },
+        {
+          "item_index": 23,
+          "output": "The two names became defunct in 2007 when they were merged into The National Museum of Scotland.",
+          "fkgl": 8.39294117647059,
+          "nli": 0.994523286819458,
+          "ppl_ratio": 1.0511699481707557,
+          "sari": 38.19195002838271,
+          "degenerate": false
+        },
+        {
+          "item_index": 24,
+          "output": "Despite this, Tagore drew inspiration from a wide range of styles, including the intricate craftwork of northern New Ireland, the Haida carvings from the west coast of Canada (British Columbia), and the woodcuts of Max Pechstein.",
+          "fkgl": 17.461111111111112,
+          "nli": 0.6444466710090637,
+          "ppl_ratio": 1.1847939721346623,
+          "sari": 38.678297746092866,
+          "degenerate": false
+        },
+        {
+          "item_index": 25,
+          "output": "On October 14, 1960, Presidential candidate John F. Kennedy proposed the idea of the Peace Corps on the steps of Michigan Union.",
+          "fkgl": 8.545454545454547,
+          "nli": 0.9505418539047241,
+          "ppl_ratio": 1.139302920228283,
+          "sari": 56.22870234427055,
+          "degenerate": false
+        },
+        {
+          "item_index": 26,
+          "output": "She performed for President Reagan in 1988's Great Performances at the White House series, which aired on the Public Broadcasting Service.",
+          "fkgl": 11.142857142857142,
+          "nli": 0.9941377639770508,
+          "ppl_ratio": 1.1435341102970304,
+          "sari": 61.21608660907853,
+          "degenerate": false
+        },
+        {
+          "item_index": 27,
+          "output": "Perry Saturn and Terri defeated Eddie Guerrero and Chyna to win the WWF European Championship. Saturn pinned Guerrero after a Diving elbow drop.",
+          "fkgl": 11.468913043478263,
+          "nli": 0.004700336139649153,
+          "ppl_ratio": 1.3353894479289146,
+          "sari": 52.10830804191846,
+          "degenerate": false
+        },
+        {
+          "item_index": 28,
+          "output": "She stayed in the United States until 1927, when she and her husband returned to France.",
+          "fkgl": 6.137499999999999,
+          "nli": 0.9930760860443115,
+          "ppl_ratio": 1.1725040664723234,
+          "sari": 54.66899944799619,
+          "degenerate": false
+        },
+        {
+          "item_index": 29,
+          "output": "Despina was discovered in late July 1989 from images taken by the Voyager 2 probe.",
+          "fkgl": 9.140000000000004,
+          "nli": 0.9942829608917236,
+          "ppl_ratio": 1.0640322078037128,
+          "sari": 47.10366513981321,
+          "degenerate": false
+        },
+        {
+          "item_index": 30,
+          "output": "The first Italian Grand Prix motor racing championship was held on 4 September 1921 at Brescia.",
+          "fkgl": 9.825,
+          "nli": 0.993831992149353,
+          "ppl_ratio": 1.4084569047081454,
+          "sari": 58.84688078455093,
+          "degenerate": false
+        },
+        {
+          "item_index": 31,
+          "output": "He also published two collections of short stories, The Ribbajack & Other Curious Yarns and Seven Strange and Ghostly Tales.",
+          "fkgl": 11.07263157894737,
+          "nli": 0.988008975982666,
+          "ppl_ratio": 1.038251008389735,
+          "sari": 60.53759738479633,
+          "degenerate": false
+        }
+      ]
+    },
+    {
+      "beta": 0.75,
+      "fkgl": 9.718318803573894,
+      "words_per_sentence": 16.453125,
+      "pct_hard_words": 0.2882852061182582,
+      "nli": 0.900884088849125,
+      "pct_gate_passed": 90.625,
+      "ppl_ratio": 1.489246973364037,
+      "sari": 53.394486656235465,
+      "pct_degenerate": 0.0,
+      "gen_seconds": 42.262927625037264,
+      "items": [
+        {
+          "item_index": 0,
+          "output": "One side of the armed conflicts is made up of the Sudanese military and the Janjaweed, a Sudanese militia group recruited mostly from the Afro-Arab Abbala tribes of the northern Rizeigat region in Sudan.",
+          "fkgl": 15.71705882352941,
+          "nli": 0.9942650198936462,
+          "ppl_ratio": 1.46455738238903,
+          "sari": 53.498899193694086,
+          "degenerate": false
+        },
+        {
+          "item_index": 1,
+          "output": "Jeddah is the main entry point to Mecca, Islam's holiest city, which able-bodied Muslims are required to visit at least once in their lifetime.",
+          "fkgl": 12.453333333333333,
+          "nli": 0.9944537281990051,
+          "ppl_ratio": 1.657356511794389,
+          "sari": 52.048687245002924,
+          "degenerate": false
+        },
+        {
+          "item_index": 2,
+          "output": "The Great Dark Spot is believed to be a hole in the methane cloud deck of Neptune.",
+          "fkgl": 4.92235294117647,
+          "nli": 0.9914594888687134,
+          "ppl_ratio": 1.5651882331021623,
+          "sari": 64.8652968881999,
+          "degenerate": false
+        },
+        {
+          "item_index": 3,
+          "output": "His next work, Saturday, is a story about a day in the life of a successful neurosurgeon.",
+          "fkgl": 9.08705882352941,
+          "nli": 0.45743557810783386,
+          "ppl_ratio": 1.5471224443792828,
+          "sari": 48.87869123392836,
+          "degenerate": false
+        },
+        {
+          "item_index": 4,
+          "output": "The tarantula, the trickster character, spun a black cord and attached it to the ball. Then, he crawled away fast to the east, pulling on the cord with all his strength.",
+          "fkgl": 5.680806451612906,
+          "nli": 0.9937233328819275,
+          "ppl_ratio": 2.0199214013346514,
+          "sari": 51.17261001700532,
+          "degenerate": false
+        },
+        {
+          "item_index": 5,
+          "output": "He died six weeks later, on 13 January 888.",
+          "fkgl": 4.964444444444446,
+          "nli": 0.9870655536651611,
+          "ppl_ratio": 1.4221700908215227,
+          "sari": 49.19230109325656,
+          "degenerate": false
+        },
+        {
+          "item_index": 6,
+          "output": "They are culturally similar to the coastal peoples of Papua New Guinea.",
+          "fkgl": 10.723333333333333,
+          "nli": 0.9914333820343018,
+          "ppl_ratio": 1.5489158100602378,
+          "sari": 62.48379078113789,
+          "degenerate": false
+        },
+        {
+          "item_index": 7,
+          "output": "Since 2000, the recipient of the Kate Greenaway Medal has also been presented with the Colin Mears Award, worth \u00a35000.",
+          "fkgl": 10.500000000000004,
+          "nli": 0.9939476251602173,
+          "ppl_ratio": 1.108561281743018,
+          "sari": 49.51276766167273,
+          "degenerate": false
+        },
+        {
+          "item_index": 8,
+          "output": "Following the drummers are dancers, who often play the sogo (a tiny drum that makes almost no sound) and have more elaborate choreography.",
+          "fkgl": 12.362608695652174,
+          "nli": 0.005254833493381739,
+          "ppl_ratio": 2.588587576143292,
+          "sari": 46.26322479837888,
+          "degenerate": false
+        },
+        {
+          "item_index": 9,
+          "output": "The spacecraft is made up of two main components: the NASA Cassini orbiter, named after the Italian-French astronomer Giovanni Domenico Cassini, and the ESA Huygens probe, named after the Dutch astronomer, mathematician and physicist Christiaan Huygens.",
+          "fkgl": 22.05,
+          "nli": 0.9925652742385864,
+          "ppl_ratio": 1.1775665487245455,
+          "sari": 58.687689511843836,
+          "degenerate": false
+        },
+        {
+          "item_index": 10,
+          "output": "Alessandro (\"Sandro\") Mazzola was born on November 8, 1942. He is an Italian former football player.",
+          "fkgl": 8.917500000000004,
+          "nli": 0.9908662438392639,
+          "ppl_ratio": 1.1625889466073016,
+          "sari": 53.46692348568617,
+          "degenerate": false
+        },
+        {
+          "item_index": 11,
+          "output": "It was once believed that the debris from the collision filled in the smaller craters.",
+          "fkgl": 6.780000000000001,
+          "nli": 0.9929279685020447,
+          "ppl_ratio": 1.0753372244290405,
+          "sari": 48.41706828803327,
+          "degenerate": false
+        },
+        {
+          "item_index": 12,
+          "output": "Graham attended Wheaton College from 1939 to 1943, when he earned a BA in anthropology.",
+          "fkgl": 9.140000000000004,
+          "nli": 0.7533110976219177,
+          "ppl_ratio": 1.96797223266096,
+          "sari": 39.27392318092604,
+          "degenerate": false
+        },
+        {
+          "item_index": 13,
+          "output": "The BZ\u00d6 differs from the Freedom Party in that it is in favor of a referendum about the Lisbon Treaty but against an EU withdrawal.",
+          "fkgl": 12.096,
+          "nli": 0.9931960105895996,
+          "ppl_ratio": 1.7781122535278895,
+          "sari": 48.68595081013282,
+          "degenerate": false
+        },
+        {
+          "item_index": 14,
+          "output": "By the end of the nineteenth century, many species had disappeared due to European settlement.",
+          "fkgl": 11.500000000000004,
+          "nli": 0.9906008243560791,
+          "ppl_ratio": 1.1021538233554449,
+          "sari": 54.27604854007057,
+          "degenerate": false
+        },
+        {
+          "item_index": 15,
+          "output": "Wexler was inducted into the Rock and Roll Hall of Fame in 1987.",
+          "fkgl": 4.91076923076923,
+          "nli": 0.9927244782447815,
+          "ppl_ratio": 0.9860574833004604,
+          "sari": 53.39564103329999,
+          "degenerate": false
+        },
+        {
+          "item_index": 16,
+          "output": "In its pure form, dextromethorphan is a white powder.",
+          "fkgl": 3.653333333333336,
+          "nli": 0.9925980567932129,
+          "ppl_ratio": 1.0,
+          "sari": 56.79289089229035,
+          "degenerate": false
+        },
+        {
+          "item_index": 17,
+          "output": "Admission to Tsinghua is very competitive.",
+          "fkgl": 12.316666666666666,
+          "nli": 0.9941343665122986,
+          "ppl_ratio": 3.0378089364504404,
+          "sari": 46.102197387244125,
+          "degenerate": false
+        },
+        {
+          "item_index": 18,
+          "output": "Today, NRC is an independent, private foundation.",
+          "fkgl": 10.740000000000002,
+          "nli": 0.8762069344520569,
+          "ppl_ratio": 1.7315269181362873,
+          "sari": 60.21527773188109,
+          "degenerate": false
+        },
+        {
+          "item_index": 19,
+          "output": "It is located at the coast of the Baltic Sea, where it encloses the city of Stralsund.",
+          "fkgl": 7.698823529411765,
+          "nli": 0.9925546050071716,
+          "ppl_ratio": 1.0864803873000817,
+          "sari": 60.980109377246585,
+          "degenerate": false
+        },
+        {
+          "item_index": 20,
+          "output": "He was also named \"Sportsman of the Year\" by Sports Illustrated in 1982.",
+          "fkgl": 5.818461538461541,
+          "nli": 0.9929696917533875,
+          "ppl_ratio": 1.2444714471760474,
+          "sari": 57.837093291166404,
+          "degenerate": false
+        },
+        {
+          "item_index": 21,
+          "output": "Fives is a British sport that is believed to have originated from the same roots as many racquet sports.",
+          "fkgl": 8.588421052631581,
+          "nli": 0.9937606453895569,
+          "ppl_ratio": 1.146513045968141,
+          "sari": 54.447696020348225,
+          "degenerate": false
+        },
+        {
+          "item_index": 22,
+          "output": "For example, King Bhumibol was born on Monday. On his birthday, throughout Thailand will be decorated with yellow color.",
+          "fkgl": 7.988684210526319,
+          "nli": 0.9871780872344971,
+          "ppl_ratio": 2.2105069118903558,
+          "sari": 52.290895368005415,
+          "degenerate": false
+        },
+        {
+          "item_index": 23,
+          "output": "Both names became obsolete in 2007 when they were merged into The National Museum of Scotland.",
+          "fkgl": 9.087500000000002,
+          "nli": 0.994358479976654,
+          "ppl_ratio": 1.2259851311348375,
+          "sari": 59.58506514879954,
+          "degenerate": false
+        },
+        {
+          "item_index": 24,
+          "output": "Tagore emulated various styles, including craftwork from northern New Ireland, Haida carvings from the west coast of Canada (British Columbia), and woodcuts by Max Pechstein.",
+          "fkgl": 15.872000000000003,
+          "nli": 0.9933227896690369,
+          "ppl_ratio": 1.6685304695702314,
+          "sari": 48.63637006966555,
+          "degenerate": false
+        },
+        {
+          "item_index": 25,
+          "output": "On October 14, 1960, Presidential candidate John F. Kennedy proposed the concept of the Peace Corps on the steps of Michigan Union.",
+          "fkgl": 8.009090909090911,
+          "nli": 0.9234645366668701,
+          "ppl_ratio": 1.1428494442216488,
+          "sari": 55.642547048834366,
+          "degenerate": false
+        },
+        {
+          "item_index": 26,
+          "output": "She performed for President Reagan in 1988's Great Performances at the White House series, which aired on the Public Broadcasting Service.",
+          "fkgl": 11.142857142857142,
+          "nli": 0.9941377639770508,
+          "ppl_ratio": 1.1435341102970304,
+          "sari": 61.21608660907853,
+          "degenerate": false
+        },
+        {
+          "item_index": 27,
+          "output": "Perry Saturn (with Terri) defeated Eddie Guerrero (with Chyna) to win the WWF European Championship. Saturn pinned Guerrero after a Diving elbow drop.",
+          "fkgl": 11.468913043478263,
+          "nli": 0.003066802630200982,
+          "ppl_ratio": 1.783576623142831,
+          "sari": 40.2291482769679,
+          "degenerate": false
+        },
+        {
+          "item_index": 28,
+          "output": "She stayed in the United States until 1927 when she and her husband returned to France.",
+          "fkgl": 6.137499999999999,
+          "nli": 0.9934849143028259,
+          "ppl_ratio": 1.286993803273279,
+          "sari": 51.711373075398086,
+          "degenerate": false
+        },
+        {
+          "item_index": 29,
+          "output": "Despina was discovered in late July 1989 from images taken by the Voyager 2 probe.",
+          "fkgl": 9.140000000000004,
+          "nli": 0.9942829608917236,
+          "ppl_ratio": 1.0640322078037128,
+          "sari": 47.10366513981321,
+          "degenerate": false
+        },
+        {
+          "item_index": 30,
+          "output": "The first Italian Grand Prix motor racing championship was held on 4 September 1921 at Brescia.",
+          "fkgl": 9.825,
+          "nli": 0.993831992149353,
+          "ppl_ratio": 1.4084569047081454,
+          "sari": 58.84688078455093,
+          "degenerate": false
+        },
+        {
+          "item_index": 31,
+          "output": "He also completed two collections of short stories, The Ribbajack & Other Curious Yarns and Seven Strange and Ghostly Tales.",
+          "fkgl": 11.693684210526317,
+          "nli": 0.9937077760696411,
+          "ppl_ratio": 1.302467562202884,
+          "sari": 62.866763015975216,
+          "degenerate": false
+        }
+      ]
+    },
+    {
+      "beta": 1.0,
+      "fkgl": 8.173898579399447,
+      "words_per_sentence": 12.786458333333334,
+      "pct_hard_words": 0.2836200129146795,
+      "nli": 0.8707329282575907,
+      "pct_gate_passed": 87.5,
+      "ppl_ratio": 2.2164514464231457,
+      "sari": 53.949889480471775,
+      "pct_degenerate": 0.0,
+      "gen_seconds": 44.01370783301536,
+      "items": [
+        {
+          "item_index": 0,
+          "output": "One side of the armed conflicts is made up of the Sudanese military and the Janjaweed, a Sudanese militia group recruited mostly from the Afro-Arab Abbala tribes of the northern Rizeigat region in Sudan.",
+          "fkgl": 15.71705882352941,
+          "nli": 0.9942650198936462,
+          "ppl_ratio": 1.46455738238903,
+          "sari": 53.498899193694086,
+          "degenerate": false
+        },
+        {
+          "item_index": 1,
+          "output": "Jeddah is the main gateway to Mecca, Islam's holiest city. Able-bodied Muslims are required to visit at least once in their lifetime.",
+          "fkgl": 8.009090909090911,
+          "nli": 0.9941244721412659,
+          "ppl_ratio": 2.201796766013768,
+          "sari": 52.16654784312343,
+          "degenerate": false
+        },
+        {
+          "item_index": 2,
+          "output": "The Great Dark Spot is thought to be a hole in the methane cloud deck of Neptune.",
+          "fkgl": 4.228235294117649,
+          "nli": 0.9898474812507629,
+          "ppl_ratio": 2.104381739904035,
+          "sari": 65.33656277975608,
+          "degenerate": false
+        },
+        {
+          "item_index": 3,
+          "output": "His next work, Saturday, is about a day in the life of a successful neurosurgeon.",
+          "fkgl": 8.353333333333339,
+          "nli": 0.2201768457889557,
+          "ppl_ratio": 1.8261084210638527,
+          "sari": 48.58593524264296,
+          "degenerate": false
+        },
+        {
+          "item_index": 4,
+          "output": "The tarantula, the trickster character, spun a black cord and attached it to the ball. He crawled away fast to the east, pulling on the cord with all his strength.",
+          "fkgl": 5.600000000000001,
+          "nli": 0.9934200346469879,
+          "ppl_ratio": 2.1661837546757363,
+          "sari": 52.89077397639548,
+          "degenerate": false
+        },
+        {
+          "item_index": 5,
+          "output": "He died six weeks later, on 13 January 888.",
+          "fkgl": 4.964444444444446,
+          "nli": 0.9870655536651611,
+          "ppl_ratio": 1.4221700908215227,
+          "sari": 49.19230109325656,
+          "degenerate": false
+        },
+        {
+          "item_index": 6,
+          "output": "They are similar to the coastal peoples of Papua New Guinea.",
+          "fkgl": 8.009090909090911,
+          "nli": 0.0793117955327034,
+          "ppl_ratio": 8.061082799206142,
+          "sari": 58.58251620402439,
+          "degenerate": false
+        },
+        {
+          "item_index": 7,
+          "output": "Since 2000, the recipient of the Kate Greenaway Medal has also been given the Colin Mears Award to the value of \u00a35000.",
+          "fkgl": 10.690000000000001,
+          "nli": 0.9912503957748413,
+          "ppl_ratio": 1.4078662683988021,
+          "sari": 50.85868032075272,
+          "degenerate": false
+        },
+        {
+          "item_index": 8,
+          "output": "Following the drummers are dancers. They often play the sogo (a tiny drum that makes almost no sound) and tend to have more elaborate \u2014 even acrobatic \u2014 choreography.",
+          "fkgl": 9.341666666666669,
+          "nli": 0.9932588636875153,
+          "ppl_ratio": 1.9179708283840957,
+          "sari": 40.08610134750925,
+          "degenerate": false
+        },
+        {
+          "item_index": 9,
+          "output": "The spacecraft has two main elements: the NASA Cassini orbiter and the ESA Huygens probe. The NASA Cassini orbiter is named after the Italian-French astronomer Giovanni Domenico Cassini. The ESA Huygens probe is named after the Dutch astronomer, mathematician and physicist Christiaan Huygens.",
+          "fkgl": 13.325581395348838,
+          "nli": 0.9933051069577535,
+          "ppl_ratio": 1.4309719275666255,
+          "sari": 54.2171414186682,
+          "degenerate": false
+        },
+        {
+          "item_index": 10,
+          "output": "Alessandro (\"Sandro\") Mazzola (born 8 November 1942) is an Italian former football player.",
+          "fkgl": 13.080000000000002,
+          "nli": 0.9938050508499146,
+          "ppl_ratio": 2.032755051109773,
+          "sari": 53.796320812878214,
+          "degenerate": false
+        },
+        {
+          "item_index": 11,
+          "output": "It was thought that the debris thrown up by the collision filled in the smaller craters.",
+          "fkgl": 6.137499999999999,
+          "nli": 0.9926661849021912,
+          "ppl_ratio": 1.9775431903889915,
+          "sari": 54.156830835659356,
+          "degenerate": false
+        },
+        {
+          "item_index": 12,
+          "output": "Graham attended Wheaton College from 1939 to 1943. He graduated with a BA in anthropology.",
+          "fkgl": 8.575000000000003,
+          "nli": 0.9922719299793243,
+          "ppl_ratio": 2.1266897798864455,
+          "sari": 58.161121229866076,
+          "degenerate": false
+        },
+        {
+          "item_index": 13,
+          "output": "The BZ\u00d6 differs from the Freedom Party. It is in favor of a referendum about the Lisbon Treaty but against an EU-Withdrawal.",
+          "fkgl": 8.009090909090911,
+          "nli": 0.9905951023101807,
+          "ppl_ratio": 2.746602672097239,
+          "sari": 53.94520311631783,
+          "degenerate": false
+        },
+        {
+          "item_index": 14,
+          "output": "Many species had disappeared by the end of the nineteenth century.",
+          "fkgl": 8.009090909090911,
+          "nli": 0.0017715950962156057,
+          "ppl_ratio": 4.448106852627183,
+          "sari": 52.17616971402469,
+          "degenerate": false
+        },
+        {
+          "item_index": 15,
+          "output": "Wexler was inducted into the Rock and Roll Hall of Fame in 1987.",
+          "fkgl": 4.91076923076923,
+          "nli": 0.9927244782447815,
+          "ppl_ratio": 0.9860574833004604,
+          "sari": 53.39564103329999,
+          "degenerate": false
+        },
+        {
+          "item_index": 16,
+          "output": "In its pure form, dextromethorphan is a white powder.",
+          "fkgl": 3.653333333333336,
+          "nli": 0.9925980567932129,
+          "ppl_ratio": 1.0,
+          "sari": 56.79289089229035,
+          "degenerate": false
+        },
+        {
+          "item_index": 17,
+          "output": "Admission to Tsinghua is very competitive.",
+          "fkgl": 12.316666666666666,
+          "nli": 0.9941343665122986,
+          "ppl_ratio": 3.0378089364504404,
+          "sari": 46.102197387244125,
+          "degenerate": false
+        },
+        {
+          "item_index": 18,
+          "output": "Today NRC is an independent, private foundation.",
+          "fkgl": 10.740000000000002,
+          "nli": 0.8342958092689514,
+          "ppl_ratio": 2.153848859544193,
+          "sari": 59.0683936825071,
+          "degenerate": false
+        },
+        {
+          "item_index": 19,
+          "output": "It is located at the coast of the Baltic Sea. It encloses the city of Stralsund.",
+          "fkgl": 4.492500000000003,
+          "nli": 0.9912645816802979,
+          "ppl_ratio": 2.032508199252396,
+          "sari": 61.758020901067404,
+          "degenerate": false
+        },
+        {
+          "item_index": 20,
+          "output": "He was also named 1982 \"Sportsman of the Year\" by Sports Illustrated.",
+          "fkgl": 5.806666666666668,
+          "nli": 0.9924541115760803,
+          "ppl_ratio": 1.7177091011854577,
+          "sari": 58.24582821264152,
+          "degenerate": false
+        },
+        {
+          "item_index": 21,
+          "output": "Fives is a British sport that is believed to come from the same origins as many racquet sports.",
+          "fkgl": 7.163333333333334,
+          "nli": 0.9938107132911682,
+          "ppl_ratio": 2.26930207399357,
+          "sari": 63.97523228666688,
+          "degenerate": false
+        },
+        {
+          "item_index": 22,
+          "output": "King Bhumibol was born on Monday. On his birthday, Thailand will be decorated with yellow color.",
+          "fkgl": 6.705000000000002,
+          "nli": 0.9900913238525391,
+          "ppl_ratio": 3.1741267188422264,
+          "sari": 48.46166435302113,
+          "degenerate": false
+        },
+        {
+          "item_index": 23,
+          "output": "Both names became defunct in 2007 when they were merged into The National Museum of Scotland.",
+          "fkgl": 8.350000000000005,
+          "nli": 0.9944410920143127,
+          "ppl_ratio": 1.4781850528703049,
+          "sari": 57.823432406177204,
+          "degenerate": false
+        },
+        {
+          "item_index": 24,
+          "output": "Tagore emulated many styles. These included craftwork from northern New Ireland, Haida carvings from the west coast of Canada (British Columbia), and woodcuts by Max Pechstein.",
+          "fkgl": 10.356923076923078,
+          "nli": 0.9919638633728027,
+          "ppl_ratio": 2.040298907953291,
+          "sari": 50.26650327498667,
+          "degenerate": false
+        },
+        {
+          "item_index": 25,
+          "output": "On October 14, 1960, Presidential candidate John F. Kennedy proposed the concept of the Peace Corps on the steps of Michigan Union.",
+          "fkgl": 8.009090909090911,
+          "nli": 0.9234645366668701,
+          "ppl_ratio": 1.1428494442216488,
+          "sari": 55.642547048834366,
+          "degenerate": false
+        },
+        {
+          "item_index": 26,
+          "output": "She performed for President Reagan in 1988's Great Performances at the White House series. It aired on the Public Broadcasting Service.",
+          "fkgl": 7.0478571428571435,
+          "nli": 0.9904953241348267,
+          "ppl_ratio": 1.7944548478247486,
+          "sari": 56.83776821169763,
+          "degenerate": false
+        },
+        {
+          "item_index": 27,
+          "output": "Perry Saturn (with Terri) defeated Eddie Guerrero (with Chyna) to win the WWF European Championship. Saturn pinned Guerrero after a Diving elbow drop.",
+          "fkgl": 11.468913043478263,
+          "nli": 0.003066802630200982,
+          "ppl_ratio": 1.783576623142831,
+          "sari": 40.2291482769679,
+          "degenerate": false
+        },
+        {
+          "item_index": 28,
+          "output": "She stayed in the United States until 1927. She and her husband returned to France.",
+          "fkgl": 3.068333333333335,
+          "nli": 0.9935937821865082,
+          "ppl_ratio": 3.6144163062831867,
+          "sari": 55.84270437363107,
+          "degenerate": false
+        },
+        {
+          "item_index": 29,
+          "output": "Despina was found in late July, 1989 from the images taken by the Voyager 2 probe.",
+          "fkgl": 7.612500000000001,
+          "nli": 0.9941971302032471,
+          "ppl_ratio": 1.6131191255718784,
+          "sari": 42.30845453615215,
+          "degenerate": false
+        },
+        {
+          "item_index": 30,
+          "output": "The first Italian Grand Prix motor racing championship took place on 4 September 1921 at Brescia.",
+          "fkgl": 9.825,
+          "nli": 0.9940944314002991,
+          "ppl_ratio": 2.0405106746039454,
+          "sari": 57.47076473452688,
+          "degenerate": false
+        },
+        {
+          "item_index": 31,
+          "output": "He also completed two collections of short stories. The Ribbajack & Other Curious Yarns and Seven Strange and Ghostly Tales.",
+          "fkgl": 7.988684210526319,
+          "nli": 0.989627867937088,
+          "ppl_ratio": 1.7128864059668487,
+          "sari": 64.52416663481502,
+          "degenerate": false
+        }
+      ]
+    },
+    {
+      "beta": 1.5,
+      "fkgl": 6.242181710618245,
+      "words_per_sentence": 7.919270833333333,
+      "pct_hard_words": 0.27909500814831695,
+      "nli": 0.5330168598635888,
+      "pct_gate_passed": 53.125,
+      "ppl_ratio": 23.487568810833782,
+      "sari": 42.57382228629281,
+      "pct_degenerate": 0.0,
+      "gen_seconds": 35.32566162501462,
+      "items": [
+        {
+          "item_index": 0,
+          "output": "The Sudanese military and Janjaweed make up most of the conflicts.",
+          "fkgl": 8.009090909090911,
+          "nli": 0.10682637989521027,
+          "ppl_ratio": 22.571904495115984,
+          "sari": 24.365286640926644,
+          "degenerate": false
+        },
+        {
+          "item_index": 1,
+          "output": "Jeddah is the main way to Mecca. Mecca is Islam's holiest city. Able-bodied Muslims are required to visit at least once in their lifetime.",
+          "fkgl": 6.213333333333335,
+          "nli": 0.9911150932312012,
+          "ppl_ratio": 2.926598586089453,
+          "sari": 51.39186021773657,
+          "degenerate": false
+        },
+        {
+          "item_index": 2,
+          "output": "The Great Dark Spot represents a hole in the methane cloud of Neptune.",
+          "fkgl": 4.91076923076923,
+          "nli": 0.8795884847640991,
+          "ppl_ratio": 9.37446594599297,
+          "sari": 53.59073138573828,
+          "degenerate": false
+        },
+        {
+          "item_index": 3,
+          "output": "His next job, Saturday, follows an special day in the life of a good neurosurgeon.",
+          "fkgl": 7.566666666666666,
+          "nli": 0.9592283368110657,
+          "ppl_ratio": 6.622837151803482,
+          "sari": 38.882431048999976,
+          "degenerate": false
+        },
+        {
+          "item_index": 4,
+          "output": "Tarantula spun a black cord. It pulled on the cord with all his strength.",
+          "fkgl": 1.4685714285714297,
+          "nli": 0.0022159796208143234,
+          "ppl_ratio": 18.07799191201674,
+          "sari": 42.15529805039447,
+          "degenerate": false
+        },
+        {
+          "item_index": 5,
+          "output": "There he died six weeks later.  It was on 13 January 888.",
+          "fkgl": 2.4833333333333343,
+          "nli": 0.9882318079471588,
+          "ppl_ratio": 5.979774677113953,
+          "sari": 49.83272876097018,
+          "degenerate": false
+        },
+        {
+          "item_index": 6,
+          "output": "They are like the people of Papua New Guinea.",
+          "fkgl": 4.964444444444446,
+          "nli": 0.007442021276801825,
+          "ppl_ratio": 87.31054890964364,
+          "sari": 52.85416983662058,
+          "degenerate": false
+        },
+        {
+          "item_index": 7,
+          "output": "Kate Greenaway Medal has also been given Colin Mears Award to the value of \u00a35000.",
+          "fkgl": 8.353333333333339,
+          "nli": 0.0012780970428138971,
+          "ppl_ratio": 20.9708346846436,
+          "sari": 33.46507482391094,
+          "degenerate": false
+        },
+        {
+          "item_index": 8,
+          "output": "Following the drummers are dancers. They often play the sogo. They have acrobatic choreography.",
+          "fkgl": 8.98714285714286,
+          "nli": 0.3325037360191345,
+          "ppl_ratio": 7.678551550553327,
+          "sari": 39.90601864321519,
+          "degenerate": false
+        },
+        {
+          "item_index": 9,
+          "output": "The spacecraft has the NASA Cassini orbiter. It is named after the Italian-French astronomer Giovanni Domenico Cassini. It also has the ESA Huygens probe. It is named after the Dutch astronomer, mathematician and physicist Christiaan Huygens.",
+          "fkgl": 11.192222222222227,
+          "nli": 0.9667703211307526,
+          "ppl_ratio": 1.9359945931025808,
+          "sari": 45.69560794525095,
+          "degenerate": false
+        },
+        {
+          "item_index": 10,
+          "output": "\"Sandro\" Mazzola is an Italian former football player.",
+          "fkgl": 11.130000000000003,
+          "nli": 0.03054555132985115,
+          "ppl_ratio": 6.281610693252339,
+          "sari": 45.32539241520316,
+          "degenerate": false
+        },
+        {
+          "item_index": 11,
+          "output": "Debris thrown up filled in the smaller craters.",
+          "fkgl": 3.7550000000000026,
+          "nli": 0.0014333119615912437,
+          "ppl_ratio": 29.16812311743992,
+          "sari": 37.405122118259804,
+          "degenerate": false
+        },
+        {
+          "item_index": 12,
+          "output": "Graham went Wheaton College. He went 1939 to 1943. He graduated with a BA in anthropology.",
+          "fkgl": 5.665000000000003,
+          "nli": 0.9847278793652853,
+          "ppl_ratio": 12.597339721694302,
+          "sari": 54.48048866396372,
+          "degenerate": false
+        },
+        {
+          "item_index": 13,
+          "output": "The BZ\u00d6 differs a bit to the Freedom Party. BZ\u00d6 is in favor of Lisbon Treaty but against EU-Withdrawal.",
+          "fkgl": 6.125526315789475,
+          "nli": 0.011049704626202583,
+          "ppl_ratio": 10.635630755061467,
+          "sari": 39.95865682961634,
+          "degenerate": false
+        },
+        {
+          "item_index": 14,
+          "output": "Many species had died by the end of the nineteenth century. It was because of European settlement.",
+          "fkgl": 7.160294117647062,
+          "nli": 0.6177707388997078,
+          "ppl_ratio": 18.18832334123172,
+          "sari": 56.50868631263484,
+          "degenerate": false
+        },
+        {
+          "item_index": 15,
+          "output": "Wexler went into the Rock and Roll Hall of Fame. It happened in 1987.",
+          "fkgl": 1.4685714285714297,
+          "nli": 0.9820172190666199,
+          "ppl_ratio": 6.044557558231426,
+          "sari": 58.93697558795717,
+          "degenerate": false
+        },
+        {
+          "item_index": 16,
+          "output": "dextromethorphan as white powder",
+          "fkgl": 6.620000000000001,
+          "nli": 0.8064419031143188,
+          "ppl_ratio": 51.89515615775371,
+          "sari": 30.82513553602365,
+          "degenerate": false
+        },
+        {
+          "item_index": 17,
+          "output": "Going into Tsinghua is super hard.",
+          "fkgl": 6.416666666666668,
+          "nli": 0.8160328269004822,
+          "ppl_ratio": 41.211664905939294,
+          "sari": 38.25340795811811,
+          "degenerate": false
+        },
+        {
+          "item_index": 18,
+          "output": "NRC is an independent, private foundation.",
+          "fkgl": 10.350000000000001,
+          "nli": 0.9018373489379883,
+          "ppl_ratio": 6.306324398272634,
+          "sari": 57.19271662558766,
+          "degenerate": false
+        },
+        {
+          "item_index": 19,
+          "output": "It's at the coast of the Baltic. It encloses the city of Stralsund.",
+          "fkgl": 3.283461538461541,
+          "nli": 0.976152241230011,
+          "ppl_ratio": 16.18089907533287,
+          "sari": 50.08968525037969,
+          "degenerate": false
+        },
+        {
+          "item_index": 20,
+          "output": "He was called 1982 \"Sportsman of the Year\". It was by Sports Illustrated.",
+          "fkgl": 2.375769230769233,
+          "nli": 0.9848479628562927,
+          "ppl_ratio": 10.541381977459796,
+          "sari": 53.83124223943985,
+          "degenerate": false
+        },
+        {
+          "item_index": 21,
+          "output": "Fives comes from many racquet sports.",
+          "fkgl": 2.4833333333333343,
+          "nli": 0.08618921786546707,
+          "ppl_ratio": 21.198666622106682,
+          "sari": 29.567866753420173,
+          "degenerate": false
+        },
+        {
+          "item_index": 22,
+          "output": "King Bhumibol was born Monday. So on his birthday throughout Thailand will be decorated with yellow color.",
+          "fkgl": 7.160294117647062,
+          "nli": 0.9932578504085541,
+          "ppl_ratio": 5.258220030620401,
+          "sari": 39.42108373035031,
+          "degenerate": false
+        },
+        {
+          "item_index": 23,
+          "output": "Both names died in 2007. They were merged into The National Museum of Scotland.",
+          "fkgl": 3.997142857142858,
+          "nli": 0.9924510419368744,
+          "ppl_ratio": 3.8198729889490894,
+          "sari": 51.2044326540178,
+          "degenerate": false
+        },
+        {
+          "item_index": 24,
+          "output": "Nevertheless, Tagore emulated many styles.",
+          "fkgl": 14.68,
+          "nli": 0.0014675332931801677,
+          "ppl_ratio": 26.345756806151915,
+          "sari": 19.65323332091448,
+          "degenerate": false
+        },
+        {
+          "item_index": 25,
+          "output": "John F Kennedy created Peace Corps on Michigan Union.",
+          "fkgl": 8.89777777777778,
+          "nli": 0.0015901096630841494,
+          "ppl_ratio": 258.24943790759613,
+          "sari": 22.712932893728553,
+          "degenerate": false
+        },
+        {
+          "item_index": 26,
+          "output": "She performed President Reagan in 1988's Great Performances at the White House series. It aired on the Public Broadcasting Service.",
+          "fkgl": 7.190000000000001,
+          "nli": 0.9879602193832397,
+          "ppl_ratio": 2.5331694966329,
+          "sari": 46.567885974466066,
+          "degenerate": false
+        },
+        {
+          "item_index": 27,
+          "output": "Perry Saturn (Terri) beat Eddie Guerrero (Chyna). They won the WWF European Championship.",
+          "fkgl": 10.545000000000002,
+          "nli": 0.0009468453354202211,
+          "ppl_ratio": 8.902101905464377,
+          "sari": 33.23436554127787,
+          "degenerate": false
+        },
+        {
+          "item_index": 28,
+          "output": "She stayed in US until 1927. She and her husband returned to France.",
+          "fkgl": 1.468076923076925,
+          "nli": 0.9925867915153503,
+          "ppl_ratio": 9.701831649261887,
+          "sari": 39.79645159138785,
+          "degenerate": false
+        },
+        {
+          "item_index": 29,
+          "output": "Despina was found from the Voyager 2. It was found in late July, 1989.",
+          "fkgl": 2.3114285714285714,
+          "nli": 0.04679684713482857,
+          "ppl_ratio": 10.37844508536603,
+          "sari": 37.617332841916756,
+          "degenerate": false
+        },
+        {
+          "item_index": 30,
+          "output": "First Italian Grand Prix took place on Brescia. It took place on 4 September 1921.",
+          "fkgl": 3.068333333333335,
+          "nli": 0.3427923619747162,
+          "ppl_ratio": 9.411470845036966,
+          "sari": 37.19350701731664,
+          "degenerate": false
+        },
+        {
+          "item_index": 31,
+          "output": "He completed The Ribbajack & Other Curious Yarns and Seven Strange and Ghostly Tales.",
+          "fkgl": 9.44923076923077,
+          "nli": 0.26244375109672546,
+          "ppl_ratio": 3.302714401749408,
+          "sari": 50.44650395162572,
+          "degenerate": false
+        }
+      ]
+    },
+    {
+      "beta": 2.0,
+      "fkgl": 4.871059968422102,
+      "words_per_sentence": 7.2578125,
+      "pct_hard_words": 0.2572061618936619,
+      "nli": 0.3106273680314189,
+      "pct_gate_passed": 28.125,
+      "ppl_ratio": 839.3099721838396,
+      "sari": 33.504279487686446,
+      "pct_degenerate": 0.0,
+      "gen_seconds": 32.550375666993205,
+      "items": [
+        {
+          "item_index": 0,
+          "output": "Janjaweed is from Afro-Arab Abbala tribes of the northern Rizeigat region in Sudan.",
+          "fkgl": 5.818461538461541,
+          "nli": 0.07778333127498627,
+          "ppl_ratio": 6.401693532006511,
+          "sari": 32.159462502144,
+          "degenerate": false
+        },
+        {
+          "item_index": 1,
+          "output": "Mecca which able Muslims are required to go is Jeddah.",
+          "fkgl": 7.190000000000001,
+          "nli": 0.11652310937643051,
+          "ppl_ratio": 305.90525292719104,
+          "sari": 26.757950066244536,
+          "degenerate": false
+        },
+        {
+          "item_index": 2,
+          "output": "Great Dark is thought to be a hole in the methane of Neptune.",
+          "fkgl": 3.0953846153846136,
+          "nli": 0.30254682898521423,
+          "ppl_ratio": 26.34137752125445,
+          "sari": 40.1063528372901,
+          "degenerate": false
+        },
+        {
+          "item_index": 3,
+          "output": "Saturday shows especially fun day in successful neurosurgeon life. It was his second movie.",
+          "fkgl": 8.211428571428574,
+          "nli": 0.432053042575717,
+          "ppl_ratio": 180.782241610018,
+          "sari": 25.620215047298377,
+          "degenerate": false
+        },
+        {
+          "item_index": 4,
+          "output": "the taratula spun a cord attached it to the ball and pulled it to the east.",
+          "fkgl": 4.662500000000001,
+          "nli": 0.002786495489999652,
+          "ppl_ratio": 32.47065200390007,
+          "sari": 32.96125137154388,
+          "degenerate": false
+        },
+        {
+          "item_index": 5,
+          "output": "there he died six weeks later. That was Jan 13, 1888.",
+          "fkgl": -0.5722727272727273,
+          "nli": 0.9900717437267303,
+          "ppl_ratio": 12.78357201907434,
+          "sari": 36.50344678310662,
+          "degenerate": false
+        },
+        {
+          "item_index": 6,
+          "output": "are like people of Papua new Guinea.",
+          "fkgl": 5.682857142857145,
+          "nli": 0.0038580098189413548,
+          "ppl_ratio": 5216.34636436221,
+          "sari": 48.15644692116532,
+          "degenerate": false
+        },
+        {
+          "item_index": 7,
+          "output": "Kate received the Colin award too.",
+          "fkgl": 4.450000000000003,
+          "nli": 0.0011655482230708003,
+          "ppl_ratio": 6695.42441373107,
+          "sari": 22.54649454431585,
+          "degenerate": false
+        },
+        {
+          "item_index": 8,
+          "output": "Follow are dancers.",
+          "fkgl": 5.246666666666666,
+          "nli": 0.0032609906047582626,
+          "ppl_ratio": 5647.775925294603,
+          "sari": 24.262537788715992,
+          "degenerate": false
+        },
+        {
+          "item_index": 9,
+          "output": "There spacecraft parts are the NASA Cassini orbiter. It was after the Italian-French astronomer Giovanni Domenico Cassini. The ESA Huygens probe. It was after the Dutch astronomer, mathematician and physicist Christiaan Huygens.",
+          "fkgl": 11.867500000000003,
+          "nli": 0.9572806805372238,
+          "ppl_ratio": 3.589975160733874,
+          "sari": 43.955212300118596,
+          "degenerate": false
+        },
+        {
+          "item_index": 10,
+          "output": "(\"Sando\") Mazzola is an ex football player. He was born November 8, 1942.",
+          "fkgl": 5.098846153846157,
+          "nli": 0.32404693961143494,
+          "ppl_ratio": 14.840817850165903,
+          "sari": 40.980041698485465,
+          "degenerate": false
+        },
+        {
+          "item_index": 11,
+          "output": "Debris made craters bigger.\u00a0 It was thought debris made the smaller craters bigger.",
+          "fkgl": 5.098846153846157,
+          "nli": 0.040792569518089294,
+          "ppl_ratio": 151.63871640828972,
+          "sari": 30.431759070133328,
+          "degenerate": false
+        },
+        {
+          "item_index": 12,
+          "output": "he go to Wheaton College. He graduated with a BA in anthropology.",
+          "fkgl": 7.400000000000002,
+          "nli": 0.0035851786378771067,
+          "ppl_ratio": 39.564368664352735,
+          "sari": 48.46813468422419,
+          "degenerate": false
+        },
+        {
+          "item_index": 13,
+          "output": "BZO likes a Lisbon Treaty but dislikes EU-withdrawal. Freedom Party likes EU-withdrawal.",
+          "fkgl": 9.366666666666667,
+          "nli": 0.016370294615626335,
+          "ppl_ratio": 24.414359431942778,
+          "sari": 38.302375411583476,
+          "degenerate": false
+        },
+        {
+          "item_index": 14,
+          "output": "Many things had died. This happened by the end of the nineteenth century. This happened with European settlement.",
+          "fkgl": 5.761111111111113,
+          "nli": 0.655896008014679,
+          "ppl_ratio": 33.494132406466065,
+          "sari": 51.372667931714176,
+          "degenerate": false
+        },
+        {
+          "item_index": 15,
+          "output": "Wexler goes into the Rock and Roll Hall of Fame. He did this in 1987.",
+          "fkgl": 0.7083333333333321,
+          "nli": 0.972546249628067,
+          "ppl_ratio": 7.044801813424396,
+          "sari": 55.17695075312408,
+          "degenerate": false
+        },
+        {
+          "item_index": 16,
+          "output": "d is white powder dextromethorphan. It is a medicine. It is used to treat cough.",
+          "fkgl": 2.0933333333333337,
+          "nli": 0.32850974309258163,
+          "ppl_ratio": 78.72724141426936,
+          "sari": 36.00944396937428,
+          "degenerate": false
+        },
+        {
+          "item_index": 17,
+          "output": "Going into Tsinghau is super hard.",
+          "fkgl": 8.383333333333333,
+          "nli": 0.7954015731811523,
+          "ppl_ratio": 165.51319909013546,
+          "sari": 32.08494349955648,
+          "degenerate": false
+        },
+        {
+          "item_index": 18,
+          "output": "Today NRC created as own foundation. It is private.",
+          "fkgl": 5.831666666666667,
+          "nli": 0.9373493194580078,
+          "ppl_ratio": 176.79433494348712,
+          "sari": 29.28741708126037,
+          "degenerate": false
+        },
+        {
+          "item_index": 19,
+          "output": "It's at the coast. It protects the city of Stralsund.",
+          "fkgl": 1.7000000000000028,
+          "nli": 0.0031978648621588945,
+          "ppl_ratio": 52.410179748884026,
+          "sari": 38.29287099100734,
+          "degenerate": false
+        },
+        {
+          "item_index": 20,
+          "output": "\" 1982 \" the best sports man\" by Sports Illustrated.",
+          "fkgl": 3.7550000000000026,
+          "nli": 0.004835302010178566,
+          "ppl_ratio": 294.29855651057915,
+          "sari": 25.694010399588397,
+          "degenerate": false
+        },
+        {
+          "item_index": 21,
+          "output": "Many racet sports come from Five",
+          "fkgl": 0.5166666666666693,
+          "nli": 0.0793973058462143,
+          "ppl_ratio": 2671.4182256327513,
+          "sari": 18.991475480920844,
+          "degenerate": false
+        },
+        {
+          "item_index": 22,
+          "output": "so on his bithday all Thailand will be yellow.\u00a0King Bhumibol was born on Monday.",
+          "fkgl": 3.8550000000000004,
+          "nli": 0.9883354902267456,
+          "ppl_ratio": 28.968846121847296,
+          "sari": 37.87851576249992,
+          "degenerate": false
+        },
+        {
+          "item_index": 23,
+          "output": "2007 Both names died when they became The National Museum of Scotland.",
+          "fkgl": 6.790000000000003,
+          "nli": 0.9793501496315002,
+          "ppl_ratio": 39.17042353481305,
+          "sari": 45.04113952482291,
+          "degenerate": false
+        },
+        {
+          "item_index": 24,
+          "output": "Nevertheless he copied lots of styles.",
+          "fkgl": 6.416666666666668,
+          "nli": 0.0021215523593127728,
+          "ppl_ratio": 1363.9330143842828,
+          "sari": 20.37973097156465,
+          "degenerate": false
+        },
+        {
+          "item_index": 25,
+          "output": "John proposed the Peace Corps. He did it on Michigan Union.",
+          "fkgl": 2.6459090909090897,
+          "nli": 0.0019836125429719687,
+          "ppl_ratio": 49.981883592902065,
+          "sari": 25.325491107269116,
+          "degenerate": false
+        },
+        {
+          "item_index": 26,
+          "output": "She did Great show at the White House. It aired on the Public Broadcasting Service.",
+          "fkgl": 2.2816666666666663,
+          "nli": 0.0016355790430679917,
+          "ppl_ratio": 57.89419640901496,
+          "sari": 31.669402431338543,
+          "degenerate": false
+        },
+        {
+          "item_index": 27,
+          "output": ", Perry Saturn beat Eddie G with Chyna.",
+          "fkgl": 5.682857142857145,
+          "nli": 0.0019400856690481305,
+          "ppl_ratio": 1292.000871305595,
+          "sari": 20.447829852724382,
+          "degenerate": false
+        },
+        {
+          "item_index": 28,
+          "output": "She stayed until they went France.",
+          "fkgl": 0.5166666666666693,
+          "nli": 0.0119564114138484,
+          "ppl_ratio": 1655.828215705491,
+          "sari": 22.714431487793338,
+          "degenerate": false
+        },
+        {
+          "item_index": 29,
+          "output": "Despina found out in \u00a0July, 1989. She was found in images taken by the Voyager 2 probe.",
+          "fkgl": 4.383823529411767,
+          "nli": 0.8746384978294373,
+          "ppl_ratio": 12.41296164019037,
+          "sari": 43.82183970771957,
+          "degenerate": false
+        },
+        {
+          "item_index": 30,
+          "output": "4 Sep 1921 Brescia had Italian Grand Prix.",
+          "fkgl": 3.7550000000000026,
+          "nli": 0.02750466950237751,
+          "ppl_ratio": 182.51217205566965,
+          "sari": 24.082410305539696,
+          "degenerate": false
+        },
+        {
+          "item_index": 31,
+          "output": "completed short stories called Ribbajak and Ghostly Tales.",
+          "fkgl": 8.180000000000003,
+          "nli": 0.0013515996979549527,
+          "ppl_ratio": 337.23612305625073,
+          "sari": 22.65469132177836,
+          "degenerate": false
+        }
+      ]
+    },
+    {
+      "beta": 3.0,
+      "fkgl": 5.462339740998297,
+      "words_per_sentence": 9.282559523809525,
+      "pct_hard_words": 0.20912771369511468,
+      "nli": 0.28050786442289316,
+      "pct_gate_passed": 31.25,
+      "ppl_ratio": 10860.740439535417,
+      "sari": 31.065608417881375,
+      "pct_degenerate": 18.75,
+      "gen_seconds": 186.30049208301352,
+      "items": [
+        {
+          "item_index": 0,
+          "output": ", Afro\u00a0Arab Abbala tribes make Janjaweed. He's a Sudanese militia group.",
+          "fkgl": 6.936818181818182,
+          "nli": 0.010253489017486572,
+          "ppl_ratio": 185.52796787752678,
+          "sari": 23.993411291729107,
+          "degenerate": false
+        },
+        {
+          "item_index": 1,
+          "output": ", able Muslims go at least once. It's Islam's best city.",
+          "fkgl": 2.879999999999999,
+          "nli": 0.012754091992974281,
+          "ppl_ratio": 1245.1918783159524,
+          "sari": 23.687936987687735,
+          "degenerate": false
+        },
+        {
+          "item_index": 2,
+          "output": "Great is Dark Spot means hole in the methane cloud deck of Neptune.\u00a0Great is Dark Spot means hole in the methane cloud deck of Neptune. Great is Dark Spot means a hole in the methane cloud deck of Neptune. Great is Dark means a hole in the methane cloud deck of Neptune. Great is Dark Spot means a hole in the methane cloud deck of Neptune. Great is Dark Spot means a hole in the methane cloud deck of Neptune. Great is Dark Spot means a hole in the methane cloud deck of Neptune. Great is Dark Spot means a hole in the methane cloud deck of Neptune. Great is Dark Spot means a hole in the methane cloud deck of Neptune. Great is Dark Spot means a hole in the methane cloud deck of Neptune. Great is Dark Spot means a hole in the methane cloud deck of Neptune. Great is Dark Spot means a hole in the methane cloud deck of Neptune. Great is Dark Spot means a hole in the methane cloud deck of Neptune. Great is Dark Spot means a hole in the methane cloud deck of Neptune. Great is Dark Spot means a hole in the methane cloud deck of",
+          "fkgl": 3.2271650485436894,
+          "nli": 0.8360797762870789,
+          "ppl_ratio": 1.6558887060827103,
+          "sari": 47.24707009515679,
+          "degenerate": true
+        },
+        {
+          "item_index": 3,
+          "output": ", shows successful surgery. Saturday shows neuro surgery. It happened in real life. It is a book. It is a movie. It is a play. It is a song. It is a video. It is a game. It is a video game. It is a comic. It is a magazine. It is a newspaper. It is a dictionary. It is a encyclopedia. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book of facts. It is a book",
+          "fkgl": -0.46354721189591075,
+          "nli": 0.07273101037368178,
+          "ppl_ratio": 1.6347164810708095,
+          "sari": 24.510583984991467,
+          "degenerate": true
+        },
+        {
+          "item_index": 4,
+          "output": ", Spent black cord. Put it on the ball crawled away fast",
+          "fkgl": -0.5722727272727273,
+          "nli": 0.008246642537415028,
+          "ppl_ratio": 1047.8279563079025,
+          "sari": 27.326025837350628,
+          "degenerate": false
+        },
+        {
+          "item_index": 5,
+          "output": "there they killed him 13 January 1988. He died six weeks later.\u00a06",
+          "fkgl": 2.375769230769233,
+          "nli": 0.680446038643519,
+          "ppl_ratio": 148.88350763008293,
+          "sari": 37.456474972438706,
+          "degenerate": false
+        },
+        {
+          "item_index": 6,
+          "output": "are like people New Papua New.",
+          "fkgl": 4.450000000000003,
+          "nli": 0.04207257926464081,
+          "ppl_ratio": 266659.2868458804,
+          "sari": 26.58327426309882,
+          "degenerate": false
+        },
+        {
+          "item_index": 7,
+          "output": "Kate received\u00a0\u00a0Col Mears Award too.",
+          "fkgl": 2.4833333333333343,
+          "nli": 0.0009724244591780007,
+          "ppl_ratio": 7513.372959042329,
+          "sari": 22.04840240210156,
+          "degenerate": false
+        },
+        {
+          "item_index": 8,
+          "output": "Follow are\u00a0 are Dancers.",
+          "fkgl": 3.6700000000000017,
+          "nli": 0.005274952854961157,
+          "ppl_ratio": 12263.538576190906,
+          "sari": 24.259153642286844,
+          "degenerate": false
+        },
+        {
+          "item_index": 9,
+          "output": ",\u00a0 names Giovanni Domenico Cassini and the ESA Huygens probe. Huygens was a Dutch astronomer, math and physics guy.",
+          "fkgl": 8.89777777777778,
+          "nli": 0.7108445763587952,
+          "ppl_ratio": 50.48514974317228,
+          "sari": 28.219641105005312,
+          "degenerate": false
+        },
+        {
+          "item_index": 10,
+          "output": "(\"Sando\") Mzzola is an\u00a0Italian football player. He was born November 8, 1942.",
+          "fkgl": 6.91423076923077,
+          "nli": 0.5279093384742737,
+          "ppl_ratio": 23.564351815932852,
+          "sari": 42.02069959757098,
+          "degenerate": false
+        },
+        {
+          "item_index": 11,
+          "output": "debris made craters bigger.\u00a0 Collision made them bigger.",
+          "fkgl": 6.620000000000001,
+          "nli": 0.0011362722143530846,
+          "ppl_ratio": 1229.205255758807,
+          "sari": 20.818792794895735,
+          "degenerate": false
+        },
+        {
+          "item_index": 12,
+          "output": ", he god BA in anthropology. He went to Wheaton College in 1939 to 1943. He graduated with a BA in anthropology.",
+          "fkgl": 6.244761904761905,
+          "nli": 0.27329564094543457,
+          "ppl_ratio": 28.826386844918737,
+          "sari": 52.77684938038942,
+          "degenerate": false
+        },
+        {
+          "item_index": 13,
+          "output": ",\u00a0 BZO are against EU-Withdrawal. Freedom Party wants Lisbon Treaty.",
+          "fkgl": 8.45388888888889,
+          "nli": 0.005588495172560215,
+          "ppl_ratio": 1252.1299816081496,
+          "sari": 37.5402696087438,
+          "degenerate": false
+        },
+        {
+          "item_index": 14,
+          "output": "20 lots of kinds died by European settlement",
+          "fkgl": 6.705000000000002,
+          "nli": 0.0026746971998363733,
+          "ppl_ratio": 7396.05291967024,
+          "sari": 24.578306097546953,
+          "degenerate": false
+        },
+        {
+          "item_index": 15,
+          "output": "198\u00a07 Wexler go into Rock and Roll Hall of Fame. He go there because he made good music.",
+          "fkgl": 2.399210526315791,
+          "nli": 0.2512449622154236,
+          "ppl_ratio": 101.50480888550815,
+          "sari": 41.90094203429765,
+          "degenerate": false
+        },
+        {
+          "item_index": 16,
+          "output": "d is white\u00a0powder dextromethor is white stuff!",
+          "fkgl": 2.280000000000001,
+          "nli": 0.7692732810974121,
+          "ppl_ratio": 5431.669595313334,
+          "sari": 31.66151586082461,
+          "degenerate": false
+        },
+        {
+          "item_index": 17,
+          "output": "Going in Ts is too hard.",
+          "fkgl": 2.4833333333333343,
+          "nli": 0.20414739847183228,
+          "ppl_ratio": 18690.600808469502,
+          "sari": 32.08494349955648,
+          "degenerate": false
+        },
+        {
+          "item_index": 18,
+          "output": "is private now. They help science.",
+          "fkgl": 1.3133333333333361,
+          "nli": 0.1001395732164383,
+          "ppl_ratio": 3115.4553288917687,
+          "sari": 25.890369620632782,
+          "degenerate": false
+        },
+        {
+          "item_index": 19,
+          "output": "is at side of the Baltic Sea. It keeps the city of Stralsund. It lives there now.",
+          "fkgl": 0.502352941176472,
+          "nli": 0.6239552178109685,
+          "ppl_ratio": 66.8640939187859,
+          "sari": 46.97612731049201,
+          "degenerate": false
+        },
+        {
+          "item_index": 20,
+          "output": "by\u00a0sports illustrated he get called \" Sportsman of the Year\". It was 1982. Sports Illustrated Sports Illustrated Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports Sports",
+          "fkgl": 37.27699680511182,
+          "nli": 0.8814376791318258,
+          "ppl_ratio": 1.3906465416728164,
+          "sari": 49.43104653263456,
+          "degenerate": true
+        },
+        {
+          "item_index": 21,
+          "output": "is Belive to come from other racquet sports. It is a British sport. It comes from the same origins as many racquet sports. It is a British sport. It comes from the same origins as many racquet sports. It is a sport. It comes from the same origins as many racquet sports. It is a sport. It comes from the",
+          "fkgl": 2.153333333333336,
+          "nli": 0.05751689523458481,
+          "ppl_ratio": 4.752060282511212,
+          "sari": 50.614525287021756,
+          "degenerate": true
+        },
+        {
+          "item_index": 22,
+          "output": "so\u00a0\u00a0Monday means yellow on Bhuimibols birthday.",
+          "fkgl": 7.368571428571428,
+          "nli": 0.03716600686311722,
+          "ppl_ratio": 1239.3698599157915,
+          "sari": 19.935816205946356,
+          "degenerate": false
+        },
+        {
+          "item_index": 23,
+          "output": "2007 Both\u00a0names died. They moved to the National Museum of Scot",
+          "fkgl": 2.4833333333333343,
+          "nli": 0.9358932375907898,
+          "ppl_ratio": 411.8304367694859,
+          "sari": 33.924946373556764,
+          "degenerate": false
+        },
+        {
+          "item_index": 24,
+          "output": ", anyway emulated lots of styles Tagor Tagor Tagor Tagor Tagor Tagor Tag",
+          "fkgl": 5.806666666666668,
+          "nli": 0.005117950029671192,
+          "ppl_ratio": 385.6446992090594,
+          "sari": 18.73087652813967,
+          "degenerate": true
+        },
+        {
+          "item_index": 25,
+          "output": ", candidate John proposed what made the peace corps. He did it on Michigan Union. It was on Oct. 14, 1960.",
+          "fkgl": 3.530000000000001,
+          "nli": 0.11140962690114975,
+          "ppl_ratio": 29.393778063367634,
+          "sari": 29.618901322751352,
+          "degenerate": false
+        },
+        {
+          "item_index": 26,
+          "output": "Great performances aired\u00a01988 on Public Broadcasting",
+          "fkgl": 9.054285714285715,
+          "nli": 0.0010846845107153058,
+          "ppl_ratio": 394.1072530517938,
+          "sari": 15.18540862290862,
+          "degenerate": false
+        },
+        {
+          "item_index": 27,
+          "output": ",they fight\u00a0WWF European Championship",
+          "fkgl": 12.320000000000004,
+          "nli": 0.0034051884431391954,
+          "ppl_ratio": 15490.613307403237,
+          "sari": 20.064362221357783,
+          "degenerate": false
+        },
+        {
+          "item_index": 28,
+          "output": "in US 'til she come back with her husband in 1927. She and her husband returned to France. She stayed in the US until then. When she came back with her husband in 1927. She and her husband returned to France. She stayed in the. US 'til she come back with her husband in",
+          "fkgl": 0.96671957671958,
+          "nli": 0.8000566970024791,
+          "ppl_ratio": 9.232999355175984,
+          "sari": 43.897440133276405,
+          "degenerate": true
+        },
+        {
+          "item_index": 29,
+          "output": "images given Desipina. They say he was found in images taken by Voyager 2. He was found in late July, 1989.",
+          "fkgl": 5.120952380952382,
+          "nli": 0.8958775401115417,
+          "ppl_ratio": 35.60476002381206,
+          "sari": 32.48674943411113,
+          "degenerate": false
+        },
+        {
+          "item_index": 30,
+          "output": "4 Sept.201 Briesca had Italian Grand Prix.",
+          "fkgl": 5.682857142857145,
+          "nli": 0.10672366619110107,
+          "ppl_ratio": 2328.722974157372,
+          "sari": 22.623604561019672,
+          "degenerate": false
+        },
+        {
+          "item_index": 31,
+          "output": "completed Ribibajak. Ghosty Tales. They are short stories.",
+          "fkgl": 5.230000000000004,
+          "nli": 0.0015220309142023325,
+          "ppl_ratio": 759.7523130076914,
+          "sari": 16.00500176268249,
+          "degenerate": false
+        }
+      ]
+    }
+  ]
+}

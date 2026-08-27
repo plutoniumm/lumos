@@ -52,6 +52,22 @@ class Cell:
         return f"{self.stage}|{self.axis}|{self.layer}|{self.alpha:g}"
 
 
+# What the sweep screens on, named so it lands on every row. It is NOT what the
+# evaluation runs on, and a setting can degenerate at very different rates on the
+# two: L26 alpha=1.5 records 8% here and 47% on ASSET *at the same 320-token
+# budget*, so the gap is not the generation budget.
+#
+# It is not input length either. These passages run 20-43 words (median 29) and
+# ASSET test runs 6-34 (median 17) -- close, not the order-of-magnitude
+# difference it would be easy to assume. And within the ASSET run the degenerate
+# items are no shorter than the intact ones (median source 16 vs 17 words).
+# What separates them is the output: 314 words against 25, i.e. generation to
+# the cap. The failure is run-on, but what makes one 12-text pool tolerate a
+# setting that breaks 47% of another is not yet known -- treat a sweep number as
+# specific to this pool until it has been checked on the evaluation set.
+SWEEP_TEXT_POOL = "complex_pool"
+
+
 def _sweep_texts(n_estimate: int, n_sweep: int) -> list[str]:
     """Texts held out from vector estimation."""
     corpus = data.load_complex_corpus(n_estimate + n_sweep)
@@ -91,6 +107,14 @@ def _measure_cell(
         "alpha": cell.alpha,
         "n": len(texts),
         "seconds": round(elapsed, 1),
+        # The conditions this cell was screened under, recorded on the row.
+        # Sweeps on disk were collected at 96 tokens while the evaluation runs at
+        # 320, and because the row did not say so, telling a stale file from a
+        # differently-configured one meant inferring the budget from the token
+        # length of the saved samples. A screening number is only interpretable
+        # next to the conditions that produced it.
+        "max_new_tokens": max_new_tokens,
+        "text_pool": SWEEP_TEXT_POOL,
         "degenerate_frac": sum(m.degenerate for m in measured) / len(measured),
         "empty_frac": sum(m.n_words == 0 for m in measured) / len(measured),
     }

@@ -1,0 +1,57 @@
+{
+  "model": "unsloth/Llama-3.2-3B-Instruct",
+  "lora": "models/lora/asset_ctrl_r16",
+  "n": 32,
+  "requests": [
+    0.4,
+    0.6,
+    0.8,
+    1.0
+  ],
+  "axes": [
+    "wps"
+  ],
+  "guidance": 2.0,
+  "rungs": [
+    {
+      "axis": "wps",
+      "requested": 0.4,
+      "achieved": 0.7198657947374352,
+      "fkgl": 8.012392197928106,
+      "nli": 0.896851423298358,
+      "sari": 53.21552577887014,
+      "pct_degenerate": 0.0,
+      "seconds": 42.6
+    },
+    {
+      "axis": "wps",
+      "requested": 0.6,
+      "achieved": 0.7964365954715219,
+      "fkgl": 8.880603187309282,
+      "nli": 0.9517128074730863,
+      "sari": 54.433232550523655,
+      "pct_degenerate": 0.0,
+      "seconds": 42.6
+    },
+    {
+      "axis": "wps",
+      "requested": 0.8,
+      "achieved": 0.7978003512010865,
+      "fkgl": 8.779752039852434,
+      "nli": 0.9517008995826473,
+      "sari": 54.512751486837765,
+      "pct_degenerate": 0.0,
+      "seconds": 42.6
+    },
+    {
+      "axis": "wps",
+      "requested": 1.0,
+      "achieved": 0.8231922616803131,
+      "fkgl": 9.247884454176944,
+      "nli": 0.9566526485796203,
+      "sari": 54.2700636469519,
+      "pct_degenerate": 0.0,
+      "seconds": 42.7
+    }
+  ]
+}

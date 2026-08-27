@@ -1,0 +1,232 @@
+{
+  "model": "unsloth/Llama-3.2-3B-Instruct",
+  "lora": "models/lora/asset_ctrl_r16",
+  "n": 32,
+  "requests": [
+    0.4,
+    0.5,
+    0.6,
+    0.7,
+    0.8,
+    0.9,
+    1.0
+  ],
+  "axes": [
+    "len",
+    "wps",
+    "hard"
+  ],
+  "guidance": 4.0,
+  "rungs": [
+    {
+      "axis": "len",
+      "requested": 0.4,
+      "achieved": 0.2593071391067246,
+      "fkgl": 7.765669642857144,
+      "nli": 0.09096255523400032,
+      "sari": 20.340858727329294,
+      "pct_degenerate": 21.875,
+      "seconds": 12.1
+    },
+    {
+      "axis": "len",
+      "requested": 0.5,
+      "achieved": 0.3303952659216335,
+      "fkgl": 6.2459126984127,
+      "nli": 0.10260039788772701,
+      "sari": 22.122700886567422,
+      "pct_degenerate": 12.5,
+      "seconds": 16.3
+    },
+    {
+      "axis": "len",
+      "requested": 0.6,
+      "achieved": 0.32975418933454625,
+      "fkgl": 5.939270833333334,
+      "nli": 0.06503842458187137,
+      "sari": 22.17140831679414,
+      "pct_degenerate": 6.25,
+      "seconds": 14.2
+    },
+    {
+      "axis": "len",
+      "requested": 0.7,
+      "achieved": 0.35700165097863995,
+      "fkgl": 5.75686755952381,
+      "nli": 0.15288549426441023,
+      "sari": 23.208082062182104,
+      "pct_degenerate": 0.0,
+      "seconds": 15.4
+    },
+    {
+      "axis": "len",
+      "requested": 0.8,
+      "achieved": 0.4729649245878149,
+      "fkgl": 7.048903284215786,
+      "nli": 0.2408410550779081,
+      "sari": 28.943112981466587,
+      "pct_degenerate": 0.0,
+      "seconds": 18.9
+    },
+    {
+      "axis": "len",
+      "requested": 0.9,
+      "achieved": 0.6982978963994775,
+      "fkgl": 8.10143404142727,
+      "nli": 0.5115093331041862,
+      "sari": 43.44890008109644,
+      "pct_degenerate": 0.0,
+      "seconds": 32.4
+    },
+    {
+      "axis": "len",
+      "requested": 1.0,
+      "achieved": 0.9764956142713496,
+      "fkgl": 9.247884454176944,
+      "nli": 0.9566526485796203,
+      "sari": 54.2700636469519,
+      "pct_degenerate": 0.0,
+      "seconds": 42.7
+    },
+    {
+      "axis": "wps",
+      "requested": 0.4,
+      "achieved": 0.6646375449779355,
+      "fkgl": 6.981727768209585,
+      "nli": 0.7644161123607773,
+      "sari": 52.39738075452162,
+      "pct_degenerate": 0.0,
+      "seconds": 45.4
+    },
+    {
+      "axis": "wps",
+      "requested": 0.5,
+      "achieved": 0.7466084820269975,
+      "fkgl": 7.623717222462109,
+      "nli": 0.7843474892724771,
+      "sari": 52.287163874747215,
+      "pct_degenerate": 0.0,
+      "seconds": 41.8
+    },
+    {
+      "axis": "wps",
+      "requested": 0.6,
+      "achieved": 0.7642488766339869,
+      "fkgl": 8.456635442870748,
+      "nli": 0.9539882543031126,
+      "sari": 54.06744493762996,
+      "pct_degenerate": 0.0,
+      "seconds": 42.8
+    },
+    {
+      "axis": "wps",
+      "requested": 0.7,
+      "achieved": 0.722289022551288,
+      "fkgl": 7.540743116821305,
+      "nli": 0.9201956232476126,
+      "sari": 53.73138102659192,
+      "pct_degenerate": 0.0,
+      "seconds": 44.7
+    },
+    {
+      "axis": "wps",
+      "requested": 0.8,
+      "achieved": 0.7340957054517209,
+      "fkgl": 8.08721628330446,
+      "nli": 0.9213311147032073,
+      "sari": 53.37753321990306,
+      "pct_degenerate": 0.0,
+      "seconds": 43.0
+    },
+    {
+      "axis": "wps",
+      "requested": 0.9,
+      "achieved": 0.8126703617052882,
+      "fkgl": 8.97106968390885,
+      "nli": 0.9869633503258228,
+      "sari": 54.67265490786058,
+      "pct_degenerate": 0.0,
+      "seconds": 42.9
+    },
+    {
+      "axis": "wps",
+      "requested": 1.0,
+      "achieved": 0.8231922616803131,
+      "fkgl": 9.247884454176944,
+      "nli": 0.9566526485796203,
+      "sari": 54.2700636469519,
+      "pct_degenerate": 0.0,
+      "seconds": 42.8
+    },
+    {
+      "axis": "hard",
+      "requested": 0.4,
+      "achieved": 0.722261448212735,
+      "fkgl": 4.3383696290943545,
+      "nli": 0.3873637681077525,
+      "sari": 39.47312372742628,
+      "pct_degenerate": 0.0,
+      "seconds": 32.5
+    },
+    {
+      "axis": "hard",
+      "requested": 0.5,
+      "achieved": 0.823675854129792,
+      "fkgl": 5.485135441331868,
+      "nli": 0.5512604274663317,
+      "sari": 46.739301781533946,
+      "pct_degenerate": 0.0,
+      "seconds": 41.6
+    },
+    {
+      "axis": "hard",
+      "requested": 0.6,
+      "achieved": 0.7505228703194325,
+      "fkgl": 5.754601302689259,
+      "nli": 0.6800324292101626,
+      "sari": 50.295318918807546,
+      "pct_degenerate": 0.0,
+      "seconds": 42.0
+    },
+    {
+      "axis": "hard",
+      "requested": 0.7,
+      "achieved": 0.7054701268850254,
+      "fkgl": 4.96098804289353,
+      "nli": 0.4981847019698762,
+      "sari": 44.30827270546579,
+      "pct_degenerate": 0.0,
+      "seconds": 32.1
+    },
+    {
+      "axis": "hard",
+      "requested": 0.8,
+      "achieved": 0.7749582286812253,
+      "fkgl": 6.086286509382113,
+      "nli": 0.7158688150448143,
+      "sari": 51.30943431318531,
+      "pct_degenerate": 0.0,
+      "seconds": 42.0
+    },
+    {
+      "axis": "hard",
+      "requested": 0.9,
+      "achieved": 0.8207471289736067,
+      "fkgl": 7.473063027062495,
+      "nli": 0.9223125259789716,
+      "sari": 53.776071491105185,
+      "pct_degenerate": 0.0,
+      "seconds": 44.9
+    },
+    {
+      "axis": "hard",
+      "requested": 1.0,
+      "achieved": 0.9367172288881027,
+      "fkgl": 9.247884454176944,
+      "nli": 0.9566526485796203,
+      "sari": 54.2700636469519,
+      "pct_degenerate": 0.0,
+      "seconds": 43.1
+    }
+  ]
+}

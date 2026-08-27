@@ -45,7 +45,7 @@ import torch
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import config  # noqa: E402
-from lib import data, models, tables  # noqa: E402
+from lib import controls, data, models, tables  # noqa: E402
 from lib import jsonio  # noqa: E402
 from lib.metrics import readability  # noqa: E402
 
@@ -132,9 +132,12 @@ def build_examples(corpus: str, refs_per_source: int, seed: int) -> list[Example
     return out
 
 
-def encode(lm, ex: Example, max_len: int) -> dict[str, torch.Tensor] | None:
+def encode(lm, ex: Example, max_len: int, use_controls: bool = False) -> dict[str, torch.Tensor] | None:
     """Prompt+target ids with the prompt masked out of the loss."""
-    prompt = lm.build_prompt(ex.source)
+    # The control prefix is measured from the pair, so the adapter learns what a
+    # request of this shape produced. At inference it becomes a request instead.
+    source = controls.prefix(ex.source, ex.target) + ex.source if use_controls else ex.source
+    prompt = lm.build_prompt(source)
     prompt_ids = lm.tokenizer(prompt, add_special_tokens=False)["input_ids"]
     target_ids = lm.tokenizer(ex.target, add_special_tokens=False)["input_ids"]
     target_ids = target_ids + [lm.tokenizer.eos_token_id]
@@ -220,6 +223,21 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
         help="paragraph pairs need roughly 768; the sentence default is 320",
     )
     p.add_argument("--max-examples", type=int, default=0, help="0 = all")
+    p.add_argument(
+        "--controls",
+        action="store_true",
+        help="prepend ACCESS-style control ratios (len/wps/hard) measured from "
+        "each training pair, so the adapter can be asked for a target at "
+        "inference instead of pushed by an opaque dial. See lib/controls.py",
+    )
+    p.add_argument(
+        "--dev-every",
+        type=int,
+        default=20,
+        help="evaluate dev loss every N optimizer steps (0 = endpoints only). "
+        "The dev split is small, so this is a few seconds per pass and it is "
+        "what separates 'still improving' from 'past the minimum'",
+    )
     p.add_argument("--seed", type=int, default=config.SEED)
     return p.parse_args(argv)
 
@@ -256,7 +274,7 @@ def main(argv: list[str]) -> int:
     lm = models.load(args.model)
     print(f"[load] {lm.n_layers} layers, {time.perf_counter() - t0:.1f}s")
 
-    encoded = [encode(lm, ex, args.max_seq_len) for ex in examples]
+    encoded = [encode(lm, ex, args.max_seq_len, args.controls) for ex in examples]
     dropped = sum(1 for e in encoded if e is None)
     encoded = [e for e in encoded if e is not None]
     if dropped:
@@ -342,6 +360,18 @@ def main(argv: list[str]) -> int:
                 )
                 history.append({"step": step, "train_loss": mean})
                 running = 0.0
+
+            # Dev loss during training, not only at the ends. With endpoints
+            # alone, "dev went 1.32 -> 0.58" cannot be told apart from "dev
+            # bottomed out at epoch 3 and climbed back to 0.58", and those have
+            # opposite fixes -- fewer epochs versus more data. That ambiguity is
+            # not hypothetical: onestop_r16 trained 8 epochs to dev 0.582 while
+            # onestop_r16_e3 reached 0.559 in 3, and only the second run
+            # revealed the first was past its minimum.
+            if args.dev_every and step % args.dev_every == 0 and step != total_steps:
+                d = dev_loss(model, dev, args.batch_size, pad_id, lm.device)
+                history.append({"step": step, "dev_loss": d})
+                bar.write(f"  step {step:4d}/{total_steps}  dev loss {d:.4f}")
     bar.close()
 
     d1 = dev_loss(model, dev, args.batch_size, pad_id, lm.device)
@@ -356,6 +386,7 @@ def main(argv: list[str]) -> int:
     meta = {
         "base_model": args.model,
         "corpus": args.corpus,
+        "controls": args.controls,
         "train_split": f"asset/{config.LORA_TRAIN_SPLIT}",
         "max_seq_len": args.max_seq_len,
         "eval_split_reserved": "asset/test",

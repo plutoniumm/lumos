@@ -88,11 +88,37 @@ class Scored:
 
     @property
     def ppl_ok(self) -> bool:
+        """Reported, not gated. See ``passes``."""
         return math.isfinite(self.ppl_ratio) and self.ppl_ratio <= config.PPL_RATIO_MAX
 
     def passes(self) -> bool:
-        """The shipping gate: intact language, meaning kept, fluency intact."""
-        return not self.degenerate and self.nli_passed and self.ppl_ok
+        """The shipping gate: intact language, meaning kept.
+
+        Perplexity ratio used to be the third condition and is not any more. It
+        was there to stand in for fluency, and measured across both models it
+        does not do that job:
+
+            above / below the 1.5 gate, share degenerate
+                Llama   11% / 3%
+                Gemma    4% / 3%
+
+        On Gemma it barely separates collapsed output from intact output. What
+        it does separate is faithfulness failures -- and ``nli_passed`` already
+        gates those directly, on a measurement built for it. Meanwhile the cost
+        is severe: 55% of Gemma outputs that are neither degenerate nor
+        unfaithful sit above the gate (33% on Llama), including 67% of
+        ``steered_structural``, which is Gemma's best arm at a 2% NLI-failure
+        rate.
+
+        The underlying problem is that a ratio against the model's own unsteered
+        perplexity is a model-relative quantity, and 1.5 is an absolute threshold
+        picked on Llama. Gemma's whole scale is different -- its LoRA ladder
+        reaches a ratio of 976 -- so one constant cannot serve both.
+
+        ``ppl_ok`` and the ``ppl_ratio_ok`` row field are kept so the threshold
+        is still reported and any run can be re-filtered after the fact.
+        """
+        return not self.degenerate and self.nli_passed
 
 
 class Bench:
