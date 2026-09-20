@@ -316,6 +316,101 @@ incumbent.
 
 ---
 
+## 9. Measured decay: shrinking the push by the build-up it detects
+
+Gemma-4-12B-it, structural L31, SQuAD passages, n=32, paired against the same
+cached `unsteered` baselines as A/B 13.
+
+A fixed alpha spends the same push on the first generated token, where nothing
+has accumulated, as on the three-hundredth, where the model is reading back its
+own steered text. The arm measured that accumulation each step and subtracted
+it, one layer above the injection site:
+
+    carry = (h_L+1 . u) - baseline - gain * own_push_last_step
+    push  = clamp(alpha*||v|| - carry, 0, 2*alpha*||v||)
+
+`baseline` was the mean of `h . u` over unsteered generated tokens (−1.0049,
+sd 1.92, 5216 tokens on passages disjoint from the eval 32). Carry is zero on
+the first generated token by construction, so with no build-up the arm is
+exactly the published fixed setting.
+
+### The first version assumed `gain = 1.0` and became an over-steering arm
+
+Only about half an injected push reaches the next layer, so subtracting all of
+it left a constant negative carry, which the controller read as "the axis is
+under-represented" and answered by pushing *harder*: **1.26x alpha** on average.
+
+| vs `unsteered` | fixed α=0.5 | decay, gain assumed 1.0 |
+|---|---|---|
+| FKGL | -6.70\* | -8.50\* |
+| words/sent | -13.60\* | -16.88\* |
+| NLI | **-0.14\*** | **-0.26\*** |
+| degen % | 0.0 | 3.1 |
+
+Head to head it lost -0.12\* NLI [-0.20, -0.04] against the fixed arm. That is
+the trade raising alpha already makes.
+
+### Measured, the gain is 0.524
+
+Estimated per row at the first decode step, where build-up is zero by the same
+argument that zeroes carry there: **0.524, range 0.483–0.569 across 32 items.**
+Norm preservation and the block's own writes eat the rest. Estimating it over
+all steps instead gives 0.75, which is contaminated by the build-up it is meant
+to exclude — the low variance across items is what makes the first-step
+estimate trustworthy.
+
+This number is the one durable result here, and it is a fact about the residual
+stream at L31 rather than about this arm: **a push does not survive one layer
+intact.**
+
+### Corrected, it is a fixed alpha with extra steps
+
+With the gain measured, the push sits at 0.874x alpha and declines 0.887 ->
+0.860 across the generation. Against a fixed arm dialled to that same average
+dose (α=0.437):
+
+| decay vs fixed α=0.437 | delta | 95% CI |
+|---|---|---|
+| FKGL | +0.04 | [-0.14, +0.24] |
+| words/sent | -0.03 | [-0.43, +0.34] |
+| hard words | 0.00 | [-0.00, +0.00] |
+| NLI | **0.00** | **[-0.02, +0.03]** |
+| ppl ratio | -0.11 | [-0.24, +0.01] |
+
+Levels are indistinguishable: 10.02 / 12.49 / 0.69 against 9.97 / 12.51 / 0.68.
+Two dose points were tested this way — 1.26x before the fix and 0.87x after —
+and both are null against a matched constant.
+
+### Why it cannot work at this site
+
+The build-up is real, and it is not even small. In projection units, against a
+nominal push of 63.15:
+
+| quantity | value | fraction of push |
+|---|---|---|
+| baseline μ₀ | -1.00 (sd 1.92) | 0.016 |
+| carry, mean | 8.14 | 0.129 |
+| carry, first decile | 4.61 | 0.073 |
+| carry, last decile | 8.62 | 0.136 |
+| **drift across the generation** | **+4.01** | **0.063** |
+
+Most of the 13% is present by the second token and stays there, and a constant
+correction *is* a smaller alpha. Only the 6% that actually accumulates over
+~230 tokens is decay in the intended sense — half the size of the α 0.5 -> 0.437
+dose change that was itself barely resolvable (NLI +0.06\*), so it disappears
+into the noise.
+
+Revisit only where the time-varying part gets large: generations much longer
+than 230 tokens, or a site where build-up grows faster than 6% per 230 tokens.
+Neither is true at L31 on passages.
+
+`results/eval_gemma_passages.jsonl` (the gain=1.0 rows, superseded, with
+per-token traces in `.decay.jsonl`), `results/eval_gemma_passages_decayg.jsonl`
+(corrected), `results/eval_gemma_passages_dose.jsonl` and `_dose2.jsonl` (the
+two matched-dose controls), `results/decay_baseline_gemma-4-12B-it_*.json`.
+
+---
+
 ## Not built, and why
 
 **Multi-adapter merge** — one LoRA per axis. It is the weight-space version of

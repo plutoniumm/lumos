@@ -1,0 +1,16 @@
+# Direct dependencies only (no transitive closure -- see readme.md for how
+# to rebuild the env). Pinned to the exact versions every recorded result
+# in this repo (report.md, examples.md, fail.md) was produced under.
+# Regenerate with: conda run -n steer python -c "import importlib.metadata as m; print(m.version('<pkg>'))"
+torch==2.13.0
+transformers==5.14.1
+datasets==5.0.1
+safetensors==0.8.0
+peft==0.20.0
+huggingface_hub==1.25.1
+requests==2.34.2
+numpy==2.5.1
+pandas==3.0.5
+rich==15.0.0
+tqdm==4.70.0
+textstat==0.7.13

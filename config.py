@@ -30,7 +30,13 @@ GEMMA4 = "google/gemma-4-12B-it"
 
 NLI_MODEL = "FacebookAI/roberta-large-mnli"
 
-ACTIVE_MODEL = LLAMA
+# Gemma, not Llama, because Llama's weights are no longer on this machine and
+# hub.resolve falls back to the repo id -- leaving this at LLAMA would make
+# every default command silently re-download six gigabytes instead of failing.
+# Llama remains the model behind report.md's headline result; its vector banks
+# are still in vectors/, so pass --model to reproduce those numbers once the
+# weights are back.
+ACTIVE_MODEL = GEMMA4
 DTYPE = "bfloat16"
 DEVICE = "mps"
 

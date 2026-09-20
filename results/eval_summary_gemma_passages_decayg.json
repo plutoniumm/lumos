@@ -1,0 +1,75 @@
+{
+  "model": "google/gemma-4-12B-it",
+  "estimator": "instruction_diff",
+  "data_source": "lib.data",
+  "bank_orthogonalized": {
+    "structural": "none",
+    "lexical": "none"
+  },
+  "n_requested": 32,
+  "lora": null,
+  "task": null,
+  "shots": {
+    "passages": []
+  },
+  "easy_word_penalty": null,
+  "variants": [
+    "steered_structural_decay"
+  ],
+  "eval_sets": [
+    "passages"
+  ],
+  "settings": {
+    "structural": [
+      31,
+      0.5
+    ]
+  },
+  "skip_nli": false,
+  "skip_sari": false,
+  "max_new_tokens": 320,
+  "max_new_tokens_used": {
+    "passages": 320
+  },
+  "batch_size": 8,
+  "interrupted": false,
+  "rows_written_this_run": 32,
+  "failures_this_run": 0,
+  "rows_in_file": 32,
+  "rows_superseded": 0,
+  "wall_clock_this_run": {
+    "passages/steered_structural_decay": 453.7417846249882
+  },
+  "config": {
+    "positions": "gen_only",
+    "norm_preserve": true,
+    "site_kind": "resid_post",
+    "content_orthogonalize": true,
+    "nli_entailment_min": 0.5,
+    "ppl_ratio_max": 1.5
+  },
+  "rows": [
+    {
+      "eval_set": "passages",
+      "variant": "steered_structural_decay",
+      "mode": "whole",
+      "n": 32,
+      "n_failed": 0,
+      "spec_label": "stru@L31a0.5/decay@L32",
+      "mean_fkgl": 10.015710368552194,
+      "mean_words_per_sentence": 12.485958919552669,
+      "mean_pct_hard_words": 0.37267441961959513,
+      "mean_d_words_per_sentence": -0.48113765339507236,
+      "mean_d_pct_hard_words": -0.1065783216228752,
+      "mean_d_fkgl": -0.35981192581927174,
+      "mean_nli_score": 0.6875549433540322,
+      "pct_nli_passed": 81.25,
+      "mean_ppl": 2.508330716884707,
+      "mean_ppl_ratio": 2.3001261398228867,
+      "mean_sari": null,
+      "pct_degenerate": 0.0,
+      "mean_gen_sec": 12.186359973938124,
+      "gen_seconds_total": 389.96351916602
+    }
+  ]
+}

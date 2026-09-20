@@ -1,0 +1,74 @@
+{
+  "model": "google/gemma-4-12B-it",
+  "estimator": "instruction_diff",
+  "axis": "structural",
+  "layer": 31,
+  "read_layer": 32,
+  "kind": "resid_post",
+  "baseline": -1.0048983776541942,
+  "sd": 1.924842284728051,
+  "n_tokens": 5216,
+  "n_texts": 32,
+  "mean_vector_norm": 126.29376888275146,
+  "deciles": [
+    {
+      "bin": 0,
+      "mean": -1.4405146874973005,
+      "n": 537
+    },
+    {
+      "bin": 1,
+      "mean": -1.22391150868856,
+      "n": 520
+    },
+    {
+      "bin": 2,
+      "mean": -0.87956894329616,
+      "n": 525
+    },
+    {
+      "bin": 3,
+      "mean": -0.9209288289913764,
+      "n": 520
+    },
+    {
+      "bin": 4,
+      "mean": -1.0684589219604552,
+      "n": 513
+    },
+    {
+      "bin": 5,
+      "mean": -0.9167446657480048,
+      "n": 529
+    },
+    {
+      "bin": 6,
+      "mean": -0.9388858457444497,
+      "n": 521
+    },
+    {
+      "bin": 7,
+      "mean": -1.1259331566686848,
+      "n": 524
+    },
+    {
+      "bin": 8,
+      "mean": -0.9258063644914389,
+      "n": 521
+    },
+    {
+      "bin": 9,
+      "mean": -0.5856361839139885,
+      "n": 506
+    }
+  ],
+  "text_selection": {
+    "source": "passage_pool() minus load_eval_passages(32, seed)",
+    "seed": 0,
+    "pool_size": 11854,
+    "eval_size": 32,
+    "remainder_size": 11822
+  },
+  "max_new_tokens": 320,
+  "batch_size": 8
+}

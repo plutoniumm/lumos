@@ -1,0 +1,10 @@
+# This project runs on Apple Silicon MPS (config.DEVICE = "mps"), so torch
+# is installed from PyPI via pip below rather than from a CUDA channel.
+name: steer
+channels:
+  - conda-forge
+dependencies:
+  - python=3.14.6
+  - pip
+  - pip:
+      - -r requirements.txt
