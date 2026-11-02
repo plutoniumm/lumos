@@ -1,28 +1,4 @@
-"""The LoRA adapter as an object with an on/off switch and a strength dial.
-
-Why the switch is worth a class
--------------------------------
-peft applies an adapter as ``scaling * B @ A @ x``, and both of the things you
-want to do to it -- turn it off, turn it down -- are context managers over
-mutable global state on the model. Two bugs in this project came out of that,
-and both were the same bug:
-
-* ``src/lora_ladder.py`` measured conditional perplexity *outside* the
-  ``scaled()`` block, which restores full adapter strength on exit. So the
-  adapter was asked how likely it found its own output. It answered 0.58 where
-  the true ratio was 1.80.
-* the same ladder scored every rung against a baseline the adapter had also
-  seen.
-
-Conditional perplexity is defined against a *reference* model. If the adapter is
-live while it is measured, the number is not a perplexity ratio, and nothing
-about its value says so -- it just comes out near 1.0 and looks like a clean
-result.
-
-So the rule is structural here rather than remembered: ``Adapter.scoring()``
-is the only context scoring runs in, and it disables the adapter unconditionally.
-An arm cannot rate its own output without deleting that call.
-"""
+"""The LoRA adapter as an object with an on/off switch and a strength dial."""
 
 from __future__ import annotations
 
@@ -34,11 +10,13 @@ from pathlib import Path
 class Adapter:
     """A loaded LoRA, or nothing at all.
 
-    ``Adapter(None)`` is a working no-op, so a caller that may or may not have
-    an adapter does not need a branch at every use site.
+    ``Adapter(None)`` is a working no-op, so callers don't need a branch at
+    every use site.
     """
 
-    def __init__(self, peft_model=None, path: Path | None = None, meta: dict | None = None):
+    def __init__(
+        self, peft_model=None, path: Path | None = None, meta: dict | None = None
+    ):
         self.model = peft_model
         self.path = path
         self.meta = meta or {}
@@ -48,15 +26,7 @@ class Adapter:
 
     @classmethod
     def load(cls, lm, path: Path, *, expect_base: str | None = None) -> "Adapter":
-        """Wrap *lm* in the adapter at *path* and return the handle.
-
-        peft rewrites the projection ``Linear``s *inside* the existing decoder
-        blocks, so ``lm._layers`` keeps pointing at the same module objects and
-        the steering hooks attach exactly where they did before. Only
-        ``lm.model`` is swapped, for ``generate()``. Doing it the other way
-        round -- wrapping first, then locating layers -- fails: ``PeftModel``
-        nests the stack one level deeper than ``models._find_layers`` walks.
-        """
+        """Wrap *lm* in the adapter at *path* and return the handle."""
         try:
             from peft import PeftModel
         except ImportError:
@@ -102,12 +72,7 @@ class Adapter:
 
     @contextmanager
     def scaled(self, scale: float):
-        """Adapter contribution multiplied by *scale* inside the block.
-
-        ``unscale_layer(None)`` restores the configured ``lora_alpha / r``
-        rather than dividing back out, so a ladder cannot accumulate float
-        drift across rungs and silently report the wrong curve.
-        """
+        """Adapter contribution multiplied by *scale* inside the block."""
         if not self:
             raise RuntimeError("no adapter loaded; nothing to scale")
         from peft.tuners.lora.layer import LoraLayer

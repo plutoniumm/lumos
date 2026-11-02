@@ -1,27 +1,7 @@
-"""Turn alpha from an arbitrary float into a named reading level.
-
-Alpha is the project's selling point over plain prompting: a continuous dial that
-renders the same passage at whatever reading level a student needs. A dial only
-helps if its numbers mean something, so this script maps each entry in
-``config.TARGET_FKGL`` onto the alpha that actually lands there -- subject to the
-gates that make the output usable at all (meaning preserved, fluency intact, no
-degeneration).
-
-Why a ladder before a bisection. Bisection assumes FKGL falls monotonically as
-alpha rises. It mostly does, and then it stops: past some alpha the model starts
-repeating itself, sentences fragment, and FKGL *drops* for reasons that have
-nothing to do with readability -- a degenerate output can score grade 2. A naive
-bisection walks straight into that region and reports it as a success. So we
-first sweep a coarse ladder, record what FKGL and the gates actually do at each
-rung, and only bisect inside a bracket where two neighbouring rungs both pass the
-gates and FKGL genuinely decreases between them. If no such bracket exists, that
-is the finding, and it is reported as such rather than papered over with the
-closest violating alpha.
-
-``max_safe_alpha`` is the other half of the output: the highest alpha that still
-passes every gate. That is the ceiling the product UI must not let a dial exceed,
-independent of any reading level.
-"""
+"""Map each entry in config.TARGET_FKGL onto the alpha that reaches it, subject
+to the faithfulness/degeneration gates, via a coarse ladder plus bisection
+inside a monotone bracket. Also reports max_safe_alpha, the highest alpha
+that still passes every gate."""
 
 from __future__ import annotations
 
@@ -37,22 +17,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import config
 from lib import jsonio, tables
+from lib.cli import die
 from lib.metrics import fluency, readability
 from lib.metrics.faithfulness import faithfulness
 from lib.models import SteerableLM, load
 from lib.steering import SteeredLM, SteeringSpec, load_banks
 from lib.vectors import VectorBank
 
-# An empty or near-empty generation is the failure mode readability.measure()
-# scores most generously: zero words gives fkgl 0.0 with degenerate False, which
-# reads as a flawless grade-0 result. Anything this short is treated as
-# degenerate here rather than trusted.
 MIN_OUTPUT_WORDS = 6
 
-# A single degenerate output in the calibration set rejects the alpha. This alpha
-# ships as a named reading level to every student who picks that level; a
-# degeneration rate that is "only" a few percent is a few percent of students
-# handed garbage they cannot tell is garbage.
 MAX_DEGENERATE_RATE = 0.0
 
 
@@ -97,13 +70,11 @@ class LevelResult:
 
     level: str
     target_fkgl: float
-    status: str  # ok | off_target | no_gate_passing_alpha
+    status: str
     alpha: float | None
     trial: Trial | None
     iterations: int
     note: str
-    # Kept only as a diagnostic: a gate-passing alpha that missed the target. It
-    # is deliberately not returned as the level's alpha.
     closest: Trial | None = None
 
     def as_dict(self) -> dict:
@@ -137,9 +108,6 @@ class Calibrator:
     _cache: dict[str, Trial] = field(default_factory=dict)
 
     def __post_init__(self) -> None:
-        # The unsteered rewrite of each item is both the fluency reference and
-        # the honest baseline for the printed summary. It never changes with
-        # alpha, so it is computed once here.
         self._prompts = [self.lm.build_prompt(t) for t in self.texts]
         refs = self.steered.generate_batch(
             self.texts,
@@ -163,12 +131,6 @@ class Calibrator:
     def evaluate(self, spec: SteeringSpec, axis: str) -> Trial:
         alpha = next((s.alpha for s in spec.settings if s.axis == axis), 0.0)
 
-        # Zero-alpha axes are dropped from the cache key: the injector treats
-        # alpha 0 as an exact no-op, so "structural at 0 plus lexical at 0.4" is
-        # the same generation as "lexical at 0.4" and must not be paid for twice.
-        # That matters when the joint search holds an axis at 0. The searched
-        # axis's alpha is re-attached on a hit, because the same generation can be
-        # reached while searching either axis.
         live = tuple(s for s in spec.settings if s.alpha != 0.0)
         key = replace(spec, settings=live).label()
         cached = self._cache.get(key)
@@ -201,12 +163,6 @@ class Calibrator:
         )
         degen_rate = n_degen / n
 
-        # Faithfulness and degeneration only. Perplexity ratio is still measured
-        # and carried on the trial, but it stopped being a constraint when it
-        # turned out not to separate collapsed output from intact output --
-        # ``Scored.passes`` in lib/bench.py carries the numbers. Leaving it in
-        # here would cap alpha on the model whose baseline perplexity happens to
-        # be low rather than on the model that actually breaks first.
         fails: list[str] = []
         if mean_nli < config.NLI_ENTAILMENT_MIN:
             fails.append("nli")
@@ -222,8 +178,6 @@ class Calibrator:
         bar = tables.progress(alphas, unit="rung", desc=f"ladder {axis}")
         for alpha in bar:
             trial = self.evaluate(base.with_alpha(axis, alpha), axis)
-            # Written rather than printed: the per-rung line is the record a
-            # redirected run keeps, and the bar is only for a watching human.
             bar.write(f"  {trial.line()}")
             trials.append(trial)
         return trials
@@ -295,9 +249,6 @@ class Calibrator:
             print(f"  {trial.line()}")
 
             if not trial.passed:
-                # Gates broke strictly inside a bracket whose endpoints both
-                # passed, so the bracket is not as well behaved as the ladder
-                # suggested. Retreat toward the lower, safer alpha.
                 alpha_hi = mid
                 continue
             if abs(trial.mean_fkgl - target) <= self.fkgl_tol:
@@ -359,17 +310,17 @@ def _max_safe(trials: list[Trial]) -> float | None:
 
 def _read_texts(path: Path) -> list[str]:
     if path.suffix == ".jsonl":
-        rows = [
-            json.loads(line) for line in path.read_text().splitlines() if line.strip()
-        ]
+        rows = []
+        for n, r in jsonio.read_jsonl(path):
+            if r is None:
+                raise ValueError(f"{path}:{n}: invalid JSON")
+            rows.append(r)
         return [r["text"] if isinstance(r, dict) else str(r) for r in rows]
     if path.suffix == ".json":
         payload = json.loads(path.read_text())
         if isinstance(payload, dict):
             payload = payload.get("texts", [])
         return [p if isinstance(p, str) else p["text"] for p in payload]
-    # Plain text: one item per blank-line-separated block, so multi-sentence
-    # passages survive intact.
     return [b.strip() for b in path.read_text().split("\n\n") if b.strip()]
 
 
@@ -388,17 +339,6 @@ def load_calibration_texts(n: int, path: Path | None) -> tuple[list[str], str]:
             ".json/.jsonl list) or provide lib/data.py."
         ) from exc
 
-    # Two constraints on the calibration set, in this order:
-    #
-    #   1. it must not be the ASSET test set the project reports SARI on --
-    #      fitting alpha on the eval set and then reporting eval numbers at that
-    #      alpha is exactly the leak lib/data.py asserts against elsewhere;
-    #   2. it should not be the texts the vectors were estimated from either.
-    #
-    # So: same pool as estimation, with the estimation sample subtracted
-    # outright. Subtracting rather than slicing a bigger draw, because
-    # load_complex_corpus samples with random.sample and being prefix-stable in
-    # n is an implementation detail of CPython, not a promise.
     try:
         pool = data.complex_pool()
         used = set(data.load_complex_corpus(min(config.VECTOR_N_TEXTS, len(pool))))
@@ -443,14 +383,17 @@ def _levels(raw: str | None) -> list[str]:
 def _resolve_layer(
     axis: str, given: int | None, lm: SteerableLM, bank: VectorBank
 ) -> int:
-    layer = given
-    if layer is None:
-        layer = lm.n_layers // 2
-        print(
-            f"[calibrate] WARNING: no --{axis}-layer given, defaulting to the "
-            f"middle layer {layer}. The layer sweep, not this default, is what "
-            f"should choose it."
+    if given is None:
+        die(
+            f"no --{axis}-layer given; calibration cannot guess one. The only "
+            f"validated sites are structural steering at L15 alpha=0.75 on "
+            f"Llama-3.2-3B-Instruct and L31 alpha=0.5 on gemma-4-12B-it. Pass "
+            f"--{axis}-layer explicitly (e.g. --structural-layer 15 on Llama, "
+            f"--structural-layer 31 on gemma-4), or run the layer sweep first:\n"
+            f"  {sys.executable} src/sweep_layers.py --stage 1 && "
+            f"{sys.executable} src/sweep_layers.py --report"
         )
+    layer = given
     if layer < 0:
         layer += lm.n_layers
     if layer not in bank.vectors:
@@ -465,8 +408,6 @@ def run(args: argparse.Namespace) -> int:
     levels = _levels(args.levels)
     repo = args.model or config.ACTIVE_MODEL
 
-    # Banks first: a missing bank is a one-second failure, and loading a 3B model
-    # only to discover it is a six-gigabyte one.
     try:
         banks = load_banks(repo, args.estimator)
     except FileNotFoundError as exc:
@@ -532,14 +473,8 @@ def run(args: argparse.Namespace) -> int:
             anchor = anchor_res.alpha
             anchor_src = "level"
             if anchor is None:
-                # No calibrated value for the held axis at this level, so the
-                # joint search runs with that dial off rather than guessing.
                 anchor, anchor_src = 0.0, "fallback_zero"
 
-            # Coordinate search, not a joint optimum: the held axis is pinned at
-            # its own single-axis value and only the other dial moves. A true
-            # joint fit would search the (structural, lexical) plane, which costs
-            # a full grid per level and is not what this produces.
             base = SteeringSpec.dual(
                 (layers["structural"], anchor if held_axis == "structural" else 0.0),
                 (layers["lexical"], anchor if held_axis == "lexical" else 0.0),
@@ -617,9 +552,6 @@ def _payload(
             entry["achieved"] = j.get("achieved")
             entry["source"] = "joint"
         else:
-            # Never "ok": each alpha was measured with the other axis switched
-            # off, so the pair has no measurement behind it and applying both
-            # will overshoot the target. Only the joint search can call a pair ok.
             ok_alone = all(per_axis[a][level].status == "ok" for a in per_axis)
             entry["status"] = "single_axis_only" if ok_alone else "partial"
             entry["alphas"] = {a: per_axis[a][level].alpha for a in per_axis}

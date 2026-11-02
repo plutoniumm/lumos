@@ -1,20 +1,6 @@
 """Measure the logit gap between plausible continuations, per model.
 
-``config.EASY_WORD_PENALTY`` is subtracted from the logits of tokens that can
-only start a hard word. 5.0 was chosen against Llama-3.2-3B, where the gap
-between competing continuations runs a few nats -- large enough to reorder them,
-small enough that the model can still reach a hard word when nothing else fits.
-
-That number is not portable. Gemma-4 applies ``final_logit_softcapping: 30.0``,
-which squashes logits through ``c * tanh(x / c)`` and compresses exactly the
-gaps the penalty is measured against. The same 5.0 is a different intervention
-there, and probably a much harsher one, so the constraint would be testing a
-different thing on each model while appearing to test the same thing.
-
-So: measure the gap on each model and scale the penalty to match. What is held
-fixed across models is the penalty's size *relative to the decision it is
-perturbing*, which is the thing that has to be constant for the arms to be
-comparable.
+Scales ``config.EASY_WORD_PENALTY`` to each model's own logit scale.
 
     python scripts/05_logit_gaps.py                       # both models
     python scripts/05_logit_gaps.py google/gemma-4-12B-it  # one
@@ -31,9 +17,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 import config
 from lib import data, models
 
-# Rank 10 rather than rank 2: the gap to the runner-up is often noise between
-# two spellings of the same word, while the gap to the tenth candidate is the
-# span the penalty actually has to cross to change the model's mind.
 RANK = 10
 N_TEXTS = 24
 
@@ -63,11 +46,7 @@ def gaps_for(repo_id: str) -> dict:
 
 
 def write_override(repo_id: str, penalty: float) -> None:
-    """Put the measured value in config.py, where every other tunable lives.
-
-    A measured constant that only exists in a script's stdout is a constant
-    nobody can reproduce a result from.
-    """
+    """Put the measured value in config.py, where every other tunable lives."""
     path = Path(config.ROOT) / "config.py"
     text = path.read_text()
     marker = "EASY_WORD_PENALTY_OVERRIDES: dict[str, float] = "
@@ -114,7 +93,9 @@ def main(argv: list[str]) -> int:
     import json
 
     out_path = Path(config.RESULTS_DIR) / "logit_gaps.json"
-    out_path.write_text(json.dumps({"rank": RANK, "n_texts": N_TEXTS, "models": out}, indent=2))
+    out_path.write_text(
+        json.dumps({"rank": RANK, "n_texts": N_TEXTS, "models": out}, indent=2)
+    )
     print(f"\n[out] {out_path}")
     return 0
 

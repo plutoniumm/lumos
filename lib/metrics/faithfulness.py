@@ -21,16 +21,6 @@ from lib.chunking import split_sentences  # noqa: E402
 
 MAX_PAIRS_PER_BATCH = 16
 
-# roberta-large-mnli caps at 512 tokens and the premise here is a whole text, not
-# a sentence. On ASSET that is never close; on a science abstract the longest
-# item reaches 502 with a 1.8x expansion, which is ten tokens of headroom.
-#
-# Silent truncation would bias one direction of the score and not the other. When
-# the *output* is the premise and its tail is cut, source content that the lost
-# tail actually covered reads as unsupported, so the omission direction reports a
-# deletion that never happened and faithfulness comes out too low. An arm that
-# legitimately expands the text would be penalised for it, invisibly. Counting is
-# cheap; guessing afterwards is not.
 NLI_MAX_TOKENS = 512
 _truncated = 0
 
@@ -88,16 +78,14 @@ def entailment_probs(pairs: list[tuple[str, str]]) -> list[float]:
 
 
 def truncated_pairs() -> int:
-    """How many NLI pairs hit the token cap this process. 0 means the scores are clean."""
+    """How many NLI pairs hit the token cap this process."""
     return _truncated
 
 
 @dataclass
 class Faithfulness:
-    # source |= each output sentence: low means the output invented something
     no_hallucination_mean: float
     no_hallucination_min: float
-    # output |= each source sentence: low means the output dropped something
     no_omission_mean: float
     no_omission_min: float
 

@@ -1,40 +1,9 @@
-"""SARI (Xu et al. 2016), the metric simplification systems are actually judged on.
+"""SARI (Xu et al. 2016): scores edits against multiple human references,
+rather than the output in isolation, so it can't be gamed by truncation the
+way FKGL can.
 
-Readability scores can be gamed by truncation: delete half a sentence and FKGL
-falls. SARI cannot, because it scores *edits* against what R human references
-did rather than scoring the output in isolation. Dropping content the references
-kept costs keep-recall; inventing content no reference used costs add-precision.
-That is why it sits alongside readability here instead of replacing it: FKGL says
-how simple the output is, SARI says whether the simplification was the right one.
-
-Three implementation details separate a correct SARI from the many subtly wrong
-reimplementations:
-
-*Clipped counts, not set membership.* The reference side is one Counter over the
-concatenation of all R references, so an n-gram appearing in 3 of 4 references
-has count 3; the source and prediction sides are multiplied by R before being
-intersected with it. Every keep/delete precision and recall term is therefore
-weighted by the fraction of references that agree with the edit. Implementations
-that ask "is this n-gram in any reference" throw that weighting away and inflate
-scores on n-grams a single reference happened to use.
-
-*Deletion is precision-only.* The paper omits deletion recall on purpose. An
-n-gram the references dropped but the prediction kept is already penalised by
-keep-precision; scoring it a second time as missed deletion would reward
-indiscriminate deletion, which is the exact failure mode SARI exists to catch.
-
-*Addition is set-based.* Asymmetric with keep/delete, but that asymmetry is in
-the original and in HuggingFace ``evaluate``, so it is preserved: an added
-n-gram counts once regardless of how many references used it. Deviating here
-makes numbers incomparable with everything published.
-
-SARI is tokenizer-sensitive, and published numbers use mteval's 13a tokenizer
-via sacrebleu, which is not a dependency of this project. We instead lowercase
-and apply one regex: word characters with intra-word apostrophes kept together
-("don't" is one token), and every other punctuation character emitted as its own
-token. It is applied identically to source, prediction and references, so
-comparisons *within* this project are sound; absolute values may differ slightly
-from 13a-based papers and should not be quoted against them.
+Uses a lowercase regex tokenizer, not mteval's 13a, so absolute values are
+comparable within this project but not to 13a-based papers.
 """
 
 from __future__ import annotations
@@ -43,7 +12,7 @@ import re
 from collections import Counter
 from dataclasses import asdict, dataclass
 
-MAX_N = 4  # SARI averages orders 1..4, then the three operations
+MAX_N = 4
 
 _TOKEN = re.compile(r"\w+(?:'\w+)*|[^\w\s]")
 
@@ -72,8 +41,8 @@ def _order_scores(
 ) -> tuple[float, float, float]:
     """(keep_f1, del_precision, add_f1) for a single n-gram order, each in [0, 1]."""
     ref_c: Counter[_Gram] = Counter(g for grams in ref_grams for g in grams)
-    # Scaling by R puts source/prediction counts on the same scale as the pooled
-    # reference counts, so the clipped intersections below are reference-weighted.
+    # Source/prediction counts are scaled by n_refs so their intersection with
+    # the pooled reference counts is reference-weighted, not just set membership.
     src_c: Counter[_Gram] = Counter(
         {g: c * n_refs for g, c in Counter(src_grams).items()}
     )
@@ -81,18 +50,18 @@ def _order_scores(
         {g: c * n_refs for g, c in Counter(pred_grams).items()}
     )
 
-    kept = src_c & pred_c  # source n-grams the prediction retained
-    kept_good = kept & ref_c  # ... that the references retained too
-    kept_all = src_c & ref_c  # every source n-gram the references retained
+    kept = src_c & pred_c
+    kept_good = kept & ref_c
+    kept_all = src_c & ref_c
 
     keep_precision = (
         sum(kept_good[g] / kept[g] for g in kept_good) / len(kept) if kept else 1.0
     )
-    keep_recall = sum(kept_good.values()) / sum(kept_all.values()) if kept_all else 1.0
+    keep_recall = (
+        sum(kept_good.values()) / sum(kept_all.values()) if kept_all else 1.0
+    )
     keep_f1 = _f1(keep_precision, keep_recall)
 
-    # Counter subtraction drops non-positive counts, so every gram in
-    # ``deleted_good`` has a positive count in ``deleted``.
     deleted = src_c - pred_c
     deleted_good = deleted - ref_c
     del_precision = (
@@ -116,7 +85,7 @@ class SariScore:
     sari: float
     add_f1: float
     keep_f1: float
-    del_precision: float  # SARI scores deletion by precision only, by design
+    del_precision: float  # deletion is scored by precision only, by design
 
     def as_dict(self) -> dict:
         return asdict(self)
@@ -195,7 +164,6 @@ def _main() -> int:
         "The Hubble Space Telescope went up in 1990. It has taught us much "
         "more about the universe.",
     ]
-    # Neither reference verbatim: some wording from each, some of its own.
     good = (
         "The Hubble Space Telescope was launched in 1990. It has taught us a "
         "lot more about the universe."
@@ -211,9 +179,6 @@ def _main() -> int:
     _show("prediction == '' (empty)", empty)
     _show("realistic simplification", realistic)
 
-    # The canonical example from HuggingFace `evaluate`'s SARI card; agreement to
-    # 1e-9 is the real correctness check, since the inputs are pre-tokenized and
-    # our tokenizer therefore cannot disagree with theirs on them.
     hf_src = ["About 95 species are currently accepted ."]
     hf_pred = ["About 95 you now get in ."]
     hf_refs = [
@@ -227,7 +192,6 @@ def _main() -> int:
     _show("huggingface reference example", hf)
     assert abs(hf.sari - 26.953601953601954) < 1e-9, hf.sari
 
-    # Copying a reference must beat copying the source.
     assert copy_ref.sari > identical.sari, (copy_ref.sari, identical.sari)
     assert realistic.sari > identical.sari, (realistic.sari, identical.sari)
 
@@ -241,11 +205,9 @@ def _main() -> int:
         for key, val in score.as_dict().items():
             assert 0.0 <= val <= 100.0, (label, key, val)
 
-    # corpus_sari over one item is that item.
     single = corpus_sari([src], [good], [refs])
     assert single.as_dict() == realistic.as_dict(), (single, realistic)
 
-    # Degenerate inputs must not raise.
     _show("empty source and prediction", sari("", "", [""]))
     _show("single token everywhere", sari("a", "a", ["a"]))
 

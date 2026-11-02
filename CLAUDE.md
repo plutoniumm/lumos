@@ -37,7 +37,7 @@ python src/rescore.py results/eval_X.jsonl --out results/eval_X_v2.jsonl   # re-
 
 Product entry point: `src/simplify.py`. With `ACTIVE_MODEL = GEMMA4` the validated steering setting is `--structural 0.5 --structural-layer 31`; L15/0.75 is Llama's and is not a site on Gemma. When steering, always pass `--structural-layer`: without it, and without a calibration file, the tool exits 2 rather than guessing a layer. Its exit codes are 0 (a result was printed, fallbacks included), 2 (usage/config error), 1 (failed before producing anything), and stdout carries the rewrite alone — `--explain` and every warning go to stderr.
 
-`models/`, `data/`, `vectors/` and `docs/` are gitignored. `results/` is tracked on purpose: it holds hours of GPU work and is the evidence behind `report.md`. Keep it small, and if a large, cheap-to-rebuild file lands there, ignore that file by name.
+`models/`, `data/` and `vectors/` are gitignored. The paper lives in `paper/` (`steering.tex`, revtex4-2, all figures TikZ); its source is tracked and its build output is not. `results/` is tracked on purpose: it holds hours of GPU work and is the evidence behind `report.md`. Keep it small, and if a large, cheap-to-rebuild file lands there, ignore that file by name.
 
 ## Architecture
 
@@ -70,6 +70,6 @@ These bugs produce plausible numbers, not errors:
 
 ## Conventions
 
-- Docstrings and comments record *why*, usually with the measured number that justified a choice or the bug that motivated it (see `config.py`, `lib/bench.py`). New tunables and design decisions should follow that pattern. Put prompts and thresholds in `config.py`, not inline.
+- **The code carries no rationale comments.** They were stripped deliberately (2026-09-21). Docstrings are one or two lines saying what a thing does; comments appear only where code is unreadable without one. The *why* behind a threshold, a workaround or a default now lives in `report.md`, `fail.md` and git history — check there before changing a constant, because most of them were set by a measurement. Do not reintroduce explanatory comments. Put prompts and thresholds in `config.py`, not inline.
 - `report.md` is chronological. Each section names the command that regenerates it, and superseded numbers stay in place with the reason. `*` marks a 95% paired bootstrap CI that excludes zero. Abandoned approaches go in `fail.md`: the code is removed and the measurements are kept.
 - `config.LLAMA` points at the ungated `unsloth/` mirror, whose shards are byte-identical to `meta-llama`'s. Only switch to `LLAMA_CANONICAL` once licence access is granted.

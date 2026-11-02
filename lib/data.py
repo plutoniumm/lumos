@@ -1,22 +1,8 @@
 """The corpora this project needs, with leakage between them made impossible.
 
-Three roles that must never mix: ASSET test is the sentence-level eval set,
-SQuAD paragraphs are the passage-level eval set, and the complex corpus is what
-the steering vectors are *estimated from*. If an estimation text also appears in
-an eval set, every reported SARI/FKGL number is measuring memorisation instead
-of steering, so the disjointness is enforced in code rather than assumed from
-how the upstream splits happen to be built.
-
-Two cache layers under ``config.DATA_DIR`` (gitignored). Raw Hub downloads go to
-``data/hf`` so nothing lands in the user's global HF cache; the derived records
-go to ``data/derived`` as JSON. The second layer is what makes a re-run instant
-and fully offline - deriving the passage pool means deduplicating 87k SQuAD rows
-and sentence-splitting 19k paragraphs, which is seconds of work to repeat for no
-reason, and it also means a re-run never touches the network at all.
-
-On dataset ids: ASSET's canonical repo still resolves and now serves parquet
-directly, so ``facebook/asset`` is used as-is. OneStopEnglish is the awkward one
-- see ``load_onestop``.
+Enforces disjointness between the ASSET/SQuAD eval sets and the corpus the
+steering vectors are estimated from, so no reported number is measuring
+memorisation.
 """
 
 from __future__ import annotations
@@ -36,40 +22,26 @@ from lib.chunking import split_sentences  # noqa: E402
 from lib.hub import hf_token  # noqa: E402
 
 ASSET_REPO = "facebook/asset"
-ASSET_CONFIG = "simplification"  # the other config, "ratings", is human judgements
+ASSET_CONFIG = "simplification"
 
-# OneStopEnglish reaches the Hub twice, and only one of the two is usable:
-#   iastate/onestop_english  - 567 rows as a flat 3-class classification set.
-#     189 per level and the levels *look* index-parallel, but they are not: at
-#     least five ele/int pairs are off by one or two (a duplicated elementary
-#     text at index 164/165 shifts everything after it). Aligning by position
-#     silently pairs the vaping article with the BB King article.
-#   malmaud/onestop_qa      - the same Guardian articles carrying an explicit
-#     (title, paragraph_index, level) key, so the triples need no guessing.
-# The second one is therefore the source of truth here. See load_onestop.
+# iastate/onestop_english looks index-parallel across levels but is not (some
+# elementary/intermediate pairs are misaligned); malmaud/onestop_qa carries an
+# explicit (title, paragraph_index, level) key instead. See load_onestop.
 ONESTOP_ALIGNED_REPO = "malmaud/onestop_qa"
 ONESTOP_UNALIGNED_REPO = "iastate/onestop_english"
 
-# Wikipedia paragraphs. ASSET is single sentences drawn from Wikipedia, so
-# SQuAD's contexts put the passage-level path in the same register as the
-# sentence-level path instead of introducing a second domain shift.
 PASSAGE_REPO = "rajpurkar/squad"
 
 _HF_CACHE = config.DATA_DIR / "hf"
 _DERIVED = config.DATA_DIR / "derived"
 
-
-# What counts as "genuinely hard prose" for vector estimation. Long words are a
-# crude but parser-free proxy for the Latinate/technical register we want the
-# lexical vector estimated on; lib.metrics.readability is the real measurement
-# and is deliberately not imported here, so selecting the estimation set can
-# never be tuned against the metric that scores it.
+# Long words are a crude proxy for the lexical register; lib.metrics.readability
+# is deliberately not imported here, so estimation selection can't be tuned
+# against the metric that scores it.
 MIN_SOURCE_WORDS = 20
 MIN_LONG_WORD_RATE = 0.10
 LONG_WORD_CHARS = 8
 
-# Passages need enough sentences that the rolling-context path in lib.chunking
-# actually does something, and a length a 3B model can hold in one prompt.
 MIN_PASSAGE_SENTENCES = 4
 PASSAGE_WORDS = (80, 220)
 
@@ -108,8 +80,8 @@ def _cached(key: str, build):
 
 
 def _sample(pool: list[str], n: int, seed: int) -> list[str]:
-    """Deterministic subset. Same (pool, n, seed) always gives the same texts in
-    the same order, which is what makes a layer sweep comparable across runs."""
+    """Deterministic subset: same (pool, n, seed) gives the same texts in the
+    same order."""
     if n > len(pool):
         raise ValueError(f"asked for {n} texts but the pool holds {len(pool)}")
     rng = random.Random(seed)
@@ -119,7 +91,7 @@ def _sample(pool: list[str], n: int, seed: int) -> list[str]:
 @dataclass
 class SimplificationItem:
     source: str
-    references: list[str]  # may be empty when the corpus has no refs
+    references: list[str]
 
 
 _ASSET_SPLITS = {"test": "test", "valid": "validation", "validation": "validation"}
@@ -160,9 +132,7 @@ def load_onestop() -> list[GradedItem]:
     def build() -> list[dict]:
         try:
             ds = _hf(ONESTOP_ALIGNED_REPO, split="train")
-        except (
-            Exception
-        ) as exc:  # noqa: BLE001 - the id, not the traceback, is the news
+        except Exception as exc:  # noqa: BLE001
             raise RuntimeError(
                 "no aligned OneStopEnglish source loaded. Tried "
                 f"{ONESTOP_ALIGNED_REPO!r} (explicit title/paragraph_index/level key) "
@@ -182,8 +152,6 @@ def load_onestop() -> list[GradedItem]:
             level = levels(row["level"])
             slot = groups.setdefault(key, {})
             previous = slot.get(level)
-            # Three questions share each paragraph, so repeats are expected -
-            # disagreeing text under the same key would mean the key is not one.
             if previous is not None and previous != row["paragraph"]:
                 raise RuntimeError(
                     f"{ONESTOP_ALIGNED_REPO}: two texts for {key} at level {level}"
@@ -224,24 +192,10 @@ _MATH_SPAN = re.compile(r"\$[^$]+\$")
 
 
 def _math_heavy(text: str) -> bool:
-    """Reject abstracts carrying more than incidental LaTeX.
-
-    A rewriter mangling ``$\\alpha_g$`` is not the failure this eval is looking
-    for, and the NLI model scores markup as noise in both directions, so a
-    formula-dense abstract costs measurement precision without buying any. The
-    threshold is deliberately loose: one or two symbols is normal prose in
-    physics and is kept.
-    """
+    """Reject abstracts carrying more than incidental LaTeX."""
     return len(_MATH_SPAN.findall(text)) > 2 or "\\begin{" in text
 
 
-# A bibliography reads as sentences to a splitter and as noise to an NLI model.
-# "Sov. Astron. Lett. 12(2), 1986, 73-76" becomes the sentences "Astron." and
-# "Lett.", which entail nothing in either direction and drag the per-sentence
-# mean down however faithful the rewrite was. Measured on the cosmology abstract
-# this set first picked: a rewrite scoring 0.990 on its prose scored 0.084 with
-# the trailer attached. That is a defect of the source text, not of the arm, so
-# the source is what gets filtered.
 _CITATION = re.compile(
     r"\(\s*[A-Z][^()]{0,40}\b(?:19|20)\d\d\b[^()]{0,30}\)"
     r"|\b(?:Sov|Nuovo|Astron|Phys|Rev|Lett|Proc|Ann|J)\.\s"
@@ -257,15 +211,7 @@ def _citation_heavy(text: str) -> bool:
 
 
 def _arxiv_query(category: str, max_results: int) -> list[dict]:
-    """Earliest abstracts in *category*, oldest first.
-
-    ``sortOrder=ascending`` on submitted date is what makes this reproducible.
-    The newest papers in a category change every day; the *oldest* ones never
-    do, so the same query returns the same abstracts in the same order however
-    long from now it is re-run. Sorting by relevance or recency would give a
-    corpus that silently differed between the run that produced a number and
-    the run that tried to check it.
-    """
+    """Earliest abstracts in *category*, oldest first (stable across re-runs)."""
     import urllib.parse
     import urllib.request
     import xml.etree.ElementTree as ET
@@ -300,19 +246,8 @@ def _arxiv_query(category: str, max_results: int) -> list[dict]:
 def load_science_abstracts() -> list[ScienceItem]:
     """One short abstract per field in ``config.SCIENCE_CATEGORIES``.
 
-    The hard eval set. ASSET is single Wikipedia sentences of about twenty
-    words, which a rewriter can carry almost intact; an abstract is several
-    dependent clauses of domain vocabulary where dropping one is both easy and
-    invisible to a readability metric. Faithfulness is the measurement that
-    matters here, and this is the corpus that actually stresses it.
-
-    No references, so **SARI is unavailable on this set**. FKGL, Dale-Chall,
-    bidirectional NLI, conditional perplexity and the degeneracy rules all
-    still apply. A result on this set is a statement about whether meaning
-    survived, not about agreement with human rewrites -- there are none.
-
-    Nothing here overlaps ASSET, SQuAD or OneStopEnglish, so the disjointness
-    the rest of this module enforces in code is a non-question for this set.
+    No references, so SARI is unavailable on this set; the other metrics
+    (readability, NLI, perplexity, degeneracy) still apply.
     """
 
     per = config.SCIENCE_PER_CATEGORY
@@ -322,8 +257,6 @@ def load_science_abstracts() -> list[ScienceItem]:
         out: list[dict] = []
         for category in config.SCIENCE_CATEGORIES:
             entries = _arxiv_query(category, config.SCIENCE_FETCH_PER_CATEGORY)
-            # The first *per* abstracts that fit, not a sample: "first" is stable
-            # under the ascending sort, a sample is not.
             kept = 0
             for entry in entries:
                 text = entry["abstract"]
@@ -342,8 +275,7 @@ def load_science_abstracts() -> list[ScienceItem]:
                     f"{per}; raise SCIENCE_FETCH_PER_CATEGORY or widen "
                     f"SCIENCE_ABSTRACT_WORDS"
                 )
-        # Interleaved by rank, so a truncated prefix still spans every field
-        # rather than exhausting cosmology before reaching signal processing.
+        # Interleaved by rank so a truncated prefix still spans every category.
         n_cat = len(config.SCIENCE_CATEGORIES)
         return [out[r * n_cat + c] for r in range(per) for c in range(n_cat)]
 
@@ -365,8 +297,6 @@ def complex_pool() -> list[str]:
             seen.add(key)
             pool.append(source)
 
-        # Only reached for n far above config.VECTOR_N_TEXTS; kept so raising the
-        # estimation budget does not silently fall back to easy text.
         if len(pool) < config.VECTOR_N_TEXTS:
             for paragraph in _squad_contexts():
                 for sentence in split_sentences(paragraph):
@@ -384,8 +314,8 @@ def load_complex_corpus(n: int = 256, seed: int = 0) -> list[str]:
     """Complex sentences used to ESTIMATE steering vectors."""
     pool = complex_pool()
 
-    # Re-checked against the live eval set on every call rather than trusted from
-    # build time, so a stale data/derived cannot reintroduce leakage unnoticed.
+    # Re-checked here, not just at build time, so a stale data/derived can't
+    # reintroduce leakage unnoticed.
     forbidden = {_norm(s) for s in _asset_sources("test")}
     overlap = [t for t in pool if _norm(t) in forbidden]
     if overlap:
@@ -469,9 +399,6 @@ if __name__ == "__main__":
         assert item.advanced.strip(), "empty advanced level"
         assert item.intermediate.strip(), "empty intermediate level"
         assert item.elementary.strip(), "empty elementary level"
-    # 4 of the 162 paragraphs are byte-identical at advanced and intermediate:
-    # the editors left them alone at that level. Real corpus behaviour, so it is
-    # reported rather than asserted away. A fully collapsed triple would be a bug.
     unchanged = sum(1 for i in graded if i.advanced == i.intermediate)
     print(f"  triples where advanced == intermediate: {unchanged}")
     assert all(

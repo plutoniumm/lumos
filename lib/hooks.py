@@ -30,8 +30,6 @@ def resolve_module(lm: SteerableLM, layer: int, kind: SiteKind) -> nn.Module:
     raise ValueError(f"unknown site kind {kind!r}")
 
 
-# Decoder blocks return a bare tensor in some versions and a tuple in others;
-# the feed-forward always returns a tensor. Normalise both ways.
 def _split(out):
     if isinstance(out, tuple):
         return out[0], out[1:]
@@ -43,9 +41,7 @@ def _rejoin(hidden, rest):
 
 
 def _to_cpu32(t: torch.Tensor) -> torch.Tensor:
-    """Detach to CPU float32. Cast dtype before device: a fused .to() drops the MPS
-    storage offset.
-    """
+    """Detach to CPU float32, casting dtype before device."""
     return t.detach().float().to("cpu")
 
 
@@ -62,10 +58,7 @@ class Recorder:
     layers: Iterable[int]
     kind: SiteKind = "resid_post"
     pooling: Pooling = "last"
-    # A single tuple applies to every row; a list gives one span per batch row.
     span: tuple[int, int] | list[tuple[int, int]] | None = None
-    # Needed by mean_prompt: batches are left-padded, and the mask never reaches
-    # a forward hook on its own.
     attention_mask: torch.Tensor | None = None
     _store: dict[int, torch.Tensor] = field(default_factory=dict)
     _handles: list = field(default_factory=list)
@@ -80,7 +73,6 @@ class Recorder:
             raise ValueError("pooling='mean_span' requires span=(start, end)")
 
     def _pool(self, hidden: torch.Tensor) -> torch.Tensor:
-        # Record from the primary altup stream; the others are corrections to it.
         if _is_altup(hidden):
             hidden = hidden[0]
 
@@ -93,7 +85,6 @@ class Recorder:
             mask = self.attention_mask.to(hidden.device).unsqueeze(-1)
             return (hidden * mask).sum(dim=1) / mask.sum(dim=1).clamp_min(1)
 
-        # mean_span
         if isinstance(self.span, tuple):
             start, end = self.span
             return hidden[:, start:end, :].mean(dim=1)
@@ -105,7 +96,7 @@ class Recorder:
         def hook(_module, _args, output):
             hidden, _ = _split(output)
             self._store[layer] = _to_cpu32(self._pool(hidden))
-            return None  # read-only
+            return None
 
         return hook
 
@@ -162,19 +153,14 @@ class InjectionSite:
     """One steering intervention."""
 
     layer: int
-    vector: torch.Tensor  # [hidden]
+    vector: torch.Tensor
     alpha: float
     kind: SiteKind = "resid_post"
     positions: Positions = "gen_only"
     norm_preserve: bool = True
-    # Content direction(s) to project the vector away from, so steering cannot
-    # push along the axis carrying this text's meaning. Shape [hidden] applies to
-    # every row; [batch, hidden] gives one direction per row.
     content: torch.Tensor | None = None
 
     def __post_init__(self) -> None:
-        # Silently mis-steering on a typo is worse than crashing: 'prompt_alll'
-        # used to fall through and behave as 'all'.
         if self.positions not in VALID_POSITIONS:
             raise ValueError(
                 f"unknown positions {self.positions!r}; expected one of "
@@ -206,10 +192,6 @@ class Injector:
         """Forward-call count per site index. For tests and debugging."""
         return {i: s.calls for i, s in self._state.items()}
 
-    def prompt_lens(self) -> dict[int, int]:
-        """Prompt length each site inferred from its first call of a generate."""
-        return {i: s.prompt_len for i, s in self._state.items()}
-
     def _effective(
         self, site: InjectionSite, dtype, device, batch_size: int
     ) -> torch.Tensor:
@@ -237,11 +219,10 @@ class Injector:
         if site.positions == "gen_only":
             if is_prefill:
                 return None
-            # Cached decode carries only the new token; uncached decode carries
-            # the whole sequence, and only the tail past the prompt is new.
+            # seq > 1 means an uncached decode call, carrying the whole sequence;
+            # only the tail past the prompt is new.
             return slice(state.prompt_len, seq) if seq > 1 else slice(0, seq)
 
-        # prompt_last / prompt_all
         if not is_prefill:
             return None
         if site.positions == "prompt_last":
@@ -252,7 +233,7 @@ class Injector:
         def hook(_module, _args, output):
             hidden, rest = _split(output)
             altup = _is_altup(hidden)
-            # For altup the axes are [streams, batch, seq, hidden].
+            # altup: [streams, batch, seq, hidden]; else [batch, seq, hidden]
             seq = hidden.shape[-2]
             batch = hidden.shape[1] if altup else hidden.shape[0]
 
@@ -261,8 +242,7 @@ class Injector:
                 state = _SiteState(prompt_len=seq)
                 self._state[index] = state
             elif seq > 1 and state.saw_decode:
-                # A long sequence after decode steps means a new generate began
-                # inside the same block; treat it as a fresh prefill.
+                # a new generate() began inside the same block; treat as a fresh prefill
                 state = _SiteState(prompt_len=seq)
                 self._state[index] = state
 
@@ -272,7 +252,7 @@ class Injector:
                 state.saw_decode = True
 
             if site.alpha == 0.0:
-                return None  # exact no-op, so alpha=0 is bit-identical
+                return None  # alpha=0 must stay bit-identical to unsteered
 
             target = self._target_slice(site, seq, state, is_prefill)
             if target is None or target.start >= target.stop:
@@ -281,7 +261,6 @@ class Injector:
             v = self._effective(site, hidden.dtype, hidden.device, batch)
             delta = torch.zeros_like(hidden)
             if altup:
-                # Apply the same correction to every prediction stream.
                 delta[:, :, target, :] = site.alpha * v.unsqueeze(0).unsqueeze(2)
             else:
                 delta[:, target, :] = site.alpha * v.unsqueeze(1)

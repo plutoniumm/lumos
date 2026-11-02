@@ -1,34 +1,6 @@
 #!/usr/bin/env python
-"""Per-item alpha, set from how hard the source already is.
-
-The waste a flat alpha creates
-------------------------------
-Every steered result in this project applies one alpha to every input. ASSET
-test sources run from roughly grade 6 to grade 20. At a single alpha the easy
-end is pushed for no reason -- it was already readable, and the push only costs
-it fluency and faithfulness -- while the hard end is barely moved. The averaged
-result reports the mean of an intervention that was wrong in both directions.
-
-This is the cheap half of "conditional steering". The literature version trains
-a probe on activations to decide when to fire. A probe is not needed to answer
-*this* question: the source text is available before generation, its reading
-grade is a CPU-side function of it, and that is exactly the quantity the dial is
-supposed to respond to. Alpha ramps linearly from zero at ADAPTIVE_FKGL_FLOOR to
-the full swept alpha at ADAPTIVE_FKGL_CEIL.
-
-Alphas are snapped to a grid so items sharing one alpha generate in a batch.
-Without that, per-item alpha means per-item generation, which is roughly eight
-times slower for no change in what is measured.
-
-Sources shorter than the readability module's minimum are handled by the module
-itself, which returns a degenerate reading rather than raising; those items land
-at zero alpha, i.e. unsteered, which is the correct thing to do with a sentence
-too short to judge.
-
-Usage
------
-    python src/adaptive_steering.py --n 32 --structural 15,0.75
-"""
+"""Set each item's alpha from its own source FKGL (a linear ramp) instead of
+applying one flat alpha to every input."""
 
 from __future__ import annotations
 
@@ -51,10 +23,6 @@ from lib.cli import AxisSettings  # noqa: E402
 from lib.metrics import readability  # noqa: E402
 from lib.steering import AxisSetting, SteeringSpec  # noqa: E402
 
-# Both of these have to behave when stdout is a log file, which is how a full
-# run is normally started: the bar goes to stderr and switches itself off there
-# when that is not a terminal, and the console emits no escape codes off a tty.
-
 
 def strength(source_fkgl: float) -> float:
     """0 below the floor, 1 above the ceiling, linear between."""
@@ -69,21 +37,11 @@ def snap(alpha: float, step: float) -> float:
 
 
 class Schedule:
-    """Which alpha each item gets, grouped so a shared alpha generates in one batch.
-
-    Built before any weights are touched: it is entirely a CPU-side function of
-    the source text, and it decides the whole run, so it is printed first. A
-    schedule that is obviously wrong is worth finding out about in two seconds
-    rather than after a six-gigabyte load.
-    """
+    """Which alpha each item gets, grouped so a shared alpha generates in one batch."""
 
     def __init__(self, items: list[Item], axis: str, base: list[tuple[int, float]]):
         self.axis = axis
         self.base = list(base)
-        # The ramp is a per-item strength, so it dials the whole shape rather
-        # than one layer. The snap still happens in alpha units at the peak,
-        # which keeps a single-layer axis identical to what it was before
-        # schedules existed: base=[(layer, ceiling)] gives ceiling*frac back.
         self.layer, self.ceiling = max(self.base, key=lambda p: p[1])
         self.fkgl = [readability.measure(it.source).fkgl for it in items]
         self.alpha = [
@@ -123,7 +81,10 @@ class Schedule:
             hi = max(self.fkgl[k] for k in ks)
             table.add_row(f"{a:.3f}", f"{len(ks)}", f"{lo:.2f}-{hi:.2f}")
         tables.show(table)
-        print(f"[plan] {len(self.groups.get(0.0, []))}/{n_items} item(s) get no steering at all")
+        print(
+            f"[plan] {len(self.groups.get(0.0, []))}/{n_items} item(s) "
+            "get no steering at all"
+        )
 
 
 def parse_args(argv):
@@ -168,7 +129,9 @@ def main(argv: list[str]) -> int:
         )
         for k, text in zip(ks, got):
             outputs[k] = text
-        print(f"  alpha {a:5.3f}  {len(ks):3d} item(s)  {time.perf_counter() - t:6.1f}s")
+        print(
+            f"  alpha {a:5.3f}  {len(ks):3d} item(s)  {time.perf_counter() - t:6.1f}s"
+        )
     gen_sec = (time.perf_counter() - t0) / max(len(bench.items), 1)
 
     baselines = bench.baselines(
@@ -191,12 +154,12 @@ def main(argv: list[str]) -> int:
                     variant=args.variant,
                     spec={
                         "axis": args.axis,
-                        "layer": layer,
+                        "layer": plan.layer,
                         "alpha": a,
-                        "alpha_ceiling": ceiling,
+                        "alpha_ceiling": plan.ceiling,
                         "source_fkgl": plan.fkgl[k],
                     },
-                    spec_label=f"adapt@L{layer}a{a:g}",
+                    spec_label=f"adapt@L{plan.layer}a{a:g}",
                     gen_sec=gen_sec,
                 )
             )

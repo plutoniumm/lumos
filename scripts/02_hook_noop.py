@@ -1,24 +1,19 @@
-"""Correctness gate for the hook layer. Run this before trusting any sweep.
+"""Correctness gate for the hook layer.
 
     python scripts/02_hook_noop.py
 
-Seven checks, each printed PASS/FAIL. The invariants that matter:
+Seven checks:
 
 1. ``alpha=0`` is bit-exact vs no hooks at all.
-2. a zero *vector* at nonzero alpha is bit-exact even with ``norm_preserve``
-   (a zero delta alone would hide a renormalisation bug).
-3. a real vector at high alpha *does* change the tokens, i.e. the hook is on the
-   module the model actually reads from.
+2. a zero *vector* at nonzero alpha is bit-exact even with ``norm_preserve``.
+3. a real vector at high alpha changes the tokens.
 4. ``norm_preserve`` leaves ``||h||`` alone.
 5. ``positions`` means what it says: ``prompt_last`` fires on prefill only,
    ``gen_only`` never fires on prefill.
-6. ``Recorder`` returns one ``[batch, hidden]`` entry per layer, and the values
-   are the layer's real activations.
+6. ``Recorder`` returns one ``[batch, hidden]`` entry per layer with real values.
 7. no hook handle leaks past the ``with`` block.
 
-Everything runs on a small ungated model, so this is the gate you can run while
-the real weights are still downloading. Diagnostics that are *not* gates -- real
-defects found in ``lib/`` that the seven checks do not cover -- print at the end.
+Runs on a small ungated model. Diagnostics (non-gating) print at the end.
 """
 
 from __future__ import annotations
@@ -46,13 +41,8 @@ TEXT = (
 )
 SECOND_TEXT = "Photosynthesis converts radiant energy into chemical potential energy."
 
-MAX_NEW = 24  # long enough for a divergence to show, short enough to iterate
+MAX_NEW = 24
 
-# bfloat16 carries 8 mantissa bits, so a single rounding is <= 2^-9 = 2.0e-3
-# relative. norm_preserve rounds the sum, both norms and the rescaled product,
-# so ~4 ULP of drift is expected; 2e-2 is 10 ULP. The control below (the same
-# injection with norm_preserve=False) moves the norm by 18-390%, two orders of
-# magnitude above the gate, so the tolerance is not hiding a failure.
 NORM_RTOL = 2e-2
 
 
@@ -90,7 +80,7 @@ def load_small() -> models.SteerableLM:
     for repo in (SMALL, FALLBACK):
         try:
             return models.load(repo)
-        except Exception as exc:  # network, gating, missing arch
+        except Exception as exc:
             print(f"[load] {repo} unavailable: {type(exc).__name__}: {exc}")
     raise SystemExit("no throwaway model could be loaded")
 
@@ -116,9 +106,7 @@ def greedy(lm, batch: dict, n_new: int = MAX_NEW, **kw) -> torch.Tensor:
 def hidden_at(lm, layer: int, batch: dict, sites: list | None = None) -> torch.Tensor:
     """Layer output for one forward pass, ``[seq, hidden]`` float32 on CPU.
 
-    The probe registers *after* the injector, so it sees the post-injection
-    tensor. Casts on-device before moving, which the Recorder does not (see the
-    diagnostics at the end of this script).
+    Probe registers after the injector, so it sees the post-injection tensor.
     """
     mod = resolve_module(lm, layer, "resid_post")
     cap: dict[str, torch.Tensor] = {}
@@ -148,7 +136,7 @@ class Call:
     """One invocation of the hooked module during a generate."""
 
     seq: int
-    changed: list[int]  # positions the injector actually modified
+    changed: list[int]
 
     @property
     def fired(self) -> bool:
@@ -172,9 +160,8 @@ class Call:
 def trace(lm, site: InjectionSite, batch: dict, n_new: int = 3, **kw):
     """Run a generate and record, per module call, which positions changed.
 
-    A hook registered before the injector snapshots the module's own output; one
-    registered after it sees whatever the injector returned. The difference is
-    the branch the injector took, without touching ``lib/``.
+    A hook before the injector snapshots the original output; one after sees
+    what the injector returned. The diff is what the injector changed.
     """
     mod = resolve_module(lm, site.layer, site.kind)
     calls: list[Call] = []
@@ -204,11 +191,7 @@ def trace(lm, site: InjectionSite, batch: dict, n_new: int = 3, **kw):
 
 
 def cite(rel: str, needle: str) -> str:
-    """``file:line`` for the first line containing *needle*.
-
-    Looked up at runtime rather than hard-coded, so the citations below stay
-    correct while ``lib/`` is still being written.
-    """
+    """``file:line`` for the first line containing *needle*."""
     path = Path(__file__).resolve().parents[1] / rel
     for i, line in enumerate(path.read_text().splitlines(), 1):
         if needle in line:
@@ -270,8 +253,6 @@ def main(argv: list[str]) -> int:
         f"resid_post output: {layer_output_kind(lm, mid, batch)}\n"
     )
 
-    # Scale the probe vector to this layer's own activation magnitude, so alpha
-    # means "this fraction of a typical hidden state" as lib/vectors.py intends.
     base = hidden_at(lm, mid, batch)
     ref = float(base.norm(dim=-1).median())
     v = unit_vector(lm.hidden_size)
@@ -286,8 +267,8 @@ def main(argv: list[str]) -> int:
     rep.check(
         "S. precondition: greedy generation is reproducible run to run",
         torch.equal(baseline, again),
-        f"{baseline.shape[1] - prompt_len} new tokens, two unhooked runs bit-identical; "
-        "without this nothing below is meaningful",
+        f"{baseline.shape[1] - prompt_len} new tokens, two unhooked runs "
+        "bit-identical; without this nothing below is meaningful",
         gate=False,
     )
 
@@ -366,7 +347,6 @@ def main(argv: list[str]) -> int:
         and all(c.fired for c in gen_only[1:])
         and p_last[0].changed == [prompt_len - 1]
         and not any(c.fired for c in p_last[1:])
-        # not required by the spec, but the other two names should also hold
         and p_all[0].changed == list(range(prompt_len))
         and not any(c.fired for c in p_all[1:])
         and all(c.fired for c in every)
@@ -390,7 +370,6 @@ def main(argv: list[str]) -> int:
         and all(tuple(t.shape) == (1, lm.hidden_size) for t in mean.values())
     )
     pooling_differs = all(not torch.allclose(last[l], mean[l]) for l in want)
-    # The values must be the layer's actual activations, not merely the right shape.
     truth = {l: hidden_at(lm, l, batch)[-1] for l in want}
     values_ok = all(torch.equal(last[l][0], truth[l]) for l in want)
     rep.check(
@@ -398,7 +377,8 @@ def main(argv: list[str]) -> int:
         shapes_ok and pooling_differs and values_ok,
         f"layers {want} -> shapes {[tuple(last[l].shape) for l in want]}, "
         f"hidden == lm.hidden_size == {lm.hidden_size}: {shapes_ok}",
-        f"mean_prompt differs from last on a {prompt_len}-token prompt: {pooling_differs}",
+        f"mean_prompt differs from last on a {prompt_len}-token prompt: "
+        f"{pooling_differs}",
         f"recorded 'last' equals an independent capture of the same layer: {values_ok}",
     )
     if not values_ok:
@@ -430,7 +410,7 @@ def main(argv: list[str]) -> int:
         len(resolve_module(lm, l, "resid_post")._forward_hooks)
         for l in range(lm.n_layers)
     )
-    record(lm, prompt, layers=[mid])  # Recorder must clean up too
+    record(lm, prompt, layers=[mid])  # side effect: Recorder must clean up too
     leaked += sum(
         len(resolve_module(lm, l, "resid_post")._forward_hooks)
         for l in range(lm.n_layers)
@@ -454,7 +434,6 @@ def diagnostics(lm, batch, prompt_len: int, mid: int, scaled: torch.Tensor) -> N
     print("on the current behaviour.")
     print("=" * 78)
 
-    # D1 -- the MPS cast that breaks Recorder, reduced to pure torch.
     print(
         f"\nD1  {cite('lib/hooks.py', 'to(\"cpu\", torch.float32)')}"
         '  `pooled.detach().to("cpu", torch.float32)`'
@@ -491,7 +470,6 @@ def diagnostics(lm, batch, prompt_len: int, mid: int, scaled: torch.Tensor) -> N
     print("    produces, and what vectors.py `_pooled` assumes. A batched view is")
     print("    strided, takes the gather path instead of the memcpy, and survives.")
 
-    # D2 -- prefill/decode is inferred from a call counter, not from seq_len.
     print(
         f"\nD2  {cite('lib/hooks.py', 'is_prefill = n == 0')}"
         "  prefill is `_calls == 0`, and decode assumes seq_len == 1"
@@ -506,7 +484,6 @@ def diagnostics(lm, batch, prompt_len: int, mid: int, scaled: torch.Tensor) -> N
     )
     print("    every prompt position -- exactly what gen_only exists to prevent.")
 
-    # D3 -- the counter is only reset on __enter__.
     print(
         f"\nD3  {cite('lib/hooks.py', 'def reset')} / "
         f"{cite('lib/hooks.py', 'self.reset()')}  `_calls` resets on __enter__, "
@@ -558,21 +535,7 @@ def diagnostics(lm, batch, prompt_len: int, mid: int, scaled: torch.Tensor) -> N
     print("    prompt_last/prompt_all silently stop steering, and gen_only steers")
     print("    the entire prompt. Only the first generate in a block is correct.")
 
-    # D4 -- Positions is a Literal with no runtime check.
-    print(
-        f"\nD4  {cite('lib/hooks.py', 'Positions = Literal')}  `positions` is never "
-        "validated at runtime"
-    )
-    site = InjectionSite(mid, scaled, 2.0, positions="prompt_alll", norm_preserve=False)
-    calls, _ = trace(lm, site, batch, n_new=2)
-    for i, call in enumerate(calls):
-        print("    " + call.show(i))
-    print("    positions='prompt_alll' (one typo) falls through to the else branch")
-    print("    and behaves as 'all'. resolve_module raises on a bad `kind` and")
-    print("    Recorder raises on a bad `pooling`; this path silently mis-steers.")
-
-    # D5 -- static findings, not reachable from this model.
-    print("\nD5  static findings not reachable with this model")
+    print("\nD4  static findings not reachable with this model")
     gemma_at = cite("lib/models.py", "Gemma3nForConditionalGeneration")
     print(f"    {gemma_at}: in transformers {transformers.__version__},")
     print("      Gemma3nTextDecoderLayer.forward returns `corrected_predictions`,")

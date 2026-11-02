@@ -2,24 +2,7 @@
 
     logits = logits_neutral + gamma * (logits_asked - logits_neutral)
 
-Both branches are the same weights on two prompts, so the perturbation is
-bounded by what the prompt difference does to the distribution -- unlike
-DExperts, which extrapolates a whole logit vector against a second model and
-collapsed past beta=1 (fail.md section 1). ``gamma=1`` is ordinary conditional
-decoding and reproduces it exactly.
-
-This was written for control-token prefixes, where the adapter demonstrably
-conditions on the control -- the true prefix scores the reference at loss 0.62
-against an inverted prefix's 0.78, on 53 of 60 examples -- but the shift is too
-small to move a greedy argmax, so plain generation ignores it entirely.
-Guidance amplifies that exact difference. Nothing here is specific to controls,
-though: any pair of prompts that differ in one intended way can be dialled this
-way, which is why it lives in lib rather than in the ladder that needed it.
-
-The knob does not come free. On the control ladder, raising gamma trades
-calibration against faithfulness monotonically -- at an asked ratio of 0.40,
-gamma=2 gives a control error of +0.320 at NLI 0.897, gamma=12 an error of
-+0.081 at NLI 0.344. Read fail.md section 7 before reaching for a large gamma.
+``gamma=1`` reduces to ordinary conditional decoding.
 """
 
 from __future__ import annotations
@@ -40,12 +23,8 @@ def generate(
 ) -> list[str]:
     """Greedy decode from the guided mixture of two prompt branches.
 
-    ``asked`` and ``neutral`` are parallel source texts: same items, differing
-    only in whatever is being dialled. They must be the same length.
-
-    Two caches, not one. The branches have different prompts and therefore
-    different keys and values; a shared cache would feed each branch the
-    other's history and the mixture would be meaningless.
+    ``asked`` and ``neutral`` are parallel source texts, same length, differing
+    only in whatever is being dialled.
     """
     if len(asked) != len(neutral):
         raise ValueError(
@@ -61,7 +40,6 @@ def generate(
         branches[key] = {
             "ids": enc["input_ids"],
             "mask": enc["attention_mask"],
-            # Left padding, so positions come from the mask rather than arange.
             "pos": (enc["attention_mask"].cumsum(-1) - 1).clamp_min(0),
             "cache": None,
         }

@@ -1,14 +1,8 @@
 """Readability metrics, split by the axis each one measures.
 
 Effects are compared against the unsteered rewrite, not a fixed constant.
-
-FKGL is invalid on single sentences. It is length-dominated, so it rewards
-padding: a faithful 17-word paraphrase scored 14.3 while a 60-word invented
-rewrite scored 7.0. Judge sentences by SARI and the per-axis signals.
-
-Degeneracy rules stay narrow because genuine simplification is statistically
-similar to degeneration. Perplexity is not a backstop: repetition is low-entropy,
-so a loop scores 18.8 where valid repetitive prose scores 37.0.
+FKGL is length-dominated and invalid on single sentences; judge those with
+SARI instead.
 """
 
 from __future__ import annotations
@@ -24,16 +18,10 @@ import textstat
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from lib.chunking import split_sentences  # noqa: E402
 
-# Hyphens separate words rather than joining them. With hyphens treated as word
-# characters, degenerate output like "Photos-emp-am-emp-am-emp" tokenises to a
-# single 55-character "word" and every diversity statistic reads 1.00.
 _WORD = re.compile(r"[A-Za-z]+(?:'[A-Za-z]+)*")
-# As _WORD, but digits are kept so that terms distinguished only by a number
-# stay distinct. Used solely by the loop detector; see _degeneracy_reasons.
+# _LOOP_WORD keeps digits (unlike _WORD); used only for loop detection.
 _LOOP_WORD = re.compile(r"[A-Za-z0-9]+(?:'[A-Za-z0-9]+)*")
 
-# Markers that introduce an extra clause. Counting these per sentence is a cheap
-# stand-in for parse depth and needs no parser.
 _CLAUSE = re.compile(
     r"[;:,]|\b(?:because|although|though|whereas|while|since|unless|whether|"
     r"which|who|whom|whose|that|when|where|if|however|therefore|moreover|"
@@ -46,8 +34,6 @@ _TERMINATOR = re.compile(r"[.!?]")
 LONG_SENTENCE_WORDS = 25
 POLYSYLLABIC = 3
 
-# Degeneracy thresholds, set so that valid simplified prose passes. Verified
-# against both hand-written simple text and real collapsed generations.
 MIN_WORDS = 3
 MAX_PUNCT_RATIO = 0.30
 MIN_DISTINCT_1 = 0.35
@@ -88,9 +74,8 @@ def _max_repeat_run(tokens: list[str], n: int = 4) -> int:
     return best if best > 1 else 0
 
 
-# Bigram loops built from function words are ordinary English -- "on and on and
-# on", "row after row after row", "what makes a cat a cat". Loops built only from
-# content words are not.
+# Loops built only from content words are pathological; loops built from
+# function words are ordinary English ("on and on and on").
 _FUNCTION_WORDS = frozenset(
     """a an the and or but nor so yet of to in on at by for with from into onto
     over under above below after before during until while as than that this
@@ -103,9 +88,8 @@ _FUNCTION_WORDS = frozenset(
 
 
 def _loop_signature(tokens_by_sentence: list[list[str]]) -> tuple[int, int]:
-    """Widest immediate n-gram loop within a single sentence. Per sentence, and
-    function-word loops excluded, or ordinary prose flags.
-    """
+    """Widest immediate n-gram loop within a single sentence, function-word
+    loops excluded."""
     worst = (0, 0)
     for tokens in tokens_by_sentence:
         for n in (1, 2, 3, 4):
@@ -113,10 +97,6 @@ def _loop_signature(tokens_by_sentence: list[list[str]]) -> tuple[int, int]:
             if n == 1:
                 ok = run >= 4
             else:
-                # A single adjacent repeat can be ordinary English when function
-                # words are involved -- "the federal territory: the Federal
-                # Territory", restating a term after a colon. Three or more
-                # repeats of the same phrase is pathological either way.
                 ok = run >= 3 or (run >= 2 and not _function_loop(tokens, n))
             if ok and run > worst[1]:
                 worst = (n, run)
@@ -147,23 +127,19 @@ class Readability:
     n_words: int
     n_sentences: int
 
-    # --- structural axis ---
     words_per_sentence: float
     clauses_per_sentence: float
     pct_long_sentences: float
 
-    # --- lexical axis ---
     syllables_per_word: float
     chars_per_word: float
     pct_hard_words: float
     pct_polysyllabic: float
 
-    # --- standard composites ---
     fkgl: float
     fre: float
     dale_chall: float
 
-    # --- degeneracy signals ---
     distinct_1: float
     distinct_2: float
     max_repeat_run: int
@@ -188,13 +164,7 @@ class Readability:
         return bool(self.degeneracy)
 
     def as_dict(self) -> dict:
-        """Every field plus the derived properties ``asdict`` drops.
-
-        The properties are on the row because a result file is read months
-        later by something that does not import this class: leaving
-        ``structural_complexity`` to be re-derived downstream is how two
-        readers end up disagreeing about which field the structural axis is.
-        """
+        """Every field plus the derived properties ``asdict`` drops."""
         d = asdict(self)
         d["degeneracy"] = list(self.degeneracy)
         d["degenerate"] = self.degenerate
@@ -204,9 +174,8 @@ class Readability:
 
 
 def _hard_word_count(words: list[str]) -> int:
-    """Per-token Dale-Chall hard-word count. textstat.difficult_words deduplicates,
-    which inverts the measure.
-    """
+    """Per-token Dale-Chall hard-word count; ``textstat.difficult_words``
+    deduplicates, which inverts the measure."""
     try:
         return sum(1 for w in words if textstat.is_difficult_word(w))
     except Exception:
@@ -228,12 +197,6 @@ def _degeneracy_reasons(
     if punct_ratio > MAX_PUNCT_RATIO:
         reasons.append("punct_heavy")
 
-    # Loop detection tokenises with digits kept, unlike every other measure
-    # here. _WORD drops them, which is right for counting words and wrong for
-    # deciding whether text repeats: "Si33, Si39 and Si45" reduces to the same
-    # token three times and reads as an immediate n-gram loop. That flagged a
-    # clean Gemma rewrite of a silicon-cluster abstract as degenerate, and the
-    # degeneracy flag is a hard gate -- best_of_n discards whatever trips it.
     per_sentence = [
         [w.lower() for w in _LOOP_WORD.findall(s)] for s in sentences
     ] or [lowered]

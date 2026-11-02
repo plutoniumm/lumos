@@ -4,13 +4,7 @@
     python scripts/01_smoke.py --small          # force the small ungated model
     python scripts/01_smoke.py org/repo         # any repo or local dir
 
-No steering here -- this only proves the environment. ``scripts/02_hook_noop.py``
-is what proves the hooks.
-
-``hub.resolve`` treats any directory holding a config.json as a finished
-download, so a half-fetched model would be loaded and fail deep inside
-from_pretrained. This script checks for aria2 control files first and falls back
-to the small model rather than reporting a broken environment.
+No steering here; see ``scripts/02_hook_noop.py`` for that.
 """
 
 from __future__ import annotations
@@ -40,13 +34,7 @@ MAX_NEW = 96
 
 
 def download_state(repo_id: str) -> tuple[bool, str]:
-    """Is the local copy of *repo_id* usable? Second element says why not.
-
-    aria2 leaves a ``<file>.aria2`` control file beside anything unfinished, and
-    ``hub.download`` writes ``.download_meta.json`` only after re-planning and
-    finding nothing left to fetch. Both must agree before we trust the shards.
-    Note ``.aria2`` is also the name of hub's workdir *directory*, hence is_file.
-    """
+    """Is the local copy of *repo_id* usable? Second element says why not."""
     path = hub.local_path(repo_id)
     if not (path / "config.json").exists():
         return False, f"no local copy at {path}"
@@ -107,8 +95,7 @@ def main(argv: list[str]) -> int:
     batch = lm.encode(prompt)
     prompt_len = int(batch["input_ids"].shape[1])
 
-    # Warm the kernels first; on MPS the first pass pays for graph compilation
-    # and would make the tokens/sec number meaningless.
+    # Warm-up pass: first MPS call pays for graph compilation.
     lm.model.generate(
         **batch,
         max_new_tokens=4,

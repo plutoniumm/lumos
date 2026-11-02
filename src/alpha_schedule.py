@@ -1,51 +1,7 @@
 #!/usr/bin/env python
-"""Per-depth alpha schedules: spread the steering budget across layers.
-
-What this is testing
---------------------
-Every steered arm in the study injects at exactly one layer. That is a choice
-nobody defended -- the sweep picks the best single cell because the sweep is
-two-dimensional, not because depth-one injection is right. A vector estimated
-at L31 is not the only place the L31 direction is legible; the residual stream
-carries it forward, and the neighbouring layers hold near-parallel vectors
-(that is why the sweep's top band is contiguous rather than a spike).
-
-So: at a fixed steering budget, is it better to concentrate or to spread?
-
-Budget matching is the whole experiment. An unmatched comparison -- three
-layers at the incumbent alpha against one layer at the incumbent alpha -- is
-just "more steering vs less steering", and we already know more steering
-lowers FKGL and costs faithfulness. Two normalisations are run because the
-right one is not obvious:
-
-    sum   sum(alpha_i) = A     the pushes add linearly
-    l2    ||alpha||_2  = A     the pushes are near-orthogonal and add in
-                               quadrature
-
-Norm preservation makes the truth lie between them. Each injection is followed
-by a rescale back to the original ||h||, so a later layer partly undoes an
-earlier one and the realised perturbation is smaller than the sum. If spreading
-helps at all it should help more under `l2`, which spends more total alpha to
-land the same displacement.
-
-What a result would mean
-------------------------
-A win here is cheap and immediate: it is a different tuple in the same spec, no
-retraining and no extra compute per token. A null is worth as much -- it closes
-"we only ever tried one layer" as an explanation for steering being flat on
-SARI, which is currently an open excuse rather than a tested one.
-
-Deliberately not swept. This is evaluated directly on ASSET against the
-published baselines, because the sweep's selection metric has now chosen four
-consecutive settings that lost when evaluated, and a ninth arm chosen the same
-way would inherit that problem rather than test it.
-
-Usage
------
-    python src/alpha_schedule.py --model google/gemma-4-12B-it \
-        --structural 31,0.5 --n 32 \
-        --baselines results/eval_gemma_asset.jsonl.baselines.json
-"""
+"""Measure whether spreading the steering budget across layers (a per-depth alpha
+schedule) beats one-layer injection, paired against an unsteered baseline.
+Writes results/alpha_schedule.json."""
 
 from __future__ import annotations
 
@@ -68,9 +24,6 @@ from lib.steering import AxisSetting, SteeringSpec  # noqa: E402
 from src.report import boot_ci  # noqa: E402
 
 
-# The shapes and the budget arithmetic live in lib/schedules.py so that the
-# ladder, the axis flags and every entry point that steers all resolve a name
-# the same way. This file is the measurement harness, not the definition.
 DEFAULT_LADDER = (
     "single,flat3,flat3_l2,flat5,flat5_l2,tent5,ramp5_deep,ramp5_shallow"
 )
@@ -119,8 +72,7 @@ def aggregate(scored: list[Scored], seconds: float, items) -> dict:
 
 
 def cell(value, places: int) -> str:
-    """``--`` where a metric has no finite value; an arm whose every output was
-    degenerate has no SARI to average, which is not the same as zero."""
+    """"--" for a metric with no finite value."""
     return f"{value:.{places}f}" if isinstance(value, (int, float)) else "--"
 
 
@@ -138,12 +90,7 @@ def levels_table(arms: list[dict]):
 
 
 def paired(arms: list[dict], keys, baseline: str, n_boot: int, seed: int) -> list[dict]:
-    """Within-item deltas of every arm against one reference arm.
-
-    Paired, for the reason src/report.py is: ASSET sources differ enormously in
-    difficulty, so an unpaired interval on 32 items mostly reports which
-    sentences were drawn.
-    """
+    """Within-item deltas of every arm against one reference arm."""
     ref = {a["name"]: a for a in arms}.get(baseline)
     if ref is None:
         die(f"no arm named {baseline!r} to pair against")
@@ -177,9 +124,6 @@ def delta_table(rows: list[dict], keys, title: str):
         cells = []
         for key in keys:
             d = row[key]
-            # "the interval excludes zero", not "the bounds share a sign":
-            # a zero-width interval sitting exactly at zero satisfies the
-            # second and is the opposite of a significant result.
             star = "*" if d["lo"] > 0 or d["hi"] < 0 else ""
             cells.append(f"{d['mean']:+.2f}{star} [{d['lo']:+.2f}, {d['hi']:+.2f}]")
         table.add_row(row["name"], *cells)
@@ -192,8 +136,16 @@ def parse_args(argv):
     p.add_argument("--estimator", default="instruction_diff")
     p.add_argument("--axis", default="structural", choices=list(config.AXES))
     p.add_argument("--layers-from", help="sweep report to read (layer, alpha) from")
-    p.add_argument("--structural", help="ladder centre; LAYER,ALPHA | LAYER,ALPHA,SHAPE | L:A+L:A+... (shapes: lib/schedules.py)")
-    p.add_argument("--lexical", help="ladder centre; LAYER,ALPHA | LAYER,ALPHA,SHAPE | L:A+L:A+... (shapes: lib/schedules.py)")
+    p.add_argument(
+        "--structural",
+        help="ladder centre; LAYER,ALPHA | LAYER,ALPHA,SHAPE | L:A+L:A+... "
+        "(shapes: lib/schedules.py)",
+    )
+    p.add_argument(
+        "--lexical",
+        help="ladder centre; LAYER,ALPHA | LAYER,ALPHA,SHAPE | L:A+L:A+... "
+        "(shapes: lib/schedules.py)",
+    )
     p.add_argument("--n", type=int, default=32)
     p.add_argument("--asset-split", default="test")
     p.add_argument(
@@ -240,9 +192,6 @@ def main(argv: list[str]) -> int:
 
     settings = AxisSettings.from_args(args)
     settings.require([args.axis], needed_by="the schedule ladder")
-    # The ladder centres on the axis's peak, so `--structural 31,0.5,flat3`
-    # and `--structural 31,0.5` both ladder around L31 at budget 0.5 rather
-    # than the ladder re-spreading an already-spread schedule.
     center, budget = settings.peak(args.axis)
 
     print(f"\n[cfg]  axis={args.axis} center=L{center} budget={budget:g} "
@@ -265,9 +214,6 @@ def main(argv: list[str]) -> int:
         die(f"schedule(s) {sorted(set(bad))} reach outside 0..{n_layers - 1} "
             f"from center L{center}")
 
-    # Reuse evaluate.py's unsteered text where it exists. A baseline that
-    # differs from the published one by a token makes every paired delta here
-    # incomparable with every delta in report.md.
     if args.baselines:
         base_texts = bench.baselines(
             args.baselines,

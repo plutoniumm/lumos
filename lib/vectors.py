@@ -35,10 +35,8 @@ class VectorBank:
     kind: SiteKind
     pooling: Pooling
     n_texts: int
-    vectors: dict[int, torch.Tensor]  # layer -> [hidden], float32, cpu
-    ref_norms: dict[int, float]  # layer -> mean ||h|| over estimation texts
-    # Stamped into the saved metadata so an orthogonalised bank is not
-    # indistinguishable from a raw one on disk.
+    vectors: dict[int, torch.Tensor]
+    ref_norms: dict[int, float]
     orthogonalized: str = "none"
 
     @property
@@ -163,8 +161,7 @@ def instruction_diff(
             )
         )
         delta = {l: with_instr[l] - without[l] for l in layers}
-        # Reference scale comes from the contrast pass: that is the state
-        # steering will actually be added to at inference.
+        # ref norm from the contrast pass: the state steering is added to at inference
         norms = {l: float(without[l].norm()) for l in layers}
         acc.add(delta, norms)
 
@@ -254,7 +251,6 @@ def diff_pca(
         deltas = torch.stack(per_layer[l])
         mean = deltas.mean(0)
         centred = deltas - mean
-        # Economy SVD: leading right singular vector is the first PC.
         _, _, vh = torch.linalg.svd(centred, full_matrices=False)
         pc = vh[0]
         vectors[l] = pc if torch.dot(pc, mean) >= 0 else -pc
@@ -286,15 +282,13 @@ def symmetric_orthogonalize(
     worst_conditioning = (None, 1.0)
 
     for layer in sorted(shared):
-        V = torch.stack([banks[n].unit(layer) for n in names], dim=1)  # [hidden, k]
+        V = torch.stack([banks[n].unit(layer) for n in names], dim=1)
         gram = V.T @ V
         evals, evecs = torch.linalg.eigh(gram)
         smallest = float(evals.min())
         if smallest < worst_conditioning[1]:
             worst_conditioning = (layer, smallest)
-        # A near-zero eigenvalue means the axes are nearly collinear at this
-        # layer; the clamp keeps the inverse finite but the result is arbitrary
-        # in the collapsed direction, which is why we surface it below.
+        # near-zero eigenvalue: axes nearly collinear here, clamp keeps inv finite
         inv_sqrt = evecs @ torch.diag(evals.clamp_min(1e-6).rsqrt()) @ evecs.T
         rotated = V @ inv_sqrt
         for i, name in enumerate(names):
@@ -337,11 +331,6 @@ def orthogonalize(bank: VectorBank, against: VectorBank) -> VectorBank:
         denom = torch.dot(b, b)
         out[layer] = v - (torch.dot(v, b) / denom) * b if denom > 0 else v.clone()
 
-    # The axis name is preserved, and the caller tags the *estimator* to mark the
-    # variant. Renaming to "<axis>_orth" here instead produced a second, mutually
-    # incompatible on-disk convention -- "instruction_diff.structural_orth" versus
-    # "instruction_diff_orth.structural" -- and only the latter is what
-    # load_banks() looks for, so anything built via this function was unreachable.
     return VectorBank(
         name=bank.name,
         estimator=bank.estimator,

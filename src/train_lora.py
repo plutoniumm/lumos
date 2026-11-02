@@ -1,34 +1,8 @@
 #!/usr/bin/env python
-"""Train a LoRA adapter for simplification. The weight-space arm of the A/B.
-
-The comparison this exists for
-------------------------------
-Steering and LoRA answer the same question by opposite means. Steering trains
-nothing and pays at inference (a vector added to the residual stream every
-forward pass). LoRA pays once at training time and is free afterwards. For the
-comparison to say anything, everything *else* has to be held fixed:
-
-    same base model        Llama-3.2-3B-Instruct
-    same prompt            config.BASE_TASK, no simplify instruction
-    same eval items        ASSET test, the same indices the steering run used
-    same baseline          the unsteered generations already on disk
-
-So the adapter is trained on the *bare task prompt*, not on the simplify
-instruction. If it were trained with the instruction in context, the ``lora``
-variant would be measuring instruction-following plus adaptation and would not
-be comparable to ``steered_structural``, which changes only the activations.
-
-Split discipline
-----------------
-Training uses ASSET **validation** (2000 sources). Evaluation uses ASSET
-**test** (359 sources). These are disjoint by construction in the corpus, and
-the split is hard-coded rather than exposed as a flag, because a run that
-trained on test would still produce a plausible-looking report.
-
-Loss is computed on the completion only. Including the prompt tokens would
-spend most of the gradient teaching the model to reproduce a fixed instruction
-it already sees verbatim at inference.
-"""
+"""Train a LoRA adapter for simplification, the weight-space arm of the
+steering-vs-LoRA comparison. Trains on the bare task prompt (no simplify
+instruction) against ASSET validation / OneStopEnglish, held disjoint from the
+ASSET test split used for evaluation."""
 
 from __future__ import annotations
 
@@ -57,12 +31,7 @@ class Example:
 
 
 def _asset_examples(refs_per_source: int, seed: int) -> list[Example]:
-    """One example per (source, reference) pair, capped at *refs_per_source*.
-
-    References are sampled, not taken in order: ASSET's reference columns come
-    from a fixed set of annotators, so always taking the first two would train
-    on two people's style rather than on the corpus.
-    """
+    """One example per (source, reference) pair, capped at *refs_per_source*."""
     rng = random.Random(seed)
     out: list[Example] = []
     for item in data.load_asset(config.LORA_TRAIN_SPLIT):
@@ -70,7 +39,6 @@ def _asset_examples(refs_per_source: int, seed: int) -> list[Example]:
         src = item.source.strip()
         if not src or not refs:
             continue
-        # A reference identical to the source teaches the adapter to copy.
         refs = [r for r in refs if r != src]
         if not refs:
             continue
@@ -80,22 +48,7 @@ def _asset_examples(refs_per_source: int, seed: int) -> list[Example]:
 
 
 def _onestop_examples() -> list[Example]:
-    """OneStopEnglish paragraph pairs across all three level gaps.
-
-    Why this corpus exists as an option: the ASSET adapter is trained on
-    twenty-six-token sentences, and on a hundred-and-twenty-word abstract it
-    barely engages -- it moves FKGL 1.5 grades against 4.4 on ASSET and returns
-    fewer words than it was given. An adapter that mostly declines to act scores
-    well on faithfulness for a reason that has nothing to do with being
-    faithful, so "LoRA preserves meaning on hard text" cannot be separated from
-    "LoRA did not touch the hard text" until one is trained at the right length.
-
-    All three gaps are used, not just advanced-to-elementary: 162 triples is
-    thin, and the intermediate rung supplies two more genuine rewrites per
-    article at a smaller step size. Pairs are filtered the same way the
-    demonstrations are, because some aligned pairs differ only by an edit that
-    changes a fact.
-    """
+    """OneStopEnglish paragraph pairs across all three level gaps."""
     lo, hi = config.SHOT_COMPRESSION_RANGE
     out: list[Example] = []
     for t in data.load_onestop():
@@ -132,11 +85,15 @@ def build_examples(corpus: str, refs_per_source: int, seed: int) -> list[Example
     return out
 
 
-def encode(lm, ex: Example, max_len: int, use_controls: bool = False) -> dict[str, torch.Tensor] | None:
+def encode(
+    lm, ex: Example, max_len: int, use_controls: bool = False
+) -> dict[str, torch.Tensor] | None:
     """Prompt+target ids with the prompt masked out of the loss."""
-    # The control prefix is measured from the pair, so the adapter learns what a
-    # request of this shape produced. At inference it becomes a request instead.
-    source = controls.prefix(ex.source, ex.target) + ex.source if use_controls else ex.source
+    source = (
+        controls.prefix(ex.source, ex.target) + ex.source
+        if use_controls
+        else ex.source
+    )
     prompt = lm.build_prompt(source)
     prompt_ids = lm.tokenizer(prompt, add_special_tokens=False)["input_ids"]
     target_ids = lm.tokenizer(ex.target, add_special_tokens=False)["input_ids"]
@@ -144,7 +101,7 @@ def encode(lm, ex: Example, max_len: int, use_controls: bool = False) -> dict[st
 
     ids = prompt_ids + target_ids
     if len(ids) > max_len:
-        return None  # truncating the target would teach unterminated output
+        return None
     labels = [-100] * len(prompt_ids) + target_ids
     return {
         "input_ids": torch.tensor(ids),
@@ -153,8 +110,7 @@ def encode(lm, ex: Example, max_len: int, use_controls: bool = False) -> dict[st
 
 
 def collate(batch: list[dict], pad_id: int) -> dict[str, torch.Tensor]:
-    """Right-pad. Training is teacher-forced, so the left-padding that batched
-    *generation* requires does not apply here."""
+    """Right-pad each example to the batch width (training is teacher-forced)."""
     width = max(len(b["input_ids"]) for b in batch)
     input_ids, labels, mask = [], [], []
     for b in batch:
@@ -162,7 +118,9 @@ def collate(batch: list[dict], pad_id: int) -> dict[str, torch.Tensor]:
         pad = width - n
         input_ids.append(torch.cat([b["input_ids"], torch.full((pad,), pad_id)]))
         labels.append(torch.cat([b["labels"], torch.full((pad,), -100)]))
-        mask.append(torch.cat([torch.ones(n, dtype=torch.long), torch.zeros(pad, dtype=torch.long)]))
+        mask.append(
+            torch.cat([torch.ones(n, dtype=torch.long), torch.zeros(pad, dtype=torch.long)])
+        )
     return {
         "input_ids": torch.stack(input_ids),
         "labels": torch.stack(labels),
@@ -174,8 +132,6 @@ def batches(encoded: list[dict], size: int, pad_id: int, shuffle: bool, seed: in
     order = list(range(len(encoded)))
     if shuffle:
         random.Random(seed).shuffle(order)
-    # Length-sorted within a shuffled window keeps padding down without making
-    # the batch order deterministic by length.
     for i in range(0, len(order), size):
         chunk = [encoded[j] for j in order[i : i + size]]
         yield collate(chunk, pad_id)
@@ -212,9 +168,16 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     p.add_argument("--refs", type=int, default=config.LORA_REFS_PER_SOURCE)
     p.add_argument(
         "--corpus",
-        default="asset",
+        default=None,
         choices=("asset", "onestop", "both"),
-        help="asset = sentences, onestop = paragraphs, both = mixed lengths",
+        help="asset = sentences, onestop = paragraphs, both = mixed lengths "
+        "(default: asset). Left unset rather than defaulting to the literal "
+        "string here, because src/simplify.py's find_lora_dir() tells the "
+        "headline adapter from an ablation by whether train_meta.json's "
+        "'corpus' is null -- a default of 'asset' would make every ordinary "
+        "run indistinguishable from '--corpus asset' typed on purpose, and "
+        "auto-detection would silently fall back to picking a candidate "
+        "adapter alphabetically instead of the headline one.",
     )
     p.add_argument(
         "--max-seq-len",
@@ -250,8 +213,6 @@ def main(argv: list[str]) -> int:
         print("peft is not installed:  pip install peft")
         return 2
 
-    # Redirected stdout is block-buffered, and a run that takes an hour would
-    # show nothing at all until it ended. Same reason evaluate.py does this.
     from contextlib import suppress
 
     with suppress(Exception):
@@ -260,9 +221,10 @@ def main(argv: list[str]) -> int:
     torch.manual_seed(args.seed)
     random.seed(args.seed)
 
-    print(f"[data] corpus={args.corpus} (asset split {config.LORA_TRAIN_SPLIT}, "
+    corpus = args.corpus or "asset"
+    print(f"[data] corpus={corpus} (asset split {config.LORA_TRAIN_SPLIT}, "
           f"{args.refs} ref(s) per source)")
-    examples = build_examples(args.corpus, args.refs, args.seed)
+    examples = build_examples(corpus, args.refs, args.seed)
     words = sum(len(e.source.split()) for e in examples) / max(len(examples), 1)
     print(f"[data] mean source length {words:.0f} words")
     if args.max_examples:
@@ -293,9 +255,6 @@ def main(argv: list[str]) -> int:
         task_type="CAUSAL_LM",
     )
     model = get_peft_model(lm.model, peft_cfg)
-    # The base weights are bf16 for memory; the trained parameters are fp32
-    # because bf16 has ~3 decimal digits of mantissa and an Adam update at
-    # lr=1e-4 is routinely smaller than one ulp of a bf16 weight, i.e. a no-op.
     trainable = [p for p in model.parameters() if p.requires_grad]
     for p in trainable:
         p.data = p.data.float()
@@ -330,9 +289,6 @@ def main(argv: list[str]) -> int:
     step = 0
     micro = 0
     running = 0.0
-    # The bar is for a human watching; the every-20-steps line is the record a
-    # redirected run leaves behind. Training is over an hour, so dropping the
-    # second one when stderr is not a tty would leave the log silent throughout.
     bar = tables.progress(total=total_steps, unit="step", desc="train", leave=True)
     for epoch in range(args.epochs):
         for batch in batches(train, args.batch_size, pad_id, True, args.seed + epoch):
@@ -350,7 +306,11 @@ def main(argv: list[str]) -> int:
             step += 1
             bar.update(1)
             if step % 20 == 0 or step == total_steps:
-                mean = running / (20 * args.grad_accum) if step % 20 == 0 else running / micro
+                mean = (
+                    running / (20 * args.grad_accum)
+                    if step % 20 == 0
+                    else running / micro
+                )
                 rate = (time.perf_counter() - t_train) / step
                 bar.set_postfix(loss=f"{mean:.4f}", lr=f"{sched.get_last_lr()[0]:.2e}")
                 bar.write(
@@ -361,13 +321,6 @@ def main(argv: list[str]) -> int:
                 history.append({"step": step, "train_loss": mean})
                 running = 0.0
 
-            # Dev loss during training, not only at the ends. With endpoints
-            # alone, "dev went 1.32 -> 0.58" cannot be told apart from "dev
-            # bottomed out at epoch 3 and climbed back to 0.58", and those have
-            # opposite fixes -- fewer epochs versus more data. That ambiguity is
-            # not hypothetical: onestop_r16 trained 8 epochs to dev 0.582 while
-            # onestop_r16_e3 reached 0.559 in 3, and only the second run
-            # revealed the first was past its minimum.
             if args.dev_every and step % args.dev_every == 0 and step != total_steps:
                 d = dev_loss(model, dev, args.batch_size, pad_id, lm.device)
                 history.append({"step": step, "dev_loss": d})

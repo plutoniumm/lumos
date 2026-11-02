@@ -1,14 +1,4 @@
-"""Estimate and save the steering vector banks.
-
-Three estimators, described in ``lib/vectors.py``. Two produce one bank per axis
-(structural, lexical); the OneStopEnglish variant produces a single conflated
-"simplify" bank that exists specifically as the control -- if the monolithic
-vector matches the two-axis pair, the two-dial design buys nothing and should be
-dropped in favour of one reading-level dial.
-
-The orthogonalised variants are written alongside the raw ones rather than
-replacing them, so the sweep can measure whether Gram-Schmidt actually helped.
-"""
+"""Estimate and save the steering vector banks, per axis or as a monolithic control."""
 
 from __future__ import annotations
 
@@ -45,8 +35,6 @@ def _synthetic_pairs(
     print(f"[pairs] {axis}: generating {len(texts)} rewrites")
     steered = SteeredLM(lm, {})
     start = time.time()
-    # The sources are single sentences, so the default 320-token budget is mostly
-    # spent generating trailing commentary we then average into the vector.
     rewrites = steered.generate_batch(
         texts,
         SteeringSpec.off(),
@@ -68,10 +56,6 @@ def build(args: argparse.Namespace) -> int:
 
     texts = data.load_complex_corpus(args.n)
     print(f"[data] {len(texts)} complex texts for estimation")
-
-    # Estimating from ASSET-domain text instead was tried and changed nothing --
-    # every metric within noise, axis entanglement 0.220 against 0.223. See
-    # fail.md section 3. The direction is not a property of the estimation pool.
 
     banks: dict[str, vectors.VectorBank] = {}
 
@@ -108,8 +92,6 @@ def build(args: argparse.Namespace) -> int:
         path = bank.save()
         print(f"[save] {name} -> {path}")
 
-    # Orthogonalise only when both axes exist; the monolithic control has no
-    # counterpart to be orthogonal to.
     if args.orthogonalize and {"structural", "lexical"} <= set(banks):
         report = vectors.entanglement_report(banks["structural"], banks["lexical"])
         worst = max(report.items(), key=lambda kv: abs(kv[1]))
@@ -124,9 +106,7 @@ def build(args: argparse.Namespace) -> int:
                 "The model likely encodes one 'simplify' direction, not two; "
                 "expect the two-dial design to collapse to a single dial."
             )
-        # Löwdin, not pairwise Gram-Schmidt. Applying Gram-Schmidt in both
-        # directions leaves the pair anti-correlated rather than orthogonal --
-        # measured here as +0.500 becoming -0.504.
+
         orth_banks = vectors.symmetric_orthogonalize(
             {a: banks[a] for a in ("structural", "lexical")}
         )

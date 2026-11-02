@@ -1,34 +1,6 @@
 #!/usr/bin/env python
-"""Scale the adapter's contribution continuously. The weight-space strength dial.
-
-What this is testing
---------------------
-The steering arm has a dial and cannot use most of its range: the alpha ladder
-in the paper is non-monotone, the best FKGL in the whole sweep belongs to a
-setting that breaks two thirds of its outputs, and no target reading grade is
-reachable without falling off that cliff. A dial you can only leave at one
-setting is not a dial.
-
-A LoRA has the same shape of knob for free. peft applies the adapter as
-``scaling * B @ A @ x`` with ``scaling = lora_alpha / r``; multiplying that by
-s gives a continuous strength control with no retraining, evaluated in exactly
-the ladder format the steering sweep used. s=0 is the base model, s=1 is the
-adapter as trained, and s>1 extrapolates past it -- the interesting region,
-because it asks whether the direction the adapter learned keeps meaning
-something when pushed beyond the data.
-
-The question is not "is LoRA better", which A/B 2 answers. It is whether the
-LoRA dial degrades gracefully where the steering dial falls off a cliff.
-
-Every perplexity here is measured with the adapter off, via ``Adapter.scoring``.
-Conditional perplexity is defined against a reference model, and asking the
-adapter how likely it finds its own output returns a ratio below 1.0 whatever
-it generated -- this file reported 0.58 that way where the true value was 1.80.
-
-Usage
------
-    python src/lora_ladder.py --lora models/lora/asset_r16 --n 32
-"""
+"""Sweep the LoRA adapter's strength scale continuously, scored with the
+adapter off via ``Adapter.scoring``; writes results/lora_ladder.json."""
 
 from __future__ import annotations
 
@@ -47,14 +19,6 @@ from lib import jsonio, tables  # noqa: E402
 from lib.bench import Bench, Scored  # noqa: E402
 from lib.steering import SteeringSpec  # noqa: E402
 
-# A full ladder is a quarter-hour of MPS time and is normally started with the
-# output redirected to a log, so nothing here may depend on a terminal: the bars
-# go to stderr and switch themselves off, and the console emits no escape codes
-# when stdout is a file. The fixed width is not cosmetic -- rich falls back to
-# 80 columns for a pipe, which is narrow enough to wrap the ten-column ladder.
-
-# Header, row key, decimal places. One place per column so the ladder printed
-# here and the one in the paper agree digit for digit.
 COLUMNS: tuple[tuple[str, str, int], ...] = (
     ("scale", "scale", 2),
     ("FKGL", "fkgl", 2),
@@ -70,7 +34,7 @@ COLUMNS: tuple[tuple[str, str, int], ...] = (
 
 
 def rung(scale: float, scored: list[Scored], seconds: float, items) -> dict:
-    """One step of the ladder, aggregated. Same columns as the steering sweep."""
+    """One step of the ladder, aggregated."""
     return {
         "scale": scale,
         "fkgl": jsonio.mean(s.read.fkgl for s in scored),
@@ -100,8 +64,7 @@ def rung(scale: float, scored: list[Scored], seconds: float, items) -> dict:
 
 
 def cell(value, places: int) -> str:
-    """``--`` for a metric with no finite value; a rung where every output was
-    degenerate has no SARI to average, and that is not the same as zero."""
+    """``--`` for a metric with no finite value."""
     return f"{value:.{places}f}" if isinstance(value, (int, float)) else "--"
 
 
@@ -140,8 +103,6 @@ def main(argv: list[str]) -> int:
     scales = [float(s) for s in args.scales.split(",") if s.strip()]
     bench = Bench.open(args, needs_banks=False)
 
-    # s=0 is the base model exactly, and is the baseline every rung is scored
-    # against, so it is generated once and reused rather than regenerated.
     print("\n[base] generating s=0.0 reference outputs")
     with bench.adapter.scaled(0.0):
         baselines = bench.generate(

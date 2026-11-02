@@ -3,27 +3,8 @@
     python scripts/04_gemma4_smoke.py                      # config.GEMMA4
     python scripts/04_gemma4_smoke.py google/gemma-4-E4B-it
 
-Nothing here is a steering result. It asks the six questions the Llama path
-never raises, every one of which was checked on a meta-device model before the
-weights existed and none of which can be *confirmed* without them:
-
-1. does a ``*ForConditionalGeneration`` checkpoint load through
-   ``lib.models.load`` at all, and on which auto-class,
-2. are the layers we found the text stack and not a vision encoder -- i.e. does
-   the count match what ``config.text_config`` claims,
-3. does the chat template render? It lives in ``chat_template.jinja``, never in
-   ``tokenizer_config.json``, so a download filter that drops the suffix leaves
-   a tokenizer that loads and then cannot build a single prompt,
-4. is the decoder layer output a plain ``[batch, seq, hidden]`` tensor? Gemma-3n
-   returns a 4-D altup stack at the same site and the injector indexes the two
-   shapes differently; picking the wrong branch mis-steers silently,
-5. does the model rewrite the text instead of commenting on it,
-6. do the hooks round-trip -- ``alpha=0`` bit-identical *and* a real vector at
-   high alpha actually moving the tokens. Neither half alone is worth anything:
-   a hook attached to a module the model never reads passes the first.
-
-``scripts/02_hook_noop.py`` is the full hook gate and runs on a 135M model; this
-is the same idea narrowed to what is architecture-specific.
+Checks architecture-specific behaviour that ``scripts/02_hook_noop.py`` cannot,
+since it runs on a 135M model.
 """
 
 from __future__ import annotations
@@ -50,8 +31,8 @@ HARD = (
 )
 
 MAX_NEW = 96
-PROBE_MAX_NEW = 16  # the hook checks only need enough tokens to diverge
-PROBE_ALPHA = 4.0  # far past the working range; this asks "does it bite at all"
+PROBE_MAX_NEW = 16
+PROBE_ALPHA = 4.0
 
 
 @dataclass
@@ -80,10 +61,7 @@ class Report:
 def greedy(lm, batch: dict, n_new: int) -> torch.Tensor:
     """Deterministic generation, ids on CPU so two runs compare bit-for-bit.
 
-    ``eos_token_id`` is deliberately not passed: Gemma-4 stops on a *list*
-    (``[1, 106, 50]`` in generation_config.json) while ``tokenizer.eos_token_id``
-    is the scalar 1, and overriding it here would drop the turn-end token and
-    let the model run on past its own answer.
+    ``eos_token_id`` is deliberately not passed: Gemma-4 stops on a list.
     """
     torch.manual_seed(config.SEED)
     out = lm.model.generate(
@@ -93,7 +71,6 @@ def greedy(lm, batch: dict, n_new: int) -> torch.Tensor:
         temperature=None,
         top_p=None,
         top_k=None,
-        # `or` would read a pad id of 0 -- which is Gemma's -- as missing.
         pad_token_id=(
             lm.tokenizer.eos_token_id
             if lm.tokenizer.pad_token_id is None
@@ -127,7 +104,7 @@ def preflight(repo_id: str) -> int:
     ok, why = hub.is_complete(repo_id)
     print(f"[gemma4] {repo_id}: {why}")
     if not ok and (hub.local_path(repo_id) / "config.json").exists():
-        return 2  # half a download; resolve() would raise anyway
+        return 2
     template = hub.local_path(repo_id) / "chat_template.jinja"
     if ok and not template.exists():
         print(

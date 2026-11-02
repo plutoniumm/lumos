@@ -14,9 +14,7 @@ from lib.models import SteerableLM  # noqa: E402
 
 @torch.inference_mode()
 def conditional_ppl(lm: SteerableLM, prompt: str, output: str) -> float:
-    """Perplexity of output given prompt. No injector may be attached; the mask uses
-    the shared token prefix.
-    """
+    """Perplexity of output given prompt. No injector may be attached."""
     if not output.strip():
         return float("inf")
 
@@ -27,10 +25,6 @@ def conditional_ppl(lm: SteerableLM, prompt: str, output: str) -> float:
         prompt + output, return_tensors="pt", add_special_tokens=False
     )["input_ids"]
 
-    # BPE can merge across the join, so the two encodings are not guaranteed to
-    # share a prefix: the Llama-3 template ends in "\n\n" and an output starting
-    # "\n\n" merges into a single different token, shifting every label. Mask by
-    # the actual common prefix instead of by the prompt's own length.
     n_prompt = prompt_ids.shape[1]
     shared = 0
     limit = min(n_prompt, full_ids.shape[1])
@@ -42,10 +36,10 @@ def conditional_ppl(lm: SteerableLM, prompt: str, output: str) -> float:
 
     input_ids = full_ids.to(lm.device)
     labels = input_ids.clone()
-    labels[:, :n_prompt] = -100  # score only the generated continuation
+    labels[:, :n_prompt] = -100
 
     loss = lm.model(input_ids=input_ids, labels=labels).loss
-    return math.exp(min(float(loss), 20.0))  # cap so a blown-up run stays sortable
+    return math.exp(min(float(loss), 20.0))
 
 
 def ppl_ratio(lm: SteerableLM, prompt: str, steered: str, reference: str) -> float:

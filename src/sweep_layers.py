@@ -1,24 +1,6 @@
-"""Layer x alpha sweep: where does each axis live, and how hard can it be pushed.
-
-This is the experiment the project turns on. The claim under test is that
-structural and lexical simplification are separable by *depth* -- that sentence
-structure responds to mid-stack intervention while word choice responds late,
-because middle layers carry abstract behavioural features and late layers are
-close enough to the unembedding that steering there mostly reweights output
-vocabulary. If both axes peak at the same layer with the same profile, the model
-encodes one "simplify" direction and the honest move is to ship a single
-reading-level dial instead of two.
-
-Two stages, because the full grid is a day of wall clock and most of it is spent
-on layers that do nothing:
-
-  stage 1  every layer, one moderate alpha, few texts -> the depth profile
-  stage 2  the surviving layers, full alpha grid, more texts, plus NLI
-
-Effects are measured against each text's own *unsteered rewrite*, not against the
-source. Both are rewrites, so the difference isolates what steering did rather
-than what asking for a rewrite did.
-"""
+"""Two-stage layer x alpha sweep: find each axis's depth and best alpha,
+measured against each text's own unsteered rewrite. Writes
+results/sweep_*.jsonl and, via --report, results/best_layers_*.json."""
 
 from __future__ import annotations
 
@@ -52,19 +34,6 @@ class Cell:
         return f"{self.stage}|{self.axis}|{self.layer}|{self.alpha:g}"
 
 
-# What the sweep screens on, named so it lands on every row. It is NOT what the
-# evaluation runs on, and a setting can degenerate at very different rates on the
-# two: L26 alpha=1.5 records 8% here and 47% on ASSET *at the same 320-token
-# budget*, so the gap is not the generation budget.
-#
-# It is not input length either. These passages run 20-43 words (median 29) and
-# ASSET test runs 6-34 (median 17) -- close, not the order-of-magnitude
-# difference it would be easy to assume. And within the ASSET run the degenerate
-# items are no shorter than the intact ones (median source 16 vs 17 words).
-# What separates them is the output: 314 words against 25, i.e. generation to
-# the cap. The failure is run-on, but what makes one 12-text pool tolerate a
-# setting that breaks 47% of another is not yet known -- treat a sweep number as
-# specific to this pool until it has been checked on the evaluation set.
 SWEEP_TEXT_POOL = "complex_pool"
 
 
@@ -107,24 +76,12 @@ def _measure_cell(
         "alpha": cell.alpha,
         "n": len(texts),
         "seconds": round(elapsed, 1),
-        # The conditions this cell was screened under, recorded on the row.
-        # Sweeps on disk were collected at 96 tokens while the evaluation runs at
-        # 320, and because the row did not say so, telling a stale file from a
-        # differently-configured one meant inferring the budget from the token
-        # length of the saved samples. A screening number is only interpretable
-        # next to the conditions that produced it.
         "max_new_tokens": max_new_tokens,
         "text_pool": SWEEP_TEXT_POOL,
         "degenerate_frac": sum(m.degenerate for m in measured) / len(measured),
         "empty_frac": sum(m.n_words == 0 for m in measured) / len(measured),
     }
 
-    # Every simplicity metric is gameable by degeneration: collapsed output like
-    # "The,, a a the the the" has no difficult words and short "sentences", so it
-    # scores as maximally simple. Observed directly during calibration -- L14 at
-    # alpha=1.2 showed pct_hard_words down 91% with degenerate_frac 1.00. So
-    # simplicity is credited only on outputs that survived the guard, and the
-    # number of survivors is reported alongside it.
     keep = [
         (b, m, src, out)
         for b, m, src, out in zip(baselines, measured, texts, outs)
@@ -152,7 +109,7 @@ def _measure_cell(
             s >= config.NLI_ENTAILMENT_MIN for s in scores
         ) / len(scores)
 
-    row["samples"] = outs[:2]  # a couple of outputs per cell, for eyeballing
+    row["samples"] = outs[:2]
     return row
 
 
@@ -163,16 +120,10 @@ def _own_effect(row: dict, axis: str) -> float:
 
 
 def _load_done(path: Path) -> set[str]:
-    if not path.exists():
-        return set()
     done = set()
-    for line in path.read_text().splitlines():
-        if not line.strip():
+    for n, r in jsonio.read_jsonl(path):
+        if r is None:
             continue
-        try:
-            r = json.loads(line)
-        except json.JSONDecodeError:
-            continue  # a truncated final line from an interrupted run
         done.add(Cell(r["stage"], r["axis"], r["layer"], r["alpha"]).key())
     return done
 
@@ -235,8 +186,6 @@ def run(args: argparse.Namespace) -> int:
     if not cells:
         return 0
 
-    # One unsteered pass, reused as the reference for every cell. Recomputing it
-    # per cell would triple the sweep for no information.
     print("[base] generating unsteered references")
     base_outs = steered.generate_batch(
         texts,
@@ -261,7 +210,7 @@ def run(args: argparse.Namespace) -> int:
                     args.content_orth,
                     args.nli_n if cell.stage == 2 else 0,
                 )
-            except Exception as exc:  # a bad cell must not kill a multi-hour sweep
+            except Exception as exc:
                 row = {
                     "stage": cell.stage,
                     "axis": cell.axis,
@@ -275,8 +224,6 @@ def run(args: argparse.Namespace) -> int:
                     f"  [{i}/{len(cells)}] {cell.axis} L{cell.layer} a={cell.alpha:g}"
                 )
                 if row.get("selectivity") is None:
-                    # Every output collapsed, so there is nothing to score. This
-                    # is an ordinary sweep outcome, not an error.
                     bar.write(
                         f"{head} UNUSABLE all {row['n']} degenerate "
                         f"({row['seconds']:.0f}s)"
@@ -315,8 +262,6 @@ def spawn_workers(args: argparse.Namespace) -> int:
             shard = merged.with_suffix(f".shard{i}.jsonl")
             if shard.exists():
                 out.write(shard.read_text())
-                # Remove after merging, or --report globs both the shard and the
-                # merged copy and every cell is counted twice.
                 shard.unlink()
     print(f"[merge] -> {merged}  (worker exits: {codes})")
     return max(codes) if codes else 0
@@ -337,8 +282,6 @@ def _forward_args(args: argparse.Namespace) -> list[str]:
         f"--nli-n={args.nli_n}",
         "--axes",
         *args.axes,
-        # Alphas and layers must be forwarded, or stage-2 workers silently fall
-        # back to the defaults and sweep a different grid than was asked for.
         "--alphas",
         *[str(a) for a in args.alphas],
     ]
@@ -348,6 +291,8 @@ def _forward_args(args: argparse.Namespace) -> list[str]:
         out.append(f"--model={args.model}")
     if args.content_orth:
         out.append("--content-orth")
+    if args.best_layers:
+        out.append(f"--best-layers={args.best_layers}")
     return out
 
 
@@ -365,22 +310,14 @@ def _nli_ok(row: dict, min_nli: float) -> bool:
 
 def report(args: argparse.Namespace) -> int:
     """Print the depth profile and write the best (layer, alpha) per axis."""
-    # Glob on the stem, not the full name: shards are written as
-    # "<stem>.shard0.jsonl", so a "<stem>.jsonl*" pattern matches none of them
-    # and the report would silently cover only the merged file.
     base = Path(args.out)
     rows = []
     for path in sorted(base.parent.glob(base.stem + "*.jsonl")):
-        if not path.exists():
-            continue
-        for line in path.read_text().splitlines():
-            if line.strip():
-                try:
-                    r = json.loads(line)
-                except json.JSONDecodeError:
-                    continue
-                if "error" not in r:
-                    rows.append(r)
+        for n, r in jsonio.read_jsonl(path):
+            if r is None:
+                continue
+            if "error" not in r:
+                rows.append(r)
     if not rows:
         print(f"no results at {args.out}")
         return 1
@@ -416,10 +353,8 @@ def report(args: argparse.Namespace) -> int:
                     and r.get("selectivity") is not None
                 ]
                 if not hit:
-                    # No non-degenerate output survived at this layer/alpha.
                     cells += ["collapsed", "-", "-"]
                     continue
-                # Best surviving alpha at this layer, since coarse runs several.
                 r = max(hit, key=lambda x: x["selectivity"])
                 cells += [
                     f"{-r['d_words_per_sentence']:+.3f}",
@@ -439,20 +374,8 @@ def report(args: argparse.Namespace) -> int:
             if r["axis"] == axis
             and r.get("selectivity") is not None
             and r["degenerate_frac"] <= args.max_degenerate
-            # A cell that only scored a couple of survivors has a selectivity
-            # estimated on too little to trust, however good it looks.
             and r.get("n_scored", 0) >= max(2, args.min_scored_frac * r["n"])
-            # "not measured" is not "passed". Stage 1 does not run NLI, so its
-            # rows carry no nli_mean at all, and defaulting the absent key to 1.0
-            # let all 192 unmeasured cells clear any faithfulness gate -- which
-            # is how a cell that degenerates a quarter of its outputs came to be
-            # chosen over one measured at NLI 0.888. A gate that an unmeasured
-            # cell passes is not a gate.
             and _nli_ok(r, args.min_nli)
-            # Selectivity is own_effect - |other_effect|, which scores a cell that
-            # does nothing at all as 0 - 0 = 0 and thereby ranks it above a strong
-            # but imperfect one. Without this floor the sweep picked layer 4 for
-            # the lexical axis at sel=+0.002, where both effects were noise.
             and _own_effect(r, axis) >= args.min_own_effect
         ]
         if not usable:
@@ -483,7 +406,6 @@ def report(args: argparse.Namespace) -> int:
             f"sel={b['selectivity']:+.3f}  top layers {top[:5]}"
         )
 
-    # The headline result: do the two axes actually live at different depths?
     picks = {a: summary["axes"][a]["best"] for a in axes if summary["axes"][a]["best"]}
     if {"structural", "lexical"} <= set(picks):
         s, l = picks["structural"]["layer"], picks["lexical"]["layer"]

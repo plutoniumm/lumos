@@ -14,6 +14,7 @@ mechanism works and is fully implemented, but a trained LoRA adapter measured
 better, so the product defaults to whichever is on disk. Both are one flag apart.
 
 Measurements: [`report.md`](report.md) · Real outputs: [`examples.md`](examples.md)
+(recorded on Llama at L15, not the current default)
 · What failed: [`fail.md`](fail.md) · Working notes: [`CLAUDE.md`](CLAUDE.md)
 
 ## Install
@@ -193,7 +194,8 @@ lib/
 src/          entry points: simplify.py is the product, the rest are experiments
 scripts/      download, smoke test, correctness gate
 results/      the evidence behind report.md; tracked deliberately
-models/ data/ vectors/ docs/   generated or large, gitignored
+paper/        steering.tex, the write-up (revtex4-2); images/ alongside it
+models/ data/ vectors/   generated or large, gitignored
 ```
 
 Everything an arm does besides its own idea — resolve layers and alphas, hold

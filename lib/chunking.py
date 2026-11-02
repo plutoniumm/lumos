@@ -4,64 +4,13 @@ from __future__ import annotations
 
 import re
 
-# Tokens that end in '.' without ending a sentence.
 _ABBREV = {
-    "mr",
-    "mrs",
-    "ms",
-    "dr",
-    "prof",
-    "sr",
-    "jr",
-    "st",
-    "mt",
-    "rev",
-    "hon",
-    "inc",
-    "ltd",
-    "co",
-    "corp",
-    "dept",
-    "univ",
-    "est",
-    "e.g",
-    "i.e",
-    "etc",
-    "cf",
-    "al",
-    "vs",
-    "viz",
-    "ibid",
-    "op",
-    "fig",
-    "figs",
-    "eq",
-    "eqs",
-    "ref",
-    "refs",
-    "no",
-    "nos",
-    "vol",
-    "pp",
-    "approx",
-    "min",
-    "max",
-    "avg",
-    "cal",
-    "sec",
-    "yr",
-    "jan",
-    "feb",
-    "mar",
-    "apr",
-    "jun",
-    "jul",
-    "aug",
-    "sep",
-    "sept",
-    "oct",
-    "nov",
-    "dec",
+    "mr", "mrs", "ms", "dr", "prof", "sr", "jr", "st", "mt", "rev", "hon",
+    "inc", "ltd", "co", "corp", "dept", "univ", "est", "e.g", "i.e", "etc",
+    "cf", "al", "vs", "viz", "ibid", "op", "fig", "figs", "eq", "eqs", "ref",
+    "refs", "no", "nos", "vol", "pp", "approx", "min", "max", "avg", "cal",
+    "sec", "yr", "jan", "feb", "mar", "apr", "jun", "jul", "aug", "sep",
+    "sept", "oct", "nov", "dec",
 }
 
 _SENT_END = re.compile(r"([.!?][\"')\]]*)(\s+)(?=[\"'(\[]*[A-Z0-9])")
@@ -76,7 +25,6 @@ def _is_abbrev(chunk: str) -> bool:
     word = re.split(r"[\s(\[\"']", tail)[-1].rstrip(".").lower()
     if word in _ABBREV:
         return True
-    # Single initial ("J.") or a dotted acronym ("U.S.", "Ph.D").
     if re.fullmatch(r"(?:[a-z]\.)+[a-z]?", word + "."):
         return True
     return False
@@ -95,8 +43,6 @@ def split_sentences(text: str) -> list[str]:
         candidate = text[start:end]
         if _is_abbrev(candidate):
             continue
-        # Don't split inside a decimal or numbered list ("3. " handled by the
-        # uppercase lookahead; "3.14" has no trailing space so never matches).
         out.append(candidate.strip())
         start = match.end(2)
 

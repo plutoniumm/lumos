@@ -1,14 +1,5 @@
 #!/usr/bin/env python
-"""Re-run metrics over generations already on disk. No model output changes.
-
-Exists because a scoring bug found late is not a reason to spend two hours
-regenerating text that was never wrong. The preamble strip in ``lib.cleanup``
-changed what the metrics see, not what the model produced, so every row in an
-existing JSONL can be brought onto the new convention by re-scoring it.
-
-Writes a new file rather than editing in place: the old numbers are what was
-reported, and overwriting them would leave nothing to check the correction
-against.
+"""Re-run metrics over generations already on disk, writing a new JSONL.
 
     python src/rescore.py results/eval_main.jsonl --out results/eval_main_v2.jsonl
 """
@@ -25,24 +16,53 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import config  # noqa: E402
 from lib import cleanup, jsonio, models, tables  # noqa: E402
+from lib.cli import die  # noqa: E402
 from src.evaluate import EvalItem, score_item  # noqa: E402
-
-# A rescore is an NLI pass and two perplexity passes per row over a file that
-# can hold thousands, so the loop needs a bar -- but it is also the thing you
-# start and redirect, and a redrawing bar in a log file is megabytes of \r.
 
 
 def main(argv: list[str]) -> int:
     p = argparse.ArgumentParser(description=__doc__)
     p.add_argument("jsonl", type=Path)
     p.add_argument("--out", type=Path, required=True)
-    p.add_argument("--model", default=config.ACTIVE_MODEL)
+    p.add_argument(
+        "--model",
+        default=None,
+        help=(
+            "model to score with; must match the model that generated the "
+            "rows (each row records it under 'model'). Inferred from the "
+            f"file when omitted -- never {config.ACTIVE_MODEL!r} by default, "
+            "because that is whichever model happens to be active on this "
+            "machine right now, not necessarily the one this file's text "
+            "came from"
+        ),
+    )
     args = p.parse_args(argv)
 
     rows = [json.loads(l) for l in args.jsonl.read_text().splitlines() if l.strip()]
     print(f"[in]   {len(rows)} row(s) from {args.jsonl}")
     n_pre = sum(1 for r in rows if r.get("output") and cleanup.had_preamble(r["output"]))
     print(f"[in]   {n_pre} row(s) carry a preamble ({100 * n_pre / max(len(rows), 1):.1f}%)")
+
+    row_models = sorted({r["model"] for r in rows if r.get("model")})
+    if args.model is None:
+        if len(row_models) != 1:
+            die(
+                f"--model not given, and {args.jsonl} does not name exactly "
+                f"one model across its rows (found {row_models or 'none'}); "
+                f"cannot infer which model to score with. Pass --model "
+                f"explicitly."
+            )
+        args.model = row_models[0]
+        print(f"[model] inferred {args.model!r} from {args.jsonl}")
+    elif row_models and args.model not in row_models:
+        die(
+            f"--model {args.model!r} does not match the model recorded in "
+            f"{args.jsonl}'s rows ({row_models}); rescoring under a "
+            f"different model than generated the text would silently "
+            f"recompute NLI and the perplexity ratio against the wrong "
+            f"reference. Pass --model matching the file, or omit --model to "
+            f"infer it."
+        )
 
     lm = models.load(args.model)
     fh = args.out.open("w", encoding="utf-8")
@@ -52,8 +72,6 @@ def main(argv: list[str]) -> int:
         if row.get("error") or not row.get("output"):
             fh.write(json.dumps(row) + "\n")
             continue
-        # score_item needs the real references to compute SARI; rows carry only
-        # a count, so SARI is preserved from the original row rather than faked.
         before = row.get("faithfulness", {}).get("score")
         patch = score_item(
             lm,
@@ -66,6 +84,8 @@ def main(argv: list[str]) -> int:
             skip_sari=True,
         )
         if "sari" in row:
+            # SARI needs the item's references, which the row doesn't store;
+            # reuse the value already computed instead of recomputing it.
             patch["sari"] = row["sari"]
             patch["metrics"] = patch["metrics"] + ["sari"]
         row.update(patch)

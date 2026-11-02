@@ -1,22 +1,7 @@
 """One loaded model over one item set: the spine every steering arm shares.
 
-What was duplicated
--------------------
-``src/best_of_n.py``, ``src/adaptive_steering.py`` and ``src/lora_ladder.py``
-are three different questions asked of the same apparatus. Each one opened with
-the same forty lines -- load ASSET, load the banks, load the model, wrap it in
-``SteeredLM``, read the baseline cache -- and closed with the same sixty:
-measure readability, entailment and conditional perplexity, assemble a row in
-the schema ``src/report.py`` reads, write it out.
+Invariants this file exists to hold:
 
-They did not stay identical. ``src/adaptive_steering.py`` filled a missing
-baseline with the item's *own steered output*, which pins its perplexity ratio
-at exactly 1.0 and every readability delta at exactly 0 -- a silent report of
-"no effect" that is indistinguishable from data. That is what a fourth
-hand-rolled copy of a forty-line preamble buys you.
-
-The invariants this file exists to hold
----------------------------------------
 1. **A baseline is unsteered, or it is not a baseline.** ``baselines()`` reuses
    the cache ``src/evaluate.py`` wrote so that arms are compared against
    byte-identical text, and generates any miss with steering off and the
@@ -45,8 +30,8 @@ from lib.steering import SteeredLM, SteeringSpec, load_banks
 
 @dataclass(frozen=True)
 class Item:
-    """One evaluation input. ``index`` is the position in the eval set and is
-    the join key across every result file, so it is never renumbered."""
+    """One evaluation input. ``index`` is the join key across every result
+    file, and is never renumbered."""
 
     index: int
     source: str
@@ -92,32 +77,7 @@ class Scored:
         return math.isfinite(self.ppl_ratio) and self.ppl_ratio <= config.PPL_RATIO_MAX
 
     def passes(self) -> bool:
-        """The shipping gate: intact language, meaning kept.
-
-        Perplexity ratio used to be the third condition and is not any more. It
-        was there to stand in for fluency, and measured across both models it
-        does not do that job:
-
-            above / below the 1.5 gate, share degenerate
-                Llama   11% / 3%
-                Gemma    4% / 3%
-
-        On Gemma it barely separates collapsed output from intact output. What
-        it does separate is faithfulness failures -- and ``nli_passed`` already
-        gates those directly, on a measurement built for it. Meanwhile the cost
-        is severe: 55% of Gemma outputs that are neither degenerate nor
-        unfaithful sit above the gate (33% on Llama), including 67% of
-        ``steered_structural``, which is Gemma's best arm at a 2% NLI-failure
-        rate.
-
-        The underlying problem is that a ratio against the model's own unsteered
-        perplexity is a model-relative quantity, and 1.5 is an absolute threshold
-        picked on Llama. Gemma's whole scale is different -- its LoRA ladder
-        reaches a ratio of 976 -- so one constant cannot serve both.
-
-        ``ppl_ok`` and the ``ppl_ratio_ok`` row field are kept so the threshold
-        is still reported and any run can be re-filtered after the fact.
-        """
+        """The shipping gate: intact language, meaning kept."""
         return not self.degenerate and self.nli_passed
 
 
@@ -143,8 +103,6 @@ class Bench:
         self.sl = SteeredLM(lm, self.banks)
         self._ppl_cache: dict[tuple[int, str], float] = {}
 
-    # -- construction -------------------------------------------------------
-
     @classmethod
     def open(
         cls,
@@ -153,16 +111,16 @@ class Bench:
         needs_banks: bool = True,
         items: list[Item] | None = None,
     ) -> "Bench":
-        """Load everything an arm needs, in the order that fails cheapest first.
-
-        The banks are a filesystem check costing milliseconds and "you have not
-        built the vectors yet" is not worth waiting through six gigabytes of
-        weights and an MPS transfer to be told -- so they are resolved before
-        ``models.load``.
-        """
+        """Load items, banks, model and adapter, in the order that fails
+        cheapest first."""
         if items is None:
-            items = asset_items(getattr(args, "asset_split", "test"), getattr(args, "n", None))
-        print(f"[data] ASSET {getattr(args, 'asset_split', 'test')}, {len(items)} item(s)")
+            items = asset_items(
+                getattr(args, "asset_split", "test"), getattr(args, "n", None)
+            )
+        print(
+            f"[data] ASSET {getattr(args, 'asset_split', 'test')}, "
+            f"{len(items)} item(s)"
+        )
 
         banks = {}
         if needs_banks:
@@ -203,8 +161,6 @@ class Bench:
             adapter=adapter,
         )
 
-    # -- generation ---------------------------------------------------------
-
     @property
     def sources(self) -> list[str]:
         return [it.source for it in self.items]
@@ -240,14 +196,7 @@ class Bench:
         max_new_tokens: int = config.MAX_NEW_TOKENS,
         batch_size: int = config.BATCH_SIZE,
     ) -> list[str]:
-        """The unsteered output per item: cached where possible, generated where not.
-
-        Reusing ``src/evaluate.py``'s cache matters beyond the saved compute.
-        Greedy decoding is deterministic in principle, but MPS batch padding is
-        not bit-stable across runs with different batch composition, and a
-        baseline that differs from A/B 1's by a token would make every paired
-        delta in this arm incomparable with every other arm's.
-        """
+        """Unsteered output per item: cached where possible, generated where not."""
         cache: dict[str, str] = {}
         if cache_path.exists():
             try:
@@ -258,13 +207,13 @@ class Bench:
                 print(f"[base] {cache_path.name} unreadable; regenerating all")
         keys = [f"{eval_set}|{mode}|{it.index}" for it in self.items]
         out: list[str | None] = [cache.get(k) for k in keys]
-        print(f"[base] {sum(o is not None for o in out)}/{len(out)} reused from {cache_path.name}")
+        print(
+            f"[base] {sum(o is not None for o in out)}/{len(out)} reused "
+            f"from {cache_path.name}"
+        )
 
         missing = [i for i, o in enumerate(out) if o is None]
         if missing:
-            # Never fill a miss from this arm's own generations. That sets the
-            # item's baseline to its own steered text, pinning ppl_ratio at 1.0
-            # and every delta at 0 -- a silent "no effect" that reads as data.
             print(f"[base] generating {len(missing)} unsteered baseline(s)")
             got = self.generate(
                 SteeringSpec.off(),
@@ -277,11 +226,8 @@ class Bench:
                 out[i] = text
         return [o or "" for o in out]
 
-    # -- scoring ------------------------------------------------------------
-
     def prompt(self, item: Item) -> str:
-        """The bare task prompt. Perplexity's reference condition, so it carries
-        no simplify instruction and no demonstrations whatever the arm used."""
+        """The bare task prompt: no simplify instruction, no demonstrations."""
         return self.lm.build_prompt(item.source, None, None)
 
     def conditional_ppl(self, item: Item, text: str) -> float:
@@ -323,15 +269,13 @@ class Bench:
         return Scored(text, read, nli, ppl, ratio, sari, label)
 
     def with_sari(self, item: Item, scored: Scored) -> Scored:
-        """*scored* with SARI filled in. For arms that select without references
-        and report with them -- the selection rule must not see the answers."""
+        """*scored* with SARI filled in, if not already present."""
         if not item.references or scored.sari is not None:
             return scored
         return replace(
-            scored, sari=sari_metrics.sari(item.source, scored.text, item.references).sari
+            scored,
+            sari=sari_metrics.sari(item.source, scored.text, item.references).sari,
         )
-
-    # -- output -------------------------------------------------------------
 
     def row(
         self,
@@ -347,11 +291,7 @@ class Bench:
         mode: str = "whole",
         **extra,
     ) -> dict:
-        """One result row in the schema ``src/report.py`` reads.
-
-        Built here rather than at each call site so a new arm lands in the same
-        shape as the existing ones without anyone having to check that it did.
-        """
+        """One result row in the schema ``src/report.py`` reads."""
         base_read = readability.measure(baseline)
         base_ppl = self.conditional_ppl(item, baseline)
         row = {

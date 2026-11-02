@@ -32,7 +32,7 @@ def main(argv: list[str]) -> int:
         repo = TARGETS[key]
         try:
             hub.download(repo)
-        except Exception as exc:  # keep going; report everything at the end
+        except Exception as exc:
             print(f"[hub] FAILED {repo}: {type(exc).__name__}: {exc}")
             failures.append((repo, exc))
 

@@ -1,66 +1,10 @@
 #!/usr/bin/env python
-"""The comparison the project's claim stands or falls on.
+"""The core comparison: unsteered vs. prompted vs. steered, scored and written to JSONL.
 
-Six variants over two eval sets, one row of metrics per item, written to JSONL.
-The variant set is the whole point of this file and is not optional:
-
-    unsteered              task prompt only. The floor.
-    prompted               prompt-only "simplify" instruction. The *honest bar*:
-                           if steering does not beat this on the
-                           simplicity/faithfulness tradeoff, the project has no
-                           result. It is not a courtesy baseline, it is the
-                           thing being argued against.
-    steered_structural     one axis, best (layer, alpha) from the sweep
-    steered_lexical        the other axis
-    steered_dual           both dials, the two-dial product configuration
-    prompted_plus_steered  instruction *and* steering, to find out whether they
-                           compose or fight each other
-
-For the passage eval set every variant is additionally run through
-``generate_chunked`` and reported under ``<variant>_chunked``. Which of the two
-paths wins is an open question -- whole-passage generation lets a constant
-injected vector drift over hundreds of tokens, sentence-by-sentence generation
-cannot drift but loses inter-sentence flow -- so both are measured and neither
-is assumed.
-
-Baselines and comparability
----------------------------
-Every reported delta is *within-item*: an item's readability deltas and its
-perplexity ratio are computed against that same item's own unsteered output, in
-the same generation mode. Cross-item aggregates of raw FKGL hide the fact that
-some sources are simply harder than others; the deltas do not.
-
-The unsteered baseline is therefore generated even when ``unsteered`` is not in
-``--variants``, and is cached to ``<out>.baselines.json`` so a resumed run scores
-against byte-identical baselines rather than a fresh sample of them.
-
-Perplexity ratios condition the steered output and the baseline output on the
-*same* prompt -- the plain unsteered prompt -- because a ratio between two
-different conditionings measures the prompts, not the outputs. That means the
-``prompted`` variants are scored under a prompt they were not generated from,
-which is deliberate and is the only way the ratio stays a fluency measurement.
-
-Interruption
-------------
-Long MPS runs get killed. Rows are appended and flushed one at a time, and a
-re-run skips any (variant, eval_set, item_index) already on disk. Resume keys
-assume the underlying data order is stable, which it is as long as ``--n`` only
-grows.
-
-A row is only "done" for the metrics it records in its own ``metrics`` field. A
-``--skip-nli`` row therefore does not satisfy a later run that wants NLI: it is
-regenerated, the thin row stays on disk behind it, and the aggregate keeps the
-last row per key. Without that, one cheap smoke run would quietly leave a full
-run's output a mixture of scored and unscored items with nothing to show which.
-
-Non-finite floats (an infinite perplexity from an empty generation) are written
-as ``null``: JSON has no infinity and a strict parser must not choke on results.
-
-Usage
------
-    python src/evaluate.py --variants unsteered,prompted --n 4 --skip-sari --skip-nli
-    python src/evaluate.py --layers-from results/best_layers_<model>_<estimator>.json
-    python src/evaluate.py --structural 14,1.5 --lexical 18,2.0
+Six variants: unsteered, prompted, steered_structural, steered_lexical,
+steered_dual, prompted_plus_steered. Lora, fewshot and easy_words variants
+run only when named explicitly. Passage items also run through
+generate_chunked as <variant>_chunked.
 """
 
 from __future__ import annotations
@@ -95,10 +39,10 @@ from lib.steering import SteeredLM, SteeringSpec, load_banks  # noqa: E402
 class Variant:
     name: str
     instruction: str | None
-    axes: tuple[str, ...]  # () means no steering
-    adapter: bool = False  # generate with the LoRA adapter engaged
-    shots: int = 0  # in-context (complex, simple) demonstrations
-    easy_words: bool = False  # decode-time penalty on hard-word-initial tokens
+    axes: tuple[str, ...]
+    adapter: bool = False
+    shots: int = 0
+    easy_words: bool = False
 
     @property
     def needs_banks(self) -> bool:
@@ -117,31 +61,12 @@ VARIANTS: tuple[Variant, ...] = (
         ("structural", "lexical"),
     ),
 )
-# Only selectable with --lora. Kept out of VARIANTS so that --variants all keeps
-# meaning "the six steering variants" for every run that has no adapter, rather
-# than silently becoming a different comparison depending on a flag.
-#
-#   lora                 the weight-space twin of steered_*: same bare task
-#                        prompt, same baseline, adaptation instead of a vector
-#   lora_plus_steered    do the two mechanisms compose, or do they collide the
-#                        way prompting and steering did. Structural only, to
-#                        match the other _plus_steered variants: the dual spec
-#                        degenerates 34% of the time on its own, so composing
-#                        against it would measure that collapse and not the
-#                        composition.
+
 LORA_VARIANTS: tuple[Variant, ...] = (
     Variant("lora", None, (), adapter=True),
     Variant("lora_plus_steered", None, ("structural",), adapter=True),
 )
 
-# In-context demonstrations. Not in VARIANTS for the same reason the LoRA rows
-# are not: adding them would silently redefine what --variants all compares.
-#
-#   fewshot              5 demonstrations, bare task prompt. The prompt-side
-#                        arm that steering has to beat, since it costs nothing
-#                        and needs no training either.
-#   fewshot_plus_steered demonstrations and a vector, to see whether in-context
-#                        supervision leaves any room for the residual stream.
 FEWSHOT_VARIANTS: tuple[Variant, ...] = (
     Variant("fewshot", None, (), shots=config.FEWSHOT_N),
     Variant(
@@ -152,9 +77,6 @@ FEWSHOT_VARIANTS: tuple[Variant, ...] = (
     ),
 )
 
-# The decode-time vocabulary constraint. Costs one vector add per step and no
-# training, so it is the cheapest lever available; whether it survives the
-# faithfulness gate is the open question.
 CONSTRAINED_VARIANTS: tuple[Variant, ...] = (
     Variant("easy_words", None, (), easy_words=True),
     Variant("easy_words_plus_steered", None, ("structural",), easy_words=True),
@@ -168,18 +90,9 @@ ALL_BY_NAME = {
 
 
 def load_shots(n: int, source: str = "asset") -> list[tuple[str, str]]:
-    """Demonstrations, never drawn from the split being evaluated.
-
-    Demonstrations have to match the *shape* of the task, not just its goal. Five
-    twenty-word Wikipedia sentences in front of a hundred-and-ten-word abstract
-    teach the model that the answer is one short sentence, and it will happily
-    throw away the rest of the source to produce one. That would show up as
-    few-shot destroying faithfulness on the science set, when the real cause is
-    the demonstrations being a fifth of the target's length.
-
-    So ``asset`` (sentence to sentence, mean 20 words) serves the ASSET eval and
-    ``onestop`` (paragraph to paragraph, mean 120 words) serves the science
-    abstracts, whose mean is 109.
+    """Demonstrations for the few-shot variants, never drawn from the split
+    being evaluated. ``asset`` serves sentence-level evals, ``onestop``
+    serves the paragraph-length science abstracts.
     """
     if n <= 0:
         return []
@@ -189,12 +102,7 @@ def load_shots(n: int, source: str = "asset") -> list[tuple[str, str]]:
 
 
 def _asset_shots(n: int) -> list[tuple[str, str]]:
-    """ASSET *validation* sentences, each with its median-length reference.
-
-    The median, not the shortest: the shortest reference is usually the one that
-    dropped a clause, and five examples of dropping a clause would teach exactly
-    the deletion that costs the prompted arm its faithfulness score.
-    """
+    """ASSET validation sentences, each paired with its median-length reference."""
     pool = data.load_asset("valid")
     rng = random.Random(config.SEED)
     picked = rng.sample(range(len(pool)), min(n * 4, len(pool)))
@@ -212,15 +120,7 @@ def _asset_shots(n: int) -> list[tuple[str, str]]:
 
 
 def _onestop_shots(n: int) -> list[tuple[str, str]]:
-    """OneStopEnglish advanced-to-elementary paragraphs, filtered for real rewrites.
-
-    The corpus is not uniformly useful as demonstration material. Some aligned
-    pairs are near-copies whose only difference is an edit that changes a fact --
-    one differs solely in a date -- and demonstrating that is worse than
-    demonstrating nothing. Pairs are kept only when the elementary side is
-    genuinely shorter and genuinely easier, and are then taken in corpus order so
-    the set is stable rather than sampled.
-    """
+    """OneStopEnglish advanced-to-elementary paragraphs, filtered for real rewrites."""
     lo, hi = config.SCIENCE_ABSTRACT_WORDS
     shots: list[tuple[str, str]] = []
     for triple in data.load_onestop():
@@ -241,11 +141,6 @@ def _onestop_shots(n: int) -> list[tuple[str, str]]:
 
 
 EVAL_SETS = ("asset", "passages", "science")
-# ASSET items are single sentences, so chunking them is a no-op; passages get both.
-# Science abstracts are multi-sentence and are the obvious candidate for the
-# chunked path, but a 3B model does not hold the "rewrite only the final
-# sentence" constraint (see config.CHUNK_CONTEXT_SENTENCES), so running both
-# here would report a failure of that constraint as a failure of the arm.
 MODES = {"asset": ("whole",), "passages": ("whole", "chunked"), "science": ("whole",)}
 
 
@@ -258,13 +153,7 @@ def build_spec(variant: Variant, settings) -> SteeringSpec:
 
 
 def tokens_for(eval_set: str, requested: int) -> int:
-    """Generation budget for *eval_set*, never below what the caller asked for.
-
-    One global budget cannot serve both sets: 320 is four times what an ASSET
-    sentence needs and two thirds of what the longest abstract needs. An
-    explicit --max-new-tokens is honoured as a floor rather than overridden, so
-    raising it by hand still works.
-    """
+    """Generation budget for eval_set, never below what the caller asked for."""
     if eval_set == "science":
         return max(requested, config.SCIENCE_MAX_NEW_TOKENS)
     return requested
@@ -282,7 +171,7 @@ class EvalItem:
 
 
 def load_items(eval_set: str, n: int, asset_split: str) -> list[EvalItem]:
-    """Items for one eval set, from ``lib.data``'s loaders as they are declared."""
+    """Items for one eval set, from lib.data's loaders as they are declared."""
     try:
         if eval_set == "asset":
             rows = data.load_asset(asset_split)
@@ -322,14 +211,8 @@ def load_items(eval_set: str, n: int, asset_split: str) -> list[EvalItem]:
     return items
 
 
-# Which metric families a row carries is recorded in the row itself, because
-# --skip-nli/--skip-sari rows are otherwise indistinguishable from fully scored
-# ones and a cheap smoke run would silently satisfy the resume check for a later
-# full run, leaving the file a mixture nothing flags.
-
-
 def wanted_metrics(item: EvalItem, *, skip_nli: bool, skip_sari: bool) -> set[str]:
-    """The metric families a fully scored row for *item* would carry."""
+    """The metric families a fully scored row for item would carry."""
     metrics = {"readability", "ppl"}
     if not skip_nli:
         metrics.add("nli")
@@ -356,7 +239,7 @@ def assert_no_injector(lm) -> None:
 
 
 def _ppl_ratio(new: float, ref: float) -> float:
-    """Mirror of ``fluency.ppl_ratio``'s guard, over a cached denominator."""
+    """Mirror of fluency.ppl_ratio's guard, over a cached denominator."""
     if not math.isfinite(ref) or ref <= 0:
         return float("inf")
     return new / ref
@@ -415,15 +298,10 @@ def gen_whole(
 
 def gen_chunked(sl, texts, spec, instruction, max_new_tokens,
                 shots=None, logits_processor=None, task=None):
-    """Sentence-by-sentence path. Inherently unbatched: each sentence's prompt
-    depends on the previous sentence's *output*.
-
-    Takes the same keywords as ``gen_whole`` so the dispatcher can hand both the
-    same arguments. ``task`` is accepted and ignored: chunked mode supplies its
-    own once there is rolling context. Accepting it explicitly is the point --
-    the previous signature took neither ``shots`` nor ``logits_processor``, so
-    the dispatcher dropped them and every chunked few-shot and easy-words run
-    silently measured plain ``unsteered``.
+    """Sentence-by-sentence path; each sentence's prompt depends on the
+    previous sentence's output, so it is inherently unbatched. Takes the
+    same keyword arguments as gen_whole so the dispatcher can hand both the
+    same call.
     """
     out: list[str | None] = [None] * len(texts)
     err: list[str | None] = [None] * len(texts)
@@ -450,34 +328,30 @@ def read_done(
     dict[tuple[str, str, int], float],
     int,
 ]:
-    """What each key on disk already holds, its source and gen_sec, and a bad-line
-    count.
+    """What each key on disk already holds, its source and gen_sec, and a
+    bad-line count.
     """
     done: dict[tuple[str, str, int], set[str] | None] = {}
     sources: dict[tuple[str, int], str] = {}
     secs: dict[tuple[str, str, int], float] = {}
     bad = 0
-    if not path.exists():
-        return done, sources, secs, bad
-    with path.open(encoding="utf-8") as fh:
-        for line in fh:
-            line = line.strip()
-            if not line:
-                continue
-            try:
-                row = json.loads(line)
-                key = (row["eval_set"], int(row["item_index"]))
-                done[(row["variant"], *key)] = row_metrics(row)
-                sources.setdefault(key, row.get("source") or "")
-                if isinstance(row.get("gen_sec"), (int, float)):
-                    secs[(row["variant"], *key)] = float(row["gen_sec"])
-            except Exception:
-                bad += 1
+    for n, row in jsonio.read_jsonl(path):
+        if row is None:
+            bad += 1
+            continue
+        try:
+            key = (row["eval_set"], int(row["item_index"]))
+            done[(row["variant"], *key)] = row_metrics(row)
+            sources.setdefault(key, row.get("source") or "")
+            if isinstance(row.get("gen_sec"), (int, float)):
+                secs[(row["variant"], *key)] = float(row["gen_sec"])
+        except Exception:
+            bad += 1
     return done, sources, secs, bad
 
 
 def row_metrics(row: dict) -> set[str] | None:
-    """The metric families a row carries; ``None`` for a captured failure."""
+    """The metric families a row carries; None for a captured failure."""
     if row.get("error"):
         return None
     return set(row.get("metrics") or ())
@@ -513,18 +387,13 @@ def read_rows(path: Path) -> tuple[list[dict], int]:
     """Rows for the aggregate, last row per key winning, plus how many it replaced."""
     latest: dict[tuple[str, str, int], dict] = {}
     superseded = 0
-    if not path.exists():
-        return [], superseded
-    with path.open(encoding="utf-8") as fh:
-        for line in fh:
-            line = line.strip()
-            if not line:
-                continue
-            with suppress(Exception):
-                row = json.loads(line)
-                key = (row["variant"], row["eval_set"], int(row["item_index"]))
-                superseded += key in latest
-                latest[key] = row
+    for n, row in jsonio.read_jsonl(path):
+        if row is None:
+            continue
+        with suppress(Exception):
+            key = (row["variant"], row["eval_set"], int(row["item_index"]))
+            superseded += key in latest
+            latest[key] = row
     return list(latest.values()), superseded
 
 
@@ -535,11 +404,6 @@ def summary_path_for(out: Path) -> Path:
     return out.parent / f"{stem}_summary.json"
 
 
-# The summary's inputs, named as ``pd.json_normalize`` flattens them. Listed
-# rather than discovered because a metric family that never ran leaves no column
-# behind at all -- the science set has no references and so carries no ``sari``
-# anywhere in the file -- and an absent metric has to report as ``None`` rather
-# than abort the whole aggregate with a KeyError.
 _AGG_COLUMNS = (
     "eval_set",
     "variant",
@@ -563,36 +427,18 @@ _AGG_COLUMNS = (
 
 
 def _label(col):
-    """A column that describes the cell rather than measuring it, from its first row.
-
-    Not ``GroupBy.first``, which skips missing values: a cell whose first row
-    carries no spec label would then be described by some later row's label
-    instead of reporting that it has none. NaN becomes ``None`` because the
-    summary is written with ``allow_nan=False``.
-    """
+    """First value in col, or None if it's missing/NaN."""
     value = col.iloc[0]
     return None if pd.isna(value) else value
 
 
 def _flags(col):
-    """*col* as pass/fail flags, a missing entry counting as a failure.
-
-    ``bool(nan)`` is ``True``. Left alone, an item that never ran the NLI gate
-    would be counted among the ones that passed it.
-    """
+    """col as pass/fail flags; a missing entry counts as a failure."""
     return [False if pd.isna(v) else v for v in col]
 
 
 def aggregate(rows: list[dict]) -> list[dict]:
-    """One summary row per (eval_set, variant) cell, in report order.
-
-    The reductions stay on ``jsonio.mean``/``jsonio.pct`` instead of moving to
-    ``DataFrame.mean``: this output is serialised for other tooling to read and
-    promises that a metric nothing could be computed for is ``null``, where
-    pandas gives a NaN that ``allow_nan=False`` then refuses -- and ``skipna``
-    drops only NaN, not the infinite perplexity ratio an empty generation
-    produces.
-    """
+    """One summary row per (eval_set, variant) cell, in report order."""
     if not rows:
         return []
 
@@ -644,20 +490,12 @@ def aggregate(rows: list[dict]) -> list[dict]:
                 "mean_sari": jsonio.mean(ok["sari.sari"]),
                 "pct_degenerate": jsonio.pct(_flags(ok["readability.degenerate"])),
                 "mean_gen_sec": jsonio.mean(ok["gen_sec"]),
-                # Wall clock attributable to this cell, summed from the rows, so it
-                # survives resume instead of resetting to zero on a skipped run.
-                # Over the whole cell and not just its scored part: an item that
-                # failed still cost the time it took to fail.
                 "gen_seconds_total": sum(group["gen_sec"].dropna()),
             }
         )
     return out
 
 
-# Terminal presentation only; the JSON summary is what other tooling opens, so
-# rich owns the widths now. The number formats are not free that way: they are
-# the precisions these columns have always been read at, and dFKGL keeps its
-# sign because the direction of the change is the entire point of the column.
 _COLUMNS = (
     ("eval_set", "eval_set", None),
     ("variant", "variant", None),
@@ -675,10 +513,6 @@ _COLUMNS = (
     ("gen_s", "gen_seconds_total", ".1f"),
 )
 
-# Fixed, and wider than the table needs at its longest variant name. This output
-# is routinely redirected, and a Console with no terminal to measure falls back
-# to 80 columns -- which rich honours by folding the table's own cells, so the
-# log would arrive unreadable rather than merely wide.
 _TABLE_WIDTH = 160
 
 
@@ -741,7 +575,6 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
     p.add_argument("--out", type=Path)
     p.add_argument("--skip-sari", action="store_true")
     p.add_argument("--skip-nli", action="store_true")
-    # Operational knobs; every default reproduces the full evaluation.
     p.add_argument(
         "--eval-sets",
         default=",".join(EVAL_SETS),
@@ -769,17 +602,10 @@ def parse_args(argv: list[str]) -> argparse.Namespace:
 
 
 class EvalRun:
-    """One invocation of the comparison: every chosen variant over every eval set.
-
-    Split into phases because they fail differently and the cheap failures have
-    to come first. Argument validation and the resume scan are milliseconds and
-    pure CPU; the vector banks are a filesystem check; the model is six
-    gigabytes and an MPS transfer. Being told "you have not built the vectors
-    yet" should not cost a model load, and being told "unknown variant" should
-    not cost anything at all.
-
-    The phase boundary is also where the run becomes resumable: ``__init__``
-    reads what is already on disk, and everything after it only adds rows.
+    """One invocation of the comparison: every chosen variant over every eval
+    set. Split into phases so cheap failures (bad args, missing banks) surface
+    before the model loads, and everything after __init__ only adds rows, so
+    the run is resumable.
     """
 
     def __init__(self, args: argparse.Namespace):
@@ -794,6 +620,7 @@ class EvalRun:
             self.needed_axes,
             needed_by=f"variants {[v.name for v in self.variants if v.needs_banks]}",
         )
+        self._check_unused()
 
         slug = args.model.split("/")[-1]
         self.out = args.out or (
@@ -817,11 +644,6 @@ class EvalRun:
             with suppress(Exception):
                 self.baselines = json.loads(self.baseline_cache_path.read_text())
             print(f"[resume] {len(self.baselines)} cached baseline output(s)")
-        # Baseline generation happens in its own phase, so its cost has to be
-        # carried over to the unsteered rows or the wall-clock column would
-        # report the floor variant as free. Not cached: a resumed row keeps the
-        # gen_sec it was written with, and only freshly generated baselines need
-        # attributing.
         self.baseline_secs: dict[str, float] = {}
 
         self.lm = None
@@ -836,8 +658,6 @@ class EvalRun:
         self.n_written = 0
         self.n_failed = 0
         self.interrupted = False
-
-    # -- argument resolution ------------------------------------------------
 
     def _choose_variants(self) -> list[Variant]:
         args = self.args
@@ -871,6 +691,23 @@ class EvalRun:
             die(f"--lora {args.lora} does not exist; train it with src/train_lora.py")
         return chosen
 
+    def _check_unused(self) -> None:
+        """Dials the chosen variants cannot act on."""
+        args = self.args
+        if (args.structural or args.lexical or args.layers_from) and not self.needed_axes:
+            print(
+                f"  [warn] --structural/--lexical/--layers-from given but none of "
+                f"the chosen variants {[v.name for v in self.variants]} steers "
+                f"(axes=()); ignored"
+            )
+        if args.lora and not any(v.adapter for v in self.variants):
+            print(
+                f"  [warn] --lora {args.lora} given but none of the chosen "
+                f"variants {[v.name for v in self.variants]} uses the adapter; "
+                f"ignored (the adapter still loads, since --lora also unlocks "
+                f"the lora variant names)"
+            )
+
     def _choose_eval_sets(self) -> list[str]:
         sets = [s.strip() for s in self.args.eval_sets.split(",") if s.strip()]
         bad = [s for s in sets if s not in EVAL_SETS]
@@ -878,15 +715,9 @@ class EvalRun:
             die(f"unknown eval set(s) {bad}; choose from {list(EVAL_SETS)}")
         return sets
 
-    # -- loading ------------------------------------------------------------
-
     def load(self) -> None:
         """Banks, then weights, then adapter. Cheapest failure first."""
         args = self.args
-        # Deliberately ahead of models.load: the banks are a filesystem check
-        # costing milliseconds, and "you have not built the vectors yet" is not
-        # worth waiting through six gigabytes of weights and an MPS transfer to
-        # be told.
         if self.needed_axes:
             try:
                 self.banks = load_banks(args.model, args.estimator)
@@ -900,10 +731,6 @@ class EvalRun:
                     f"--variants unsteered,prompted"
                 )
             for axis in self.needed_axes:
-                # Every layer the axis steers, not just its peak: a depth
-                # schedule reaches past the swept layer, and a band that runs
-                # off the end of the bank should say so here rather than at
-                # the first generate.
                 held = self.banks[axis].layers
                 missing = [
                     layer
@@ -916,9 +743,6 @@ class EvalRun:
                         f"layer(s) {missing}; it holds layers "
                         f"{held[0]}..{held[-1]}"
                     )
-        # What the loaded banks *are*, taken from their own metadata. config's
-        # ORTHOGONALIZE_AXES is build_vectors.py's default and says nothing
-        # about the file this run opened, so it is not recorded as if it did.
         self.bank_orth = {axis: b.orthogonalized for axis, b in self.banks.items()}
 
         print(f"\n[load] {args.model} on {config.DEVICE} ({config.DTYPE})")
@@ -986,8 +810,6 @@ class EvalRun:
         )
         print(f"[out]  {self.out}")
 
-    # -- generation ---------------------------------------------------------
-
     def _gen(self, mode, texts, spec, instruction, max_new, **kw):
         if mode == "whole":
             return gen_whole(
@@ -1005,12 +827,7 @@ class EvalRun:
         )
 
     def ensure_baselines(self, eval_set, mode, items, max_new) -> None:
-        """Fill any missing unsteered output for this (eval set, mode) pair.
-
-        The adapter is off here for the same reason it is off during scoring:
-        a baseline the adapter produced is not the floor the adapter is being
-        measured against.
-        """
+        """Fill any missing unsteered output for this (eval set, mode) pair."""
         keys = [f"{eval_set}|{mode}|{it.index}" for it in items]
         todo = [i for i, k in enumerate(keys) if k not in self.baselines]
         if not todo:
@@ -1041,17 +858,11 @@ class EvalRun:
         ]
 
     def outputs_for(self, variant, rv, mode, spec, eval_set, pending, max_new):
-        """``(texts, errors, seconds)`` for one variant over the pending items."""
-        # The unsteered variant *is* the baseline. Reusing it instead of
-        # regenerating saves a full pass and makes its own ppl_ratio exactly
-        # 1.0, which is a free self-consistency check on the row.
+        """(texts, errors, seconds) for one variant over the pending items."""
         if variant.name == "unsteered":
             keys = [f"{eval_set}|{mode}|{it.index}" for it in pending]
             outs = [self.baselines.get(k) for k in keys]
             errs = [None if o is not None else "baseline generation failed" for o in outs]
-            # Freshly generated baselines carry their real cost; a row being
-            # rewritten for a new metric keeps the cost recorded the first
-            # time, since the text was not generated again.
             secs = [
                 self.baseline_secs.get(
                     k, self.known_secs.get((rv, eval_set, it.index), 0.0)
@@ -1060,11 +871,6 @@ class EvalRun:
             ]
             return outs, errs, secs
 
-        # Both modes take these. The gate that used to restrict them to
-        # "whole" was the real cause of chunked few-shot and chunked
-        # easy-words silently measuring plain unsteered: plumbing the
-        # kwargs through gen_chunked was necessary but not sufficient,
-        # because the caller never put them in the dict.
         extra = {
             "shots": self.shots_by_set[eval_set][: variant.shots],
             "logits_processor": self.easy_bias if variant.easy_words else None,
@@ -1094,8 +900,6 @@ class EvalRun:
             "data_source": "lib.data",
             "spec": spec.as_dict(),
             "spec_label": spec.label(),
-            # From the banks this row actually steered with, not from config:
-            # an "_orth" filename is not evidence.
             "bank_orthogonalized": {a: self.bank_orth[a] for a in variant.axes},
             "instruction": variant.instruction,
             "adapter": str(self.args.lora) if variant.adapter else None,
@@ -1131,8 +935,6 @@ class EvalRun:
             except Exception as exc:
                 row["error"] = f"scoring: {type(exc).__name__}: {exc}"
         return row
-
-    # -- the run ------------------------------------------------------------
 
     def run(self) -> int:
         args = self.args
@@ -1209,15 +1011,8 @@ class EvalRun:
         )
 
         assert_no_injector(self.lm)
-        # Cache the baseline's perplexity per item: one variant's rows all
-        # share a denominator, and it is a full forward pass to compute.
         base_ppl: dict[str, float] = {}
 
-        # Scoring is the slow half -- an entailment pass and two perplexity
-        # passes per item -- and it used to print nothing between the generation
-        # lines and the variant's wall-clock line. The bar goes to stderr and is
-        # switched off when stderr is not a terminal, so a redirected run banks
-        # its rows in the log instead of one bar redraw per item.
         scoring = tables.progress(
             zip(pending, outs, errs, secs),
             total=len(pending),
@@ -1230,7 +1025,6 @@ class EvalRun:
             )
             if row["error"]:
                 self.n_failed += 1
-                # Through tqdm so the line does not land on top of the bar.
                 tables.write(f"      item {item.index} FAILED: {row['error']}")
             writer.write(row)
             self.done[(rv, eval_set, item.index)] = row_metrics(row)
@@ -1245,7 +1039,6 @@ class EvalRun:
             "model": args.model,
             "estimator": args.estimator,
             "data_source": "lib.data",
-            # Straight off the loaded banks' own metadata.
             "bank_orthogonalized": self.bank_orth,
             "n_requested": args.n,
             "lora": str(args.lora) if args.lora else None,
@@ -1258,8 +1051,6 @@ class EvalRun:
             "skip_nli": args.skip_nli,
             "skip_sari": args.skip_sari,
             "max_new_tokens": args.max_new_tokens,
-            # The requested value is a floor; science raises it. Record what
-            # each set actually generated under, not the request.
             "max_new_tokens_used": {
                 e: tokens_for(e, args.max_new_tokens) for e in self.eval_sets
             },
@@ -1284,10 +1075,6 @@ class EvalRun:
 
 def main(argv: list[str]) -> int:
     args = parse_args(argv)
-    # Redirected stdout is block-buffered, which is exactly wrong here: a run
-    # that takes hours and is expected to be killed would show no progress while
-    # it worked and would lose the whole buffer when it died. The JSONL rows are
-    # flushed per row for the same reason.
     with suppress(Exception):
         sys.stdout.reconfigure(line_buffering=True)
     torch.manual_seed(config.SEED)
@@ -1309,11 +1096,6 @@ def score_item(
     skip_sari: bool,
 ) -> dict:
     """Every metric for one output. No steering hooks are live in here."""
-    # Metrics run on the rewrite, not on the sentence announcing it. A preamble
-    # entails nothing, so it enters the faithfulness mean as a near zero and
-    # reports a deletion the model never made; it is also easy prose, so it
-    # lowers FKGL for free. Uniform across arms, and the raw text stays on the
-    # row so the edit is auditable.
     output = cleanup.strip_preamble(output)
     read = readability.measure(output)
     patch: dict = {"readability": read.as_dict()}
@@ -1324,8 +1106,6 @@ def score_item(
         patch["baseline_readability"] = base_read.as_dict()
         patch["deltas"] = readability.relative_deltas(base_read, read)
 
-    # conditional_ppl is the unsteered reference model by definition; see
-    # assert_no_injector, called once before this scoring phase begins.
     prompt = lm.build_prompt(item.source, None, None)
     ppl = fluency.conditional_ppl(lm, prompt, output)
     patch["ppl"] = ppl

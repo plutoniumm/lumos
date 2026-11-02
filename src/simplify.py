@@ -1,9 +1,6 @@
-"""Simplify text by activation steering, a LoRA adapter, few-shot demonstrations,
-a decode-time vocabulary constraint, or a composition of these -- with one
-composition refused outright. report.md is the reason there is more than one:
-on ASSET dSARI, lora beats steering +8.47*/+6.19* vs +0.43 ns/+2.02 ns
-(Llama/Gemma) and fewshot beats it too (+3.85*/+3.44*), so a product that only
-offered steering was not offering its own best-measured arm.
+"""Simplify text by activation steering, a LoRA adapter, few-shot
+demonstrations, a decode-time vocabulary constraint, or a composition of
+these.
 
     python src/simplify.py --text "..." --mechanism auto
     python src/simplify.py --text "..." --structural 0.75 --structural-layer 15
@@ -13,35 +10,10 @@ offered steering was not offering its own best-measured arm.
     python src/simplify.py --file in.txt --level grade4 --out out.txt --easy-words
     echo "..." | python src/simplify.py --level grade4
 
-This is the end-user entry point, so it is the one place in the project where
-being wrong has a cost outside a results table. The reader is a student who
-cannot check the simplification against the source -- that is why they asked for
-it. Handing them text that quietly dropped a clause or invented a fact is worse
-than handing them the original, so every rendering is checked for meaning
-preservation before it is printed, whatever dial the active mechanism has is
-walked back down and retried if the check fails, and the tool falls back to the
-plain prompted rewrite rather than shipping an unverified output. Failures are
-announced on stderr; they are never silent.
-
---mechanism (default auto) picks lora when an adapter for the active model is
-on disk, else structural steering -- see resolve_mechanism(). Name one or more
-of steering, lora, fewshot, none (the bare prompted instruction, no vector, no
-adapter) explicitly, joined by '+' (e.g. lora+steering). The one refusal:
-none+steering, because report.md's A/B 2 measures exactly that composition --
-the simplify instruction alongside vector injection -- as the single worst arm
-on both models (-13.50* SARI/66% degenerate on Llama, -12.76*/28% on Gemma).
---easy-words is a separate flag layered on top of any mechanism.
-
-stdout carries the simplified text and nothing else, in every mode -- including
-``--explain`` -- so the tool composes in a pipeline
-(``... | python src/simplify.py ... > out.txt`` lands exactly the rewrite in
-out.txt). Warnings, progress and ``--explain``'s diagnostics all go to stderr.
-
 Exit codes:
   0  a result was printed: from the active mechanism, a retry-ladder fallback
      (prompt-only, or the source returned unchanged), or a rejected rewrite
-     shown under --allow-unverified. All are legitimate outcomes of the
-     ladder; stderr says which one happened, so the exit code does not have to.
+     shown under --allow-unverified.
   1  the run raised before any result could be produced.
   2  a usage or configuration error the caller must fix: bad flags, no input,
      an unusable --mechanism (bad token, or none+steering), no --lora DIR and
@@ -71,20 +43,11 @@ from lib.metrics.faithfulness import faithfulness
 from lib.models import load
 from lib.steering import SteeredLM, SteeringSpec, load_banks
 
-# Shot selection is evaluate.py's, not reimplemented here -- a second copy of
-# "which demonstrations for which shape of input" is exactly the kind of
-# divergence lib/bench.py's docstring warns cost real bugs elsewhere.
 from src.evaluate import load_shots
 
-# Each retry multiplies whichever dial the mechanism has -- steering alpha,
-# LoRA's Adapter.scaled -- by this. 0.7 twice lands near half strength, which
-# is far enough to matter and close enough to still be a simplification.
 RETRY_SCALE = 0.7
 MAX_RETRIES = 2
 
-# readability.measure() scores an empty generation as fkgl 0.0 with
-# degenerate=False, i.e. a flawless grade-0 result. Anything this short is
-# rejected here instead.
 MIN_OUTPUT_WORDS = 6
 
 
@@ -123,18 +86,12 @@ class Dials:
 
 @dataclass(frozen=True)
 class Mechanism:
-    """Which arm(s) render the rewrite, resolved once before generation starts.
-
-    Composable rather than exclusive: report.md measures lora_plus_steered and
-    fewshot_plus_steered and finds they do not collide the way the prompted
-    instruction and steering do (A/B 2). That one collision is refused in
-    parse_mechanism rather than offered; everything else composes freely.
-    """
+    """Which arm(s) render the rewrite, resolved once before generation starts."""
 
     steering: bool = False
     lora: bool = False
     fewshot: bool = False
-    prompted: bool = False  # the bare "simplify" instruction; --mechanism none
+    prompted: bool = False
     easy_words: bool = False
     lora_dir: Path | None = None
     shots: int = 0
@@ -164,22 +121,15 @@ class Mechanism:
 
 
 def _same_model(a: str, b: str) -> bool:
-    """Same notion of "same model" config.base_task uses: exact id, or a
-    shared trailing path segment, so unsloth/... and meta-llama/... (byte-
-    identical shards, CLAUDE.md) or a resolved local models/ directory both
-    match the repo id that named them."""
+    """True if a and b name the same model: exact id, or a shared trailing
+    path segment.
+    """
     return a == b or a.rstrip("/").split("/")[-1] == b.rstrip("/").split("/")[-1]
 
 
 def find_lora_dir(repo: str) -> Path | None:
-    """The adapter under config.LORA_DIR trained on *repo*, headline arm preferred.
-
-    Several Llama adapters share a base model: asset_r16 is the plain-ASSET
-    adapter report.md's A/B 2 measures (+8.47* SARI); asset_ctrl_r16, both_r16
-    and onestop_r16* are ablations for A/B 6, 7 and 12 (control tokens, mixed
-    corpus, paragraph-length training). Only the headline adapter -- the one
-    train_lora.py wrote with no 'corpus' override -- is what auto-detection
-    should hand back; the ablations must be named with --lora DIR explicitly.
+    """The adapter under config.LORA_DIR trained on *repo*, headline adapter
+    preferred over ablations.
     """
     if not config.LORA_DIR.exists():
         return None
@@ -233,10 +183,8 @@ def parse_mechanism(raw: str) -> set[str]:
 
 
 def resolve_mechanism(args: argparse.Namespace, repo: str) -> Mechanism:
-    """--mechanism, resolved to what actually runs. See the module docstring."""
+    """Resolve --mechanism into the Mechanism that will actually run."""
     if args.mechanism == "auto":
-        # Explicit --lora overrides the scan, same as an explicit dial
-        # overrides a calibrated --level in resolve_dials below.
         lora_dir = args.lora or find_lora_dir(repo)
         if lora_dir is not None:
             warn(
@@ -270,17 +218,12 @@ def resolve_mechanism(args: argparse.Namespace, repo: str) -> Mechanism:
                 f"pass --lora DIR explicitly"
             )
     if mech.fewshot and mech.shots <= 0:
-        # 0 is "not overridden", not a request for zero demonstrations --
-        # --mechanism fewshot with no demos is a no-op fewshot arm.
         mech = replace(mech, shots=config.FEWSHOT_N)
     return _check_unused(args, mech)
 
 
 def _check_unused(args: argparse.Namespace, mech: "Mechanism") -> "Mechanism":
-    """Flags the resolved mechanism cannot act on. Shared by both paths above:
-    ``auto`` used to return before these ran, so ``--level`` under an
-    auto-resolved LoRA was accepted and then silently dropped.
-    """
+    """Flags the resolved mechanism cannot act on."""
     if args.lora and not mech.lora:
         warn(
             f"--lora {args.lora} given but --mechanism {args.mechanism!r} "
@@ -292,11 +235,6 @@ def _check_unused(args: argparse.Namespace, mech: "Mechanism") -> "Mechanism":
             f"has no 'fewshot'; ignored"
         )
     if args.level and not mech.steering:
-        # Refused rather than warned, because a reading level is the one flag
-        # here that states an *outcome*. src/calibrate.py maps a target grade to
-        # a steering alpha and to nothing else -- LoRA's strength dial was never
-        # calibrated against a grade -- so honouring --level under any other
-        # mechanism would mean ignoring the only thing the caller asked for.
         die(
             f"--level {args.level!r} is calibrated against steering alpha only, "
             f"and --mechanism {args.mechanism!r} resolved to "
@@ -392,19 +330,8 @@ def simplify(
     logits_processor,
     allow_unverified: bool = False,
 ) -> Result:
-    """Render ``text`` under ``mech``, backing off whichever dial it has until
-    the meaning check passes.
-
-    Steering (alpha) and LoRA (``Adapter.scaled``) are both dials and both get
-    walked down together when a mechanism composes them, e.g. lora+steering.
-    Few-shot and the easy-word bias have no dial -- generation is greedy
-    (``config.DO_SAMPLE`` is False), so retrying with nothing changed would
-    just reproduce the same output -- so a mechanism built only from those
-    goes straight to the prompt-only fallback after one attempt.
-
-    ``adapter.scoring()`` disables the adapter for ``_check`` regardless of
-    whether *mech* uses LoRA: see lib/adapters.py's docstring on why an arm
-    must never rate its own output.
+    """Render text under mech, backing off its dial(s) until the meaning
+    check passes, then fall back to the plain prompted rewrite.
     """
     attempts: list[Attempt] = []
     cur_dials = dials
@@ -438,10 +365,6 @@ def simplify(
         else:
             warn(f"attempt {i + 1} ({attempt.label}): {attempt.why()}")
 
-    # Every mechanism backs off to the same floor. The prompted rewrite is the
-    # baseline the whole project is measured against, so it is the right thing
-    # to fall back to -- but it gets checked too, and never with the adapter
-    # engaged (never fall back to a mechanism-altered string).
     with adapter.engaged(False):
         fallback = _render(
             steered,
@@ -490,7 +413,7 @@ def calibration_path(repo: str, estimator: str, override: Path | None) -> Path:
 def load_level(
     path: Path, level: str, repo: str, estimator: str
 ) -> tuple[dict, dict, dict]:
-    """``(alphas, layers, max_safe)`` for ``level`` from a calibration file."""
+    """(alphas, layers, max_safe) for level from a calibration file."""
     if not path.exists():
         die(
             f"no calibration file at {path}, so --level {level} cannot be "
@@ -516,8 +439,6 @@ def load_level(
         )
     status = entry.get("status")
     if status != "ok":
-        # Alphas exist but were not verified as the pair that ships, e.g. each
-        # axis calibrated alone. Usable, but the reading level is not guaranteed.
         warn(
             f"level {level!r} has calibration status {status!r}, not 'ok': "
             f"{entry.get('note', 'see ' + str(path))}"
@@ -542,7 +463,6 @@ def resolve_dials(
     layers: dict,
     max_safe: dict,
 ) -> Dials:
-    # Explicit dials override the level, one axis at a time.
     structural = (
         args.structural
         if args.structural is not None
@@ -558,20 +478,8 @@ def resolve_dials(
         layer = given if given is not None else layers.get(axis)
         if layer is None:
             if alpha == 0.0:
-                # alpha 0 is an exact no-op (lib/steering.py), so an axis
-                # nobody dialled in doesn't need a real layer either -- only a
-                # setting that actually steers does. 0 is a placeholder that
-                # every bank build_vectors.py produces covers (it estimates
-                # every layer by default); check_layer_coverage below only
-                # enforces coverage for axes actually in play.
                 layer = 0
             else:
-                # This used to default to the model's middle layer and print a
-                # warning. The middle layer was never swept or measured -- see
-                # report.md's layer sweep, which found the effect concentrated
-                # at L15 (Llama) / L31 (gemma-4), nowhere near the middle of
-                # either stack -- so guessing it produced a worse rewrite
-                # silently instead of refusing. Refusing is now the behaviour.
                 die(
                     f"no layer for the {axis} axis: pass --{axis}-layer, or "
                     f"run src/calibrate.py first to write a calibration file "
@@ -601,13 +509,7 @@ def resolve_dials(
 
 
 def check_layer_coverage(banks: dict, dials: Dials, estimator: str, repo: str) -> None:
-    """Fail before generation if a resolved layer isn't in its bank.
-
-    Same check as src/evaluate.py's EvalRun.load(): without it, a stale
-    calibration file or a hand-typed --structural-layer past what
-    build_vectors.py estimated surfaces three retries deep as a bare KeyError
-    from inside generate(), not as a message that says what to run.
-    """
+    """Fail before generation if a resolved layer isn't in its bank."""
     for axis, layer, alpha in (
         ("structural", dials.structural_layer, dials.structural),
         ("lexical", dials.lexical_layer, dials.lexical),
@@ -691,11 +593,6 @@ def run(args: argparse.Namespace) -> int:
     sentences = split_sentences(source)
     chunked = len(sentences) > 1 if args.mode == "auto" else args.mode == "chunked"
 
-    # Setup failures are resolved before the model load, which is the slow part:
-    # a missing calibration file, an unresolved layer, a missing bank, a bank
-    # that doesn't cover the requested layer, a missing adapter directory and a
-    # few-shot corpus that fails to load are all a file read, a dict lookup or
-    # (for few-shot) a small download -- not a six-gigabyte weight transfer.
     dials = Dials(0.0, 0.0, 0, 0)
     banks: dict = {}
     if mech.steering:
@@ -716,11 +613,6 @@ def run(args: argparse.Namespace) -> int:
 
     shots: list[tuple[str, str]] = []
     if mech.fewshot:
-        # Demonstrations have to match the input's shape (load_shots's
-        # docstring): chunked mode always renders one sentence at a time, and
-        # whole mode on a single-sentence input does too, so both take ASSET's
-        # sentence-to-sentence shots; a multi-sentence input rendered whole is
-        # rewritten as one passage, which is onestop's shape.
         shot_source = "asset" if chunked or len(sentences) == 1 else "onestop"
         try:
             shots = load_shots(mech.shots, shot_source)
@@ -774,16 +666,8 @@ def run(args: argparse.Namespace) -> int:
         print(result.text)
 
     if args.explain:
-        # Diagnostics, not the result -- stdout stays the rewrite and nothing
-        # else even in --explain mode, so a caller piping stdout never has to
-        # special-case this flag.
         print(explain(source, result, mech, dials, chunked), file=sys.stderr)
 
-    # Every branch of simplify() returns some text -- steered, the prompt-only
-    # fallback, the rejected best-effort under --allow-unverified, or the
-    # source unchanged -- so reaching here always means a result was produced.
-    # Which branch it was is on stderr (and in --explain), not in the exit
-    # code: see the module docstring for the three codes this tool uses.
     return 0
 
 

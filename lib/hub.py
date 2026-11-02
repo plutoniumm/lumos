@@ -44,7 +44,7 @@ class RemoteFile:
 @dataclass
 class Plan:
     repo_id: str
-    revision: str  # resolved commit sha, so a re-run is reproducible
+    revision: str
     dest: Path
     todo: list[RemoteFile]
     skipped: list[RemoteFile]
@@ -69,8 +69,6 @@ def plan_download(
             continue
         rf = RemoteFile(sib.rfilename, sib.size)
         local = dest / sib.rfilename
-        # Size match is the only cheap completeness check; aria2 leaves a
-        # .aria2 control file beside anything it has not finished.
         done = (
             local.exists()
             and rf.size is not None
@@ -83,8 +81,7 @@ def plan_download(
 
 
 def _write_aria_input(plan: Plan, token: str | None, workdir: Path) -> Path:
-    """aria2c input file. The auth header goes in here, not argv, so the token
-    never shows up in the process list."""
+    """aria2c input file; the auth header goes here rather than in argv."""
     lines: list[str] = []
     for rf in plan.todo:
         url = f"https://huggingface.co/{plan.repo_id}/resolve/{plan.revision}/{rf.name}"
@@ -112,8 +109,8 @@ def assert_access(repo_id: str, revision: str, probe_file: str) -> None:
         raise PermissionError(
             f"{repo_id}: HTTP {resp.status_code} fetching {probe_file}.\n"
             f"The repo is gated and this token has no grant "
-            f"({'no token found' if not token else 'token present but not authorised'}).\n"
-            f"Accept the license at https://huggingface.co/{repo_id} "
+            f"({'no token found' if not token else 'token present but not authorised'})"
+            f".\nAccept the license at https://huggingface.co/{repo_id} "
             f"or point config.py at an ungated mirror."
         )
 
@@ -160,7 +157,7 @@ def download(
             "--continue=true",
             "--auto-file-renaming=false",
             "--allow-overwrite=true",
-            "--file-allocation=none",  # APFS prealloc is slow and pointless here
+            "--file-allocation=none",
             "--console-log-level=warn",
             "--summary-interval=15",
             "--retry-wait=2",
@@ -174,12 +171,10 @@ def download(
             )
     finally:
         input_file.unlink(missing_ok=True)
-        # Remove the workdir too, not just the file inside it: an empty
-        # <dest>/.aria2/ left behind looks like an unfinished download.
         try:
             workdir.rmdir()
         except OSError:
-            pass  # not empty, or shared; leaving it is harmless
+            pass
 
     remaining = plan_download(repo_id, plan.dest, revision).todo
     if remaining:
@@ -205,14 +200,10 @@ def local_path(repo_id: str) -> Path:
 
 
 def is_complete(repo_id: str) -> tuple[bool, str]:
-    """Whether the local copy is safe to load. The .aria2 check matches files only,
-    since download() creates a .aria2 directory.
-    """
+    """Whether the local copy is safe to load."""
     p = local_path(repo_id)
     if not (p / "config.json").exists():
         return False, "no local copy"
-    # Must be files: download() puts its own workdir at <dest>/.aria2/, so a
-    # directory glob reports every completed download as still in progress.
     partial = sorted(f.name for f in p.rglob("*.aria2") if f.is_file())
     if partial:
         return False, f"download in progress: {', '.join(partial[:3])}"
@@ -225,7 +216,7 @@ def resolve(repo_id: str) -> str:
     """Path to a verified-complete local copy, else the hub id."""
     p = local_path(repo_id)
     if not (p / "config.json").exists():
-        return repo_id  # nothing local; let transformers fetch it
+        return repo_id
     ok, why = is_complete(repo_id)
     if not ok:
         raise RuntimeError(

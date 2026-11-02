@@ -84,12 +84,7 @@ class SteeringSpec:
         )
 
     def scaled(self, factor: float) -> "SteeringSpec":
-        """Same layers, every alpha multiplied.
-
-        The strength dial for a spec of any width. ``with_alpha`` sets one axis
-        to one number, which stops meaning anything once an axis spreads over a
-        band -- it would flatten the shape it was asked to dial.
-        """
+        """Same layers, every alpha multiplied."""
         return replace(
             self,
             settings=tuple(replace(s, alpha=s.alpha * factor) for s in self.settings),
@@ -253,8 +248,7 @@ class SteeredLM:
         kwargs = dict(
             max_new_tokens=max_new_tokens or config.MAX_NEW_TOKENS,
             do_sample=config.DO_SAMPLE,
-            # `or` would treat a pad id of 0 as missing, which is exactly
-            # gemma-3n's case (pad_token_id=0, eos_token_id=1).
+            # `or` would treat a pad id of 0 as missing (gemma-3n's case)
             pad_token_id=(
                 self.lm.tokenizer.eos_token_id
                 if self.lm.tokenizer.pad_token_id is None
@@ -280,12 +274,8 @@ class SteeredLM:
     ) -> str:
         """Sentence-by-sentence simplification of a passage, then rejoined.
 
-        ``shots`` and ``logits_processor`` are forwarded because the arms that
-        use them are otherwise silently disabled here: before they were plumbed
-        through, ``fewshot`` in chunked mode produced output byte-identical to
-        ``unsteered`` on 32 of 32 passages and reported it as a measurement.
-        ``task`` is deliberately NOT forwarded -- chunked mode sets its own
-        (``config.CHUNK_TASK``) once there is rolling context to carry.
+        ``shots``/``logits_processor`` are forwarded per sentence; ``task`` is not
+        -- chunked mode sets its own (``config.CHUNK_TASK``) once there is context.
         """
         n_ctx = (
             config.CHUNK_CONTEXT_SENTENCES
